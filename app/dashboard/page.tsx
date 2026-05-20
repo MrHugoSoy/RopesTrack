@@ -33,6 +33,9 @@ interface Alert {
   whatsapp_sent: boolean
 }
 
+const mono = 'var(--font-dm-mono)'
+const bebas = 'var(--font-bebas)'
+
 export default function DashboardPage() {
   const router = useRouter()
   const supabase = createClient()
@@ -62,14 +65,8 @@ export default function DashboardPage() {
     if (a) setAlerts(a)
   }
 
-  async function handleLogout() {
-    await supabase.auth.signOut()
-    router.push('/login')
-  }
-
   function getDaysUntil(dateStr: string) {
-    const diff = new Date(dateStr).getTime() - new Date().getTime()
-    return Math.ceil(diff / (1000 * 60 * 60 * 24))
+    return Math.ceil((new Date(dateStr).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
   }
 
   function getExpiryStatus(days: number) {
@@ -92,7 +89,7 @@ export default function DashboardPage() {
 
   if (loading) return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <span style={{ fontFamily: 'var(--font-dm-mono)', color: 'var(--text3)', letterSpacing: '2px', fontSize: '12px' }}>LOADING...</span>
+      <span style={{ fontFamily: mono, color: 'var(--text3)', letterSpacing: '2px', fontSize: '12px' }}>LOADING...</span>
     </div>
   )
 
@@ -110,8 +107,8 @@ export default function DashboardPage() {
         <div style={{
           width: '36px', height: '36px', background: 'var(--accent)',
           borderRadius: '4px', display: 'flex', alignItems: 'center',
-          justifyContent: 'center', marginBottom: '32px',
-        }}>
+          justifyContent: 'center', marginBottom: '32px', cursor: 'pointer',
+        }} onClick={() => router.push('/dashboard')}>
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
             <circle cx="10" cy="10" r="3" fill="#0d0f0e"/>
             <path d="M10 2 L10 7 M10 13 L10 18 M2 10 L7 10 M13 10 L18 10" stroke="#0d0f0e" strokeWidth="2" strokeLinecap="round"/>
@@ -120,12 +117,12 @@ export default function DashboardPage() {
         </div>
 
         {[
-          { icon: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z', label: 'Dashboard', active: true },
-          { icon: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z', label: 'Workers' },
-          { icon: 'M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5', label: 'Equipment' },
-          { icon: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M16 13H8M16 17H8', label: 'Reports' },
+          { icon: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z', path: '/dashboard', active: true },
+          { icon: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z', path: '/workers' },
+          { icon: 'M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5', path: '/equipment' },
+          { icon: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M16 13H8M16 17H8', path: '/reports' },
         ].map((item, i) => (
-          <div key={i} style={{
+          <div key={i} onClick={() => router.push(item.path)} style={{
             width: '40px', height: '40px',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             borderRadius: '8px', cursor: 'pointer', marginBottom: '4px',
@@ -144,8 +141,7 @@ export default function DashboardPage() {
         ))}
 
         <div style={{ flex: 1 }}/>
-        <div
-          onClick={handleLogout}
+        <div onClick={async () => { await supabase.auth.signOut(); router.push('/login') }}
           title="Logout"
           style={{
             width: '40px', height: '40px',
@@ -168,25 +164,22 @@ export default function DashboardPage() {
           position: 'sticky', top: 0, background: 'rgba(13,15,14,0.92)',
           backdropFilter: 'blur(8px)', zIndex: 50,
         }}>
-          <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '18px', letterSpacing: '3px', textTransform: 'uppercase' }}>RopesTrack</span>
+          <span style={{ fontFamily: mono, fontSize: '18px', letterSpacing: '3px', textTransform: 'uppercase' }}>RopesTrack</span>
           <div style={{ width: '1px', height: '20px', background: 'var(--border)' }}/>
-          <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: 'var(--text3)', letterSpacing: '2px', textTransform: 'uppercase' }}>IRATA Compliance Platform</span>
+          <span style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '2px', textTransform: 'uppercase' }}>IRATA Compliance Platform</span>
           <div style={{ marginLeft: 'auto', display: 'flex', gap: '12px', alignItems: 'center' }}>
             {openAlerts > 0 && (
               <span style={{
                 background: 'var(--danger)', color: '#fff',
-                fontFamily: 'var(--font-dm-mono)', fontSize: '10px',
+                fontFamily: mono, fontSize: '10px',
                 padding: '3px 8px', borderRadius: '2px', letterSpacing: '1px',
               }}>{openAlerts} ALERTS</span>
             )}
-            <button
-              onClick={handleLogout}
-              style={{
-                background: 'transparent', color: 'var(--text2)',
-                border: '1px solid var(--border2)', borderRadius: '4px',
-                padding: '7px 16px', fontFamily: 'var(--font-dm-mono)',
-                fontSize: '12px', cursor: 'pointer', letterSpacing: '0.5px',
-              }}>Logout</button>
+            <button onClick={() => router.push('/workers')} style={{
+              background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px',
+              padding: '7px 16px', fontFamily: mono, fontSize: '12px', fontWeight: '500',
+              letterSpacing: '1px', cursor: 'pointer',
+            }}>+ Add Worker</button>
           </div>
         </header>
 
@@ -211,9 +204,9 @@ export default function DashboardPage() {
                   position: 'absolute', top: 0, left: 0, right: 0, height: '2px',
                   background: kpi.status === 'ok' ? 'var(--accent2)' : kpi.status === 'danger' ? 'var(--danger)' : 'var(--warning)',
                 }}/>
-                <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '8px' }}>{kpi.label}</div>
+                <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '8px' }}>{kpi.label}</div>
                 <div style={{
-                  fontFamily: 'var(--font-bebas)', fontSize: '42px', lineHeight: 1, marginBottom: '4px',
+                  fontFamily: bebas, fontSize: '42px', lineHeight: 1, marginBottom: '4px',
                   color: kpi.status === 'ok' ? 'var(--accent2)' : kpi.status === 'danger' ? 'var(--danger)' : 'var(--warning)',
                 }}>{kpi.value}</div>
                 <div style={{ fontSize: '11px', color: 'var(--text3)' }}>{kpi.detail}</div>
@@ -227,16 +220,17 @@ export default function DashboardPage() {
             {/* WORKERS TABLE */}
             <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
               <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)' }}>Worker Certifications</span>
+                <span style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)' }}>Worker Certifications</span>
                 {criticalCount > 0 && (
-                  <span style={{ marginLeft: 'auto', fontFamily: 'var(--font-dm-mono)', fontSize: '10px', padding: '2px 8px', borderRadius: '2px', background: 'rgba(255,74,74,0.15)', color: 'var(--danger)', border: '1px solid rgba(255,74,74,0.3)' }}>
+                  <span style={{ marginLeft: 'auto', fontFamily: mono, fontSize: '10px', padding: '2px 8px', borderRadius: '2px', background: 'rgba(255,74,74,0.15)', color: 'var(--danger)', border: '1px solid rgba(255,74,74,0.3)' }}>
                     {criticalCount} EXPIRING
                   </span>
                 )}
               </div>
               {workers.length === 0 ? (
-                <div style={{ padding: '40px', textAlign: 'center', fontFamily: 'var(--font-dm-mono)', fontSize: '12px', color: 'var(--text3)' }}>
-                  No workers yet. Add your first worker.
+                <div style={{ padding: '40px', textAlign: 'center', fontFamily: mono, fontSize: '12px', color: 'var(--text3)' }}>
+                  No workers yet.{' '}
+                  <span onClick={() => router.push('/workers')} style={{ color: 'var(--accent)', cursor: 'pointer' }}>Add your first worker →</span>
                 </div>
               ) : (
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -252,11 +246,11 @@ export default function DashboardPage() {
                               <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: worker.is_active ? 'var(--accent2)' : 'var(--text3)', display: 'inline-block', marginRight: '6px' }}/>
                               {worker.name}
                             </div>
-                            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: 'var(--text3)' }}>{worker.irata_id}</div>
+                            <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)' }}>{worker.irata_id}</div>
                           </td>
                           <td style={{ padding: '12px 20px' }}>
                             <span style={{
-                              fontFamily: 'var(--font-dm-mono)', fontSize: '10px', padding: '3px 7px', borderRadius: '3px', fontWeight: 500,
+                              fontFamily: mono, fontSize: '10px', padding: '3px 7px', borderRadius: '3px', fontWeight: 500,
                               background: worker.level === 3 ? 'rgba(232,255,74,0.12)' : worker.level === 2 ? 'rgba(74,255,160,0.1)' : 'rgba(138,158,147,0.1)',
                               color: worker.level === 3 ? 'var(--accent)' : worker.level === 2 ? 'var(--accent2)' : 'var(--text2)',
                               border: `1px solid ${worker.level === 3 ? 'rgba(232,255,74,0.2)' : worker.level === 2 ? 'rgba(74,255,160,0.2)' : 'var(--border2)'}`,
@@ -264,13 +258,13 @@ export default function DashboardPage() {
                               L{worker.level} {worker.level === 3 ? 'SUPERVISOR' : worker.level === 2 ? 'TECHNICIAN' : 'OPERATIVE'}
                             </span>
                           </td>
-                          <td style={{ padding: '12px 20px', fontFamily: 'var(--font-dm-mono)', fontSize: '12px', color: status === 'critical' ? 'var(--danger)' : status === 'warning' ? 'var(--warning)' : 'var(--text2)' }}>
+                          <td style={{ padding: '12px 20px', fontFamily: mono, fontSize: '12px', color: status === 'critical' ? 'var(--danger)' : status === 'warning' ? 'var(--warning)' : 'var(--text2)' }}>
                             {cert ? new Date(cert.expiry_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
                           </td>
                           <td style={{ padding: '12px 20px' }}>
                             {days !== null && (
                               <span style={{
-                                fontFamily: 'var(--font-dm-mono)', fontSize: '10px', padding: '2px 7px', borderRadius: '2px',
+                                fontFamily: mono, fontSize: '10px', padding: '2px 7px', borderRadius: '2px',
                                 background: status === 'critical' ? 'rgba(255,74,74,0.15)' : status === 'warning' ? 'rgba(255,184,74,0.15)' : 'rgba(74,255,160,0.08)',
                                 color: status === 'critical' ? 'var(--danger)' : status === 'warning' ? 'var(--warning)' : 'var(--accent2)',
                               }}>{days}d</span>
@@ -287,15 +281,15 @@ export default function DashboardPage() {
             {/* ALERTS */}
             <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
               <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)' }}>Alert Feed</span>
+                <span style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)' }}>Alert Feed</span>
                 {openAlerts > 0 && (
-                  <span style={{ marginLeft: 'auto', fontFamily: 'var(--font-dm-mono)', fontSize: '10px', padding: '2px 8px', borderRadius: '2px', background: 'rgba(255,74,74,0.15)', color: 'var(--danger)', border: '1px solid rgba(255,74,74,0.3)' }}>
+                  <span style={{ marginLeft: 'auto', fontFamily: mono, fontSize: '10px', padding: '2px 8px', borderRadius: '2px', background: 'rgba(255,74,74,0.15)', color: 'var(--danger)', border: '1px solid rgba(255,74,74,0.3)' }}>
                     {openAlerts} NEW
                   </span>
                 )}
               </div>
               {alerts.length === 0 ? (
-                <div style={{ padding: '40px 20px', textAlign: 'center', fontFamily: 'var(--font-dm-mono)', fontSize: '12px', color: 'var(--text3)' }}>
+                <div style={{ padding: '40px 20px', textAlign: 'center', fontFamily: mono, fontSize: '12px', color: 'var(--text3)' }}>
                   No alerts yet.
                 </div>
               ) : (
@@ -314,7 +308,7 @@ export default function DashboardPage() {
                     </div>
                     <div>
                       <div style={{ fontSize: '12px', color: 'var(--text2)', lineHeight: 1.5, marginBottom: '3px' }}>{alert.message}</div>
-                      <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: 'var(--text3)' }}>
+                      <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)' }}>
                         {new Date(alert.created_at).toLocaleDateString()}
                         {alert.whatsapp_sent && <span style={{ color: '#25d366', marginLeft: '8px' }}>· WhatsApp ✓</span>}
                       </div>
@@ -328,16 +322,17 @@ export default function DashboardPage() {
           {/* EQUIPMENT */}
           <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
             <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center' }}>
-              <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)' }}>Equipment</span>
+              <span style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)' }}>Equipment</span>
               {equipmentDue > 0 && (
-                <span style={{ marginLeft: 'auto', fontFamily: 'var(--font-dm-mono)', fontSize: '10px', padding: '2px 8px', borderRadius: '2px', background: 'rgba(255,184,74,0.15)', color: 'var(--warning)', border: '1px solid rgba(255,184,74,0.3)' }}>
+                <span style={{ marginLeft: 'auto', fontFamily: mono, fontSize: '10px', padding: '2px 8px', borderRadius: '2px', background: 'rgba(255,184,74,0.15)', color: 'var(--warning)', border: '1px solid rgba(255,184,74,0.3)' }}>
                   {equipmentDue} DUE
                 </span>
               )}
             </div>
             {equipment.length === 0 ? (
-              <div style={{ padding: '40px', textAlign: 'center', fontFamily: 'var(--font-dm-mono)', fontSize: '12px', color: 'var(--text3)' }}>
-                No equipment registered yet.
+              <div style={{ padding: '40px', textAlign: 'center', fontFamily: mono, fontSize: '12px', color: 'var(--text3)' }}>
+                No equipment registered yet.{' '}
+                <span onClick={() => router.push('/equipment')} style={{ color: 'var(--accent)', cursor: 'pointer' }}>Add equipment →</span>
               </div>
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1px', background: 'var(--border)' }}>
@@ -347,13 +342,13 @@ export default function DashboardPage() {
                   const pct = days !== null ? Math.min(100, Math.max(0, (days / 365) * 100)) : 80
                   return (
                     <div key={eq.id} style={{ background: 'var(--surface)', padding: '16px 20px' }}>
-                      <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', textTransform: 'uppercase', letterSpacing: '2px', color: 'var(--text3)', marginBottom: '4px' }}>{eq.type}</div>
+                      <div style={{ fontFamily: mono, fontSize: '9px', textTransform: 'uppercase', letterSpacing: '2px', color: 'var(--text3)', marginBottom: '4px' }}>{eq.type}</div>
                       <div style={{ fontSize: '13px', fontWeight: 500, marginBottom: '2px' }}>{eq.name}</div>
-                      <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: 'var(--text3)', marginBottom: '10px' }}>SN: {eq.serial_number}</div>
+                      <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', marginBottom: '10px' }}>SN: {eq.serial_number}</div>
                       <div style={{ height: '3px', background: 'var(--border2)', borderRadius: '2px', marginBottom: '6px' }}>
                         <div style={{ height: '3px', borderRadius: '2px', width: `${pct}%`, background: status === 'critical' ? 'var(--danger)' : status === 'warning' ? 'var(--warning)' : 'var(--accent2)' }}/>
                       </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: 'var(--text3)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: mono, fontSize: '10px', color: 'var(--text3)' }}>
                         <span>{days !== null ? `${days}d to inspection` : eq.status}</span>
                         <span style={{ color: status === 'critical' ? 'var(--danger)' : status === 'warning' ? 'var(--warning)' : 'var(--accent2)' }}>
                           {status.toUpperCase()}
