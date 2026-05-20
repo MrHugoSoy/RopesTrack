@@ -30,6 +30,10 @@ export default function WorkersPage() {
   const [editForm, setEditForm] = useState({
     name: '', irata_id: '', level: 1, email: '', phone: '', is_active: true,
   })
+  const [renewingWorker, setRenewingWorker] = useState<Worker | null>(null)
+  const [renewForm, setRenewForm] = useState({
+    cert_issue: '', cert_expiry: '', cert_number: '',
+  })
   const [form, setForm] = useState({
     name: '', irata_id: '', level: 1,
     email: '', phone: '',
@@ -142,6 +146,35 @@ export default function WorkersPage() {
       .eq('id', editingWorker.id)
     if (error) { alert(error.message); setSaving(false); return }
     setEditingWorker(null)
+    setSaving(false)
+    await fetchWorkers()
+  }
+
+  async function handleRenew() {
+    if (!renewingWorker) return
+    setSaving(true)
+    const { error } = await supabase
+      .from('certifications')
+      .insert({
+        worker_id: renewingWorker.id,
+        org_id: (await supabase.from('profiles').select('org_id').eq('id', (await supabase.auth.getUser()).data.user!.id).single()).data?.org_id,
+        issue_date: renewForm.cert_issue,
+        expiry_date: renewForm.cert_expiry,
+        certificate_number: renewForm.cert_number,
+      })
+    if (error) { alert(error.message); setSaving(false); return }
+
+    const days = Math.ceil((new Date(renewForm.cert_expiry).getTime() - Date.now()) / 86400000)
+    if (days <= 30) {
+      await supabase.from('alerts').insert({
+        type: days <= 7 ? 'critical' : 'warning',
+        message: `${renewingWorker.name} IRATA L${renewingWorker.level} cert expires in ${days} days.`,
+        related_worker: renewingWorker.id,
+      })
+    }
+
+    setRenewingWorker(null)
+    setRenewForm({ cert_issue: '', cert_expiry: '', cert_number: '' })
     setSaving(false)
     await fetchWorkers()
   }
@@ -373,6 +406,51 @@ export default function WorkersPage() {
             </div>
           )}
 
+          {/* RENEW CERTIFICATION FORM */}
+          {renewingWorker && (
+            <div style={{
+              background: 'var(--surface)', border: '1px solid var(--border)',
+              borderRadius: '8px', padding: '24px', marginBottom: '24px',
+            }}>
+              <div style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)', marginBottom: '20px' }}>
+                Renew Certification — {renewingWorker.name}
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '16px' }}>
+                {[
+                  { label: 'Cert Issue Date', key: 'cert_issue', type: 'date' },
+                  { label: 'Cert Expiry Date', key: 'cert_expiry', type: 'date' },
+                  { label: 'Certificate Number', key: 'cert_number', type: 'text', placeholder: 'CERT-0001' },
+                ].map(field => (
+                  <div key={field.key}>
+                    <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px', textTransform: 'uppercase' }}>{field.label}</div>
+                    <input
+                      type={field.type}
+                      placeholder={field.placeholder || ''}
+                      value={(renewForm as any)[field.key]}
+                      onChange={e => setRenewForm(f => ({ ...f, [field.key]: e.target.value }))}
+                      style={{
+                        width: '100%', background: 'var(--surface2)', border: '1px solid var(--border2)',
+                        borderRadius: '4px', padding: '8px 12px', color: 'var(--text)',
+                        fontFamily: mono, fontSize: '12px', outline: 'none',
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button onClick={handleRenew} disabled={saving || !renewForm.cert_expiry} style={{
+                  background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px',
+                  padding: '8px 20px', fontFamily: mono, fontSize: '12px', fontWeight: '500',
+                  letterSpacing: '1px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1,
+                }}>{saving ? 'SAVING...' : 'RENEW CERTIFICATION'}</button>
+                <button onClick={() => setRenewingWorker(null)} style={{
+                  background: 'transparent', color: 'var(--text2)', border: '1px solid var(--border2)',
+                  borderRadius: '4px', padding: '8px 20px', fontFamily: mono, fontSize: '12px', cursor: 'pointer',
+                }}>Cancel</button>
+              </div>
+            </div>
+          )}
+
           {/* WORKERS TABLE */}
           <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
             <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)' }}>
@@ -447,6 +525,11 @@ export default function WorkersPage() {
                               borderRadius: '3px', padding: '3px 10px', fontFamily: mono, fontSize: '10px',
                               letterSpacing: '0.5px', cursor: 'pointer',
                             }}>Delete</button>
+                            <button onClick={() => setRenewingWorker(w)} style={{
+                              background: 'transparent', color: 'var(--accent)', border: '1px solid rgba(232,255,74,0.2)',
+                              borderRadius: '3px', padding: '3px 10px', fontFamily: mono, fontSize: '10px',
+                              letterSpacing: '0.5px', cursor: 'pointer',
+                            }}>Renew</button>
                           </div>
                         </td>
                       </tr>
