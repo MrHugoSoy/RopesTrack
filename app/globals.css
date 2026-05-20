@@ -34,3 +34,6 @@ input::placeholder {
 input {
   color: #e8ede9;
 }
+:root {
+  --font-bebas: 'Bebas Neue', sans-serif;
+}
