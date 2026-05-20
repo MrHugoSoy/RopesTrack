@@ -46,7 +46,17 @@ export default function EquipmentPage() {
 
   async function handleSave() {
     setSaving(true)
-    const { error } = await supabase.from('equipment').insert(form)
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('org_id')
+      .eq('id', (await supabase.auth.getUser()).data.user!.id)
+      .single()
+
+    const orgId = profile?.org_id
+    if (!orgId) { alert('No organization found'); setSaving(false); return }
+
+    const { error } = await supabase.from('equipment').insert({ ...form, org_id: orgId })
     if (error) { alert(error.message); setSaving(false); return }
 
     const days = form.next_inspection
@@ -57,6 +67,7 @@ export default function EquipmentPage() {
       await supabase.from('alerts').insert({
         type: days <= 7 ? 'critical' : 'warning',
         message: `Equipment ${form.name} (${form.serial_number}) inspection due in ${days} days.`,
+        org_id: orgId,
       })
     }
 

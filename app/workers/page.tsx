@@ -51,6 +51,16 @@ export default function WorkersPage() {
 
   async function handleSave() {
     setSaving(true)
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('org_id')
+      .eq('id', (await supabase.auth.getUser()).data.user!.id)
+      .single()
+
+    const orgId = profile?.org_id
+    if (!orgId) { alert('No organization found'); setSaving(false); return }
+
     const { data: worker, error } = await supabase
       .from('workers')
       .insert({
@@ -59,6 +69,7 @@ export default function WorkersPage() {
         level: form.level,
         email: form.email,
         phone: form.phone,
+        org_id: orgId,
       })
       .select()
       .single()
@@ -71,6 +82,7 @@ export default function WorkersPage() {
         issue_date: form.cert_issue || new Date().toISOString().split('T')[0],
         expiry_date: form.cert_expiry,
         certificate_number: form.cert_number,
+        org_id: orgId,
       })
     }
 
@@ -81,6 +93,7 @@ export default function WorkersPage() {
         type: days <= 7 ? 'critical' : 'warning',
         message: `${form.name} IRATA L${form.level} cert expires in ${days} days. Renewal required.`,
         related_worker: worker.id,
+        org_id: orgId,
       })
     }
 
