@@ -54,6 +54,7 @@ export default function DashboardPage() {
   const [alerts, setAlerts] = useState<Alert[]>([])
   const [loading, setLoading] = useState(true)
   const [org, setOrg] = useState<OrgProfile | null>(null)
+  const [userRole, setUserRole] = useState<string>('')
 
   useEffect(() => {
     async function init() {
@@ -76,6 +77,12 @@ export default function DashboardPage() {
     if (a) setAlerts(a)
     const { data: { user } } = await supabase.auth.getUser()
     if (user) {
+      const { data: roleProfile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+      if (roleProfile) setUserRole(roleProfile.role)
       const { data: profile } = await supabase
         .from('profiles')
         .select('org_id, role, organizations(name, slug, plan)')
@@ -196,11 +203,13 @@ export default function DashboardPage() {
                 padding: '3px 8px', borderRadius: '2px', letterSpacing: '1px',
               }}>{openAlerts} ALERTS</span>
             )}
-            <button onClick={() => router.push('/workers')} style={{
-              background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px',
-              padding: '7px 16px', fontFamily: mono, fontSize: '12px', fontWeight: '500',
-              letterSpacing: '1px', cursor: 'pointer',
-            }}>+ Add Worker</button>
+            {userRole !== 'viewer' && (
+              <button onClick={() => router.push('/workers')} style={{
+                background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px',
+                padding: '7px 16px', fontFamily: mono, fontSize: '12px', fontWeight: '500',
+                letterSpacing: '1px', cursor: 'pointer',
+              }}>+ Add Worker</button>
+            )}
           </div>
         </header>
 
