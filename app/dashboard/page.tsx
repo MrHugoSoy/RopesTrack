@@ -213,7 +213,7 @@ export default function DashboardPage() {
                 }}/>
                 <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '8px' }}>{kpi.label}</div>
                 <div style={{
-                  fontFamily: 'var(--font-dm-mono)', fontSize: '42px', lineHeight: 1, marginBottom: '4px',
+                  fontFamily: 'var(--font-bebas)', fontSize: '42px', lineHeight: 1, marginBottom: '4px',
                   color: kpi.status === 'ok' ? 'var(--accent2)' : kpi.status === 'danger' ? 'var(--danger)' : 'var(--warning)',
                 }}>{kpi.value}</div>
                 <div style={{ fontSize: '11px', color: 'var(--text3)' }}>{kpi.detail}</div>
