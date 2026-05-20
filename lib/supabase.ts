@@ -18,3 +18,15 @@ export async function getOrgId() {
     .single()
   return profile?.org_id ?? null
 }
+
+export async function getOrg() {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('org_id, role, organizations(name, slug, plan)')
+    .eq('id', user.id)
+    .single()
+  return profile ?? null
+}

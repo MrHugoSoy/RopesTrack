@@ -33,6 +33,16 @@ interface Alert {
   whatsapp_sent: boolean
 }
 
+interface OrgProfile {
+  org_id: string
+  role: string
+  organizations: {
+    name: string
+    slug: string
+    plan: string
+  }
+}
+
 const mono = 'var(--font-dm-mono)'
 const bebas = 'var(--font-bebas)'
 
@@ -43,6 +53,7 @@ export default function DashboardPage() {
   const [equipment, setEquipment] = useState<Equipment[]>([])
   const [alerts, setAlerts] = useState<Alert[]>([])
   const [loading, setLoading] = useState(true)
+  const [org, setOrg] = useState<OrgProfile | null>(null)
 
   useEffect(() => {
     async function init() {
@@ -63,6 +74,15 @@ export default function DashboardPage() {
     if (w) setWorkers(w)
     if (e) setEquipment(e)
     if (a) setAlerts(a)
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('org_id, role, organizations(name, slug, plan)')
+        .eq('id', user.id)
+        .single()
+      if (profile) setOrg(profile as unknown as OrgProfile)
+    }
   }
 
   function getDaysUntil(dateStr: string) {
@@ -166,7 +186,7 @@ export default function DashboardPage() {
         }}>
           <span style={{ fontFamily: mono, fontSize: '18px', letterSpacing: '3px', textTransform: 'uppercase' }}>RopesTrack</span>
           <div style={{ width: '1px', height: '20px', background: 'var(--border)' }}/>
-          <span style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '2px', textTransform: 'uppercase' }}>IRATA Compliance Platform</span>
+          <span style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '2px', textTransform: 'uppercase' }}>{org?.organizations?.name ?? 'IRATA Compliance Platform'}</span>
           <div style={{ marginLeft: 'auto', display: 'flex', gap: '12px', alignItems: 'center' }}>
             {openAlerts > 0 && (
               <span style={{
