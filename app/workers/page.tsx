@@ -26,6 +26,10 @@ export default function WorkersPage() {
   const [showForm, setShowForm] = useState(false)
   const [saving, setSaving] = useState(false)
   const [userRole, setUserRole] = useState<string>('')
+  const [editingWorker, setEditingWorker] = useState<Worker | null>(null)
+  const [editForm, setEditForm] = useState({
+    name: '', irata_id: '', level: 1, email: '', phone: '', is_active: true,
+  })
   const [form, setForm] = useState({
     name: '', irata_id: '', level: 1,
     email: '', phone: '',
@@ -107,6 +111,45 @@ export default function WorkersPage() {
     setForm({ name: '', irata_id: '', level: 1, email: '', phone: '', cert_issue: '', cert_expiry: '', cert_number: '' })
     setShowForm(false)
     setSaving(false)
+    await fetchWorkers()
+  }
+
+  async function handleEdit(worker: Worker) {
+    setEditingWorker(worker)
+    setEditForm({
+      name: worker.name,
+      irata_id: worker.irata_id,
+      level: worker.level,
+      email: worker.email || '',
+      phone: worker.phone || '',
+      is_active: worker.is_active,
+    })
+  }
+
+  async function handleUpdate() {
+    if (!editingWorker) return
+    setSaving(true)
+    const { error } = await supabase
+      .from('workers')
+      .update({
+        name: editForm.name,
+        irata_id: editForm.irata_id,
+        level: editForm.level,
+        email: editForm.email,
+        phone: editForm.phone,
+        is_active: editForm.is_active,
+      })
+      .eq('id', editingWorker.id)
+    if (error) { alert(error.message); setSaving(false); return }
+    setEditingWorker(null)
+    setSaving(false)
+    await fetchWorkers()
+  }
+
+  async function handleDelete(id: string) {
+    if (!confirm('Delete this worker? This cannot be undone.')) return
+    const { error } = await supabase.from('workers').delete().eq('id', id)
+    if (error) { alert(error.message); return }
     await fetchWorkers()
   }
 
@@ -253,6 +296,83 @@ export default function WorkersPage() {
             </div>
           )}
 
+          {/* EDIT WORKER FORM */}
+          {editingWorker && (
+            <div style={{
+              background: 'var(--surface)', border: '1px solid var(--border)',
+              borderRadius: '8px', padding: '24px', marginBottom: '24px',
+            }}>
+              <div style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)', marginBottom: '20px' }}>
+                Edit Worker
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '16px' }}>
+                {[
+                  { label: 'Full Name', key: 'name', placeholder: 'Carlos Mendoza' },
+                  { label: 'IRATA ID', key: 'irata_id', placeholder: 'IRT-MX-0001' },
+                  { label: 'Email', key: 'email', placeholder: 'carlos@company.com' },
+                  { label: 'Phone (WhatsApp)', key: 'phone', placeholder: '+52 477 000 0000' },
+                ].map(field => (
+                  <div key={field.key}>
+                    <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px', textTransform: 'uppercase' }}>{field.label}</div>
+                    <input
+                      type="text"
+                      placeholder={field.placeholder}
+                      value={(editForm as any)[field.key]}
+                      onChange={e => setEditForm(f => ({ ...f, [field.key]: e.target.value }))}
+                      style={{
+                        width: '100%', background: 'var(--surface2)', border: '1px solid var(--border2)',
+                        borderRadius: '4px', padding: '8px 12px', color: 'var(--text)',
+                        fontFamily: mono, fontSize: '12px', outline: 'none',
+                      }}
+                    />
+                  </div>
+                ))}
+                <div>
+                  <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px', textTransform: 'uppercase' }}>IRATA Level</div>
+                  <select
+                    value={editForm.level}
+                    onChange={e => setEditForm(f => ({ ...f, level: Number(e.target.value) }))}
+                    style={{
+                      width: '100%', background: 'var(--surface2)', border: '1px solid var(--border2)',
+                      borderRadius: '4px', padding: '8px 12px', color: 'var(--text)',
+                      fontFamily: mono, fontSize: '12px', outline: 'none',
+                    }}
+                  >
+                    <option value={1}>Level 1 — Operative</option>
+                    <option value={2}>Level 2 — Technician</option>
+                    <option value={3}>Level 3 — Supervisor</option>
+                  </select>
+                </div>
+                <div>
+                  <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px', textTransform: 'uppercase' }}>Status</div>
+                  <select
+                    value={editForm.is_active ? 'active' : 'inactive'}
+                    onChange={e => setEditForm(f => ({ ...f, is_active: e.target.value === 'active' }))}
+                    style={{
+                      width: '100%', background: 'var(--surface2)', border: '1px solid var(--border2)',
+                      borderRadius: '4px', padding: '8px 12px', color: 'var(--text)',
+                      fontFamily: mono, fontSize: '12px', outline: 'none',
+                    }}
+                  >
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button onClick={handleUpdate} disabled={saving || !editForm.name || !editForm.irata_id} style={{
+                  background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px',
+                  padding: '8px 20px', fontFamily: mono, fontSize: '12px', fontWeight: '500',
+                  letterSpacing: '1px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1,
+                }}>{saving ? 'SAVING...' : 'UPDATE WORKER'}</button>
+                <button onClick={() => setEditingWorker(null)} style={{
+                  background: 'transparent', color: 'var(--text2)', border: '1px solid var(--border2)',
+                  borderRadius: '4px', padding: '8px 20px', fontFamily: mono, fontSize: '12px', cursor: 'pointer',
+                }}>Cancel</button>
+              </div>
+            </div>
+          )}
+
           {/* WORKERS TABLE */}
           <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
             <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)' }}>
@@ -268,7 +388,7 @@ export default function WorkersPage() {
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                    {['Worker', 'IRATA Level', 'Cert Expiry', 'Days Left', 'Status'].map(h => (
+                    {['Worker', 'IRATA Level', 'Cert Expiry', 'Days Left', 'Status', 'Actions'].map(h => (
                       <th key={h} style={{ padding: '10px 20px', textAlign: 'left', fontFamily: mono, fontSize: '10px', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 400 }}>{h}</th>
                     ))}
                   </tr>
@@ -314,6 +434,20 @@ export default function WorkersPage() {
                           <span style={{ fontFamily: mono, fontSize: '10px', color: w.is_active ? 'var(--accent2)' : 'var(--text3)' }}>
                             {w.is_active ? '● ACTIVE' : '○ INACTIVE'}
                           </span>
+                        </td>
+                        <td style={{ padding: '14px 20px' }}>
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <button onClick={() => handleEdit(w)} style={{
+                              background: 'transparent', color: 'var(--accent2)', border: '1px solid rgba(74,255,160,0.2)',
+                              borderRadius: '3px', padding: '3px 10px', fontFamily: mono, fontSize: '10px',
+                              letterSpacing: '0.5px', cursor: 'pointer',
+                            }}>Edit</button>
+                            <button onClick={() => handleDelete(w.id)} style={{
+                              background: 'transparent', color: 'var(--danger)', border: '1px solid rgba(255,74,74,0.2)',
+                              borderRadius: '3px', padding: '3px 10px', fontFamily: mono, fontSize: '10px',
+                              letterSpacing: '0.5px', cursor: 'pointer',
+                            }}>Delete</button>
+                          </div>
                         </td>
                       </tr>
                     )
