@@ -25,6 +25,11 @@ export default function EquipmentPage() {
   const [showForm, setShowForm] = useState(false)
   const [saving, setSaving] = useState(false)
   const [userRole, setUserRole] = useState<string>('')
+  const [editingEquip, setEditingEquip] = useState<Equipment | null>(null)
+  const [editForm, setEditForm] = useState({
+    name: '', type: 'Harness', serial_number: '',
+    manufacture_date: '', last_inspection: '', next_inspection: '', status: 'active',
+  })
   const [form, setForm] = useState({
     name: '', type: 'Harness', serial_number: '',
     manufacture_date: '', last_inspection: '', next_inspection: '', status: 'active',
@@ -81,6 +86,39 @@ export default function EquipmentPage() {
     setForm({ name: '', type: 'Harness', serial_number: '', manufacture_date: '', last_inspection: '', next_inspection: '', status: 'active' })
     setShowForm(false)
     setSaving(false)
+    await fetchEquipment()
+  }
+
+  async function handleEdit(eq: Equipment) {
+    setEditingEquip(eq)
+    setEditForm({
+      name: eq.name,
+      type: eq.type,
+      serial_number: eq.serial_number,
+      manufacture_date: eq.manufacture_date || '',
+      last_inspection: eq.last_inspection || '',
+      next_inspection: eq.next_inspection || '',
+      status: eq.status,
+    })
+  }
+
+  async function handleUpdate() {
+    if (!editingEquip) return
+    setSaving(true)
+    const { error } = await supabase
+      .from('equipment')
+      .update(editForm)
+      .eq('id', editingEquip.id)
+    if (error) { alert(error.message); setSaving(false); return }
+    setEditingEquip(null)
+    setSaving(false)
+    await fetchEquipment()
+  }
+
+  async function handleDelete(id: string) {
+    if (!confirm('Delete this equipment? This cannot be undone.')) return
+    const { error } = await supabase.from('equipment').delete().eq('id', id)
+    if (error) { alert(error.message); return }
     await fetchEquipment()
   }
 
@@ -225,6 +263,66 @@ export default function EquipmentPage() {
             </div>
           )}
 
+          {/* EDIT EQUIPMENT FORM */}
+          {editingEquip && (
+            <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', padding: '24px', marginBottom: '24px' }}>
+              <div style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)', marginBottom: '20px' }}>Edit Equipment</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '16px' }}>
+                {[
+                  { label: 'Name', key: 'name', placeholder: 'Petzl Avao Bod Fast' },
+                  { label: 'Serial Number', key: 'serial_number', placeholder: 'HAR-001' },
+                  { label: 'Manufacture Date', key: 'manufacture_date', type: 'date' },
+                  { label: 'Last Inspection', key: 'last_inspection', type: 'date' },
+                  { label: 'Next Inspection', key: 'next_inspection', type: 'date' },
+                ].map(field => (
+                  <div key={field.key}>
+                    <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px', textTransform: 'uppercase' }}>{field.label}</div>
+                    <input
+                      type={field.type || 'text'}
+                      placeholder={field.placeholder || ''}
+                      value={(editForm as any)[field.key]}
+                      onChange={e => setEditForm(f => ({ ...f, [field.key]: e.target.value }))}
+                      style={{
+                        width: '100%', background: 'var(--surface2)', border: '1px solid var(--border2)',
+                        borderRadius: '4px', padding: '8px 12px', color: 'var(--text)',
+                        fontFamily: mono, fontSize: '12px', outline: 'none',
+                      }}
+                    />
+                  </div>
+                ))}
+                <div>
+                  <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px', textTransform: 'uppercase' }}>Type</div>
+                  <select value={editForm.type} onChange={e => setEditForm(f => ({ ...f, type: e.target.value }))}
+                    style={{ width: '100%', background: 'var(--surface2)', border: '1px solid var(--border2)', borderRadius: '4px', padding: '8px 12px', color: 'var(--text)', fontFamily: mono, fontSize: '12px', outline: 'none' }}>
+                    {['Harness', 'Rope', 'Descender', 'Ascender', 'Anchor', 'Helmet', 'Lanyard', 'Other'].map(t => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px', textTransform: 'uppercase' }}>Status</div>
+                  <select value={editForm.status} onChange={e => setEditForm(f => ({ ...f, status: e.target.value }))}
+                    style={{ width: '100%', background: 'var(--surface2)', border: '1px solid var(--border2)', borderRadius: '4px', padding: '8px 12px', color: 'var(--text)', fontFamily: mono, fontSize: '12px', outline: 'none' }}>
+                    <option value="active">Active</option>
+                    <option value="inspection_required">Inspection Required</option>
+                    <option value="retired">Retired</option>
+                  </select>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button onClick={handleUpdate} disabled={saving || !editForm.name || !editForm.serial_number} style={{
+                  background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px',
+                  padding: '8px 20px', fontFamily: mono, fontSize: '12px', fontWeight: '500',
+                  letterSpacing: '1px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1,
+                }}>{saving ? 'SAVING...' : 'UPDATE EQUIPMENT'}</button>
+                <button onClick={() => setEditingEquip(null)} style={{
+                  background: 'transparent', color: 'var(--text2)', border: '1px solid var(--border2)',
+                  borderRadius: '4px', padding: '8px 20px', fontFamily: mono, fontSize: '12px', cursor: 'pointer',
+                }}>Cancel</button>
+              </div>
+            </div>
+          )}
+
           {/* TABLE */}
           <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
             <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)' }}>
@@ -240,7 +338,7 @@ export default function EquipmentPage() {
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                    {['Equipment', 'Type', 'Serial', 'Last Inspection', 'Next Inspection', 'Status'].map(h => (
+                    {['Equipment', 'Type', 'Serial', 'Last Inspection', 'Next Inspection', 'Status', 'Actions'].map(h => (
                       <th key={h} style={{ padding: '10px 20px', textAlign: 'left', fontFamily: mono, fontSize: '10px', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 400 }}>{h}</th>
                     ))}
                   </tr>
@@ -272,6 +370,20 @@ export default function EquipmentPage() {
                           }}>
                             {s.toUpperCase()}
                           </span>
+                        </td>
+                        <td style={{ padding: '14px 20px' }}>
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <button onClick={() => handleEdit(eq)} style={{
+                              background: 'transparent', color: 'var(--accent2)', border: '1px solid rgba(74,255,160,0.2)',
+                              borderRadius: '3px', padding: '3px 10px', fontFamily: mono, fontSize: '10px',
+                              letterSpacing: '0.5px', cursor: 'pointer',
+                            }}>Edit</button>
+                            <button onClick={() => handleDelete(eq.id)} style={{
+                              background: 'transparent', color: 'var(--danger)', border: '1px solid rgba(255,74,74,0.2)',
+                              borderRadius: '3px', padding: '3px 10px', fontFamily: mono, fontSize: '10px',
+                              letterSpacing: '0.5px', cursor: 'pointer',
+                            }}>Delete</button>
+                          </div>
                         </td>
                       </tr>
                     )
