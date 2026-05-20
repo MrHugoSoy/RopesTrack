@@ -24,6 +24,7 @@ export default function EquipmentPage() {
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [userRole, setUserRole] = useState<string>('')
   const [form, setForm] = useState({
     name: '', type: 'Harness', serial_number: '',
     manufacture_date: '', last_inspection: '', next_inspection: '', status: 'active',
@@ -33,6 +34,12 @@ export default function EquipmentPage() {
     async function init() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/login'); return }
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+      if (profile) setUserRole(profile.role)
       await fetchEquipment()
       setLoading(false)
     }
@@ -146,11 +153,13 @@ export default function EquipmentPage() {
         }}>
           <span style={{ fontFamily: mono, fontSize: '18px', letterSpacing: '3px', textTransform: 'uppercase' }}>Equipment</span>
           <div style={{ marginLeft: 'auto' }}>
-            <button onClick={() => setShowForm(true)} style={{
-              background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px',
-              padding: '7px 16px', fontFamily: mono, fontSize: '12px', fontWeight: '500',
-              letterSpacing: '1px', cursor: 'pointer',
-            }}>+ Add Equipment</button>
+            {userRole !== 'viewer' && (
+              <button onClick={() => setShowForm(true)} style={{
+                background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px',
+                padding: '7px 16px', fontFamily: mono, fontSize: '12px', fontWeight: '500',
+                letterSpacing: '1px', cursor: 'pointer',
+              }}>+ Add Equipment</button>
+            )}
           </div>
         </header>
 

@@ -25,6 +25,7 @@ export default function WorkersPage() {
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [userRole, setUserRole] = useState<string>('')
   const [form, setForm] = useState({
     name: '', irata_id: '', level: 1,
     email: '', phone: '',
@@ -35,6 +36,12 @@ export default function WorkersPage() {
     async function init() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/login'); return }
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+      if (profile) setUserRole(profile.role)
       await fetchWorkers()
       setLoading(false)
     }
@@ -169,11 +176,13 @@ export default function WorkersPage() {
         }}>
           <span style={{ fontFamily: mono, fontSize: '18px', letterSpacing: '3px', textTransform: 'uppercase' }}>Workers</span>
           <div style={{ marginLeft: 'auto' }}>
-            <button onClick={() => setShowForm(true)} style={{
-              background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px',
-              padding: '7px 16px', fontFamily: mono, fontSize: '12px', fontWeight: '500',
-              letterSpacing: '1px', cursor: 'pointer',
-            }}>+ Add Worker</button>
+            {userRole !== 'viewer' && (
+              <button onClick={() => setShowForm(true)} style={{
+                background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px',
+                padding: '7px 16px', fontFamily: mono, fontSize: '12px', fontWeight: '500',
+                letterSpacing: '1px', cursor: 'pointer',
+              }}>+ Add Worker</button>
+            )}
           </div>
         </header>
 
