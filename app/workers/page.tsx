@@ -252,14 +252,14 @@ export default function WorkersPage() {
           display: 'flex', alignItems: 'center', padding: '0 28px', gap: '16px',
           position: 'sticky', top: 0, background: 'rgba(13,15,14,0.92)', backdropFilter: 'blur(8px)', zIndex: 50,
         }}>
-          <span style={{ fontFamily: mono, fontSize: '18px', letterSpacing: '3px', textTransform: 'uppercase' }}>Workers</span>
+          <span style={{ fontFamily: mono, fontSize: '18px', letterSpacing: '3px', textTransform: 'uppercase' }}>Workers — Trabajadores</span>
           <div style={{ marginLeft: 'auto' }}>
             {userRole !== 'viewer' && (
               <button onClick={() => setShowForm(true)} style={{
                 background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px',
                 padding: '7px 16px', fontFamily: mono, fontSize: '12px', fontWeight: '500',
                 letterSpacing: '1px', cursor: 'pointer',
-              }}>+ Add Worker</button>
+              }}>+ Add Worker — Trabajador</button>
             )}
           </div>
         </header>
@@ -273,7 +273,7 @@ export default function WorkersPage() {
               borderRadius: '8px', padding: '24px', marginBottom: '24px',
             }}>
               <div style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)', marginBottom: '20px' }}>
-                New Worker
+                New Worker — Nuevo Trabajador
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '16px' }}>
                 {[
@@ -322,11 +322,11 @@ export default function WorkersPage() {
                   background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px',
                   padding: '8px 20px', fontFamily: mono, fontSize: '12px', fontWeight: '500',
                   letterSpacing: '1px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1,
-                }}>{saving ? 'SAVING...' : 'SAVE WORKER'}</button>
+                }}>{saving ? 'SAVING...' : 'SAVE WORKER — GUARDAR'}</button>
                 <button onClick={() => setShowForm(false)} style={{
                   background: 'transparent', color: 'var(--text2)', border: '1px solid var(--border2)',
                   borderRadius: '4px', padding: '8px 20px', fontFamily: mono, fontSize: '12px', cursor: 'pointer',
-                }}>Cancel</button>
+                }}>Cancel — Cancelar</button>
               </div>
             </div>
           )}
@@ -338,7 +338,7 @@ export default function WorkersPage() {
               borderRadius: '8px', padding: '24px', marginBottom: '24px',
             }}>
               <div style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)', marginBottom: '20px' }}>
-                Edit Worker
+                Edit Worker — Editar Trabajador
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '16px' }}>
                 {[
@@ -399,11 +399,11 @@ export default function WorkersPage() {
                   background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px',
                   padding: '8px 20px', fontFamily: mono, fontSize: '12px', fontWeight: '500',
                   letterSpacing: '1px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1,
-                }}>{saving ? 'SAVING...' : 'UPDATE WORKER'}</button>
+                }}>{saving ? 'SAVING...' : 'UPDATE WORKER — ACTUALIZAR'}</button>
                 <button onClick={() => setEditingWorker(null)} style={{
                   background: 'transparent', color: 'var(--text2)', border: '1px solid var(--border2)',
                   borderRadius: '4px', padding: '8px 20px', fontFamily: mono, fontSize: '12px', cursor: 'pointer',
-                }}>Cancel</button>
+                }}>Cancel — Cancelar</button>
               </div>
             </div>
           )}
@@ -415,7 +415,7 @@ export default function WorkersPage() {
               borderRadius: '8px', padding: '24px', marginBottom: '24px',
             }}>
               <div style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)', marginBottom: '20px' }}>
-                Renew Certification — {renewingWorker.name}
+                Renew Certification — Renovar Cert. · {renewingWorker.name}
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '16px' }}>
                 {[
@@ -444,11 +444,11 @@ export default function WorkersPage() {
                   background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px',
                   padding: '8px 20px', fontFamily: mono, fontSize: '12px', fontWeight: '500',
                   letterSpacing: '1px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1,
-                }}>{saving ? 'SAVING...' : 'RENEW CERTIFICATION'}</button>
+                }}>{saving ? 'SAVING...' : 'RENEW CERTIFICATION — RENOVAR'}</button>
                 <button onClick={() => setRenewingWorker(null)} style={{
                   background: 'transparent', color: 'var(--text2)', border: '1px solid var(--border2)',
                   borderRadius: '4px', padding: '8px 20px', fontFamily: mono, fontSize: '12px', cursor: 'pointer',
-                }}>Cancel</button>
+                }}>Cancel — Cancelar</button>
               </div>
             </div>
           )}
@@ -457,7 +457,7 @@ export default function WorkersPage() {
           <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
             <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)' }}>
               <span style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)' }}>
-                {workers.length} Workers Registered
+                {workers.length} Workers Registered — Trabajadores
               </span>
             </div>
             {workers.length === 0 ? (
@@ -468,7 +468,7 @@ export default function WorkersPage() {
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                    {['Worker', 'IRATA Level', 'Cert Expiry', 'Days Left', 'Status', 'Actions'].map(h => (
+                    {['Worker — Trabajador', 'IRATA Level — Nivel', 'Cert Expiry — Venc.', 'Days Left — Días', 'Status — Estado', 'Actions — Acciones'].map(h => (
                       <th key={h} style={{ padding: '10px 20px', textAlign: 'left', fontFamily: mono, fontSize: '10px', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 400 }}>{h}</th>
                     ))}
                   </tr>
@@ -495,7 +495,7 @@ export default function WorkersPage() {
                             color: w.level === 3 ? 'var(--accent)' : w.level === 2 ? 'var(--accent2)' : 'var(--text2)',
                             border: `1px solid ${w.level === 3 ? 'rgba(232,255,74,0.2)' : w.level === 2 ? 'rgba(74,255,160,0.2)' : 'var(--border2)'}`,
                           }}>
-                            L{w.level} {w.level === 3 ? 'SUPERVISOR' : w.level === 2 ? 'TECHNICIAN' : 'OPERATIVE'}
+                            L{w.level} {w.level === 3 ? 'SUPERVISOR' : w.level === 2 ? 'TECHNICIAN — TÉCNICO' : 'OPERATIVE — OPERATIVO'}
                           </span>
                         </td>
                         <td style={{ padding: '14px 20px', fontFamily: mono, fontSize: '12px', color: status === 'critical' ? 'var(--danger)' : status === 'warning' ? 'var(--warning)' : 'var(--text2)' }}>
@@ -512,7 +512,7 @@ export default function WorkersPage() {
                         </td>
                         <td style={{ padding: '14px 20px' }}>
                           <span style={{ fontFamily: mono, fontSize: '10px', color: w.is_active ? 'var(--accent2)' : 'var(--text3)' }}>
-                            {w.is_active ? '● ACTIVE' : '○ INACTIVE'}
+                            {w.is_active ? '● ACTIVE — ACTIVO' : '○ INACTIVE — INACTIVO'}
                           </span>
                         </td>
                         <td style={{ padding: '14px 20px' }}>
@@ -521,17 +521,17 @@ export default function WorkersPage() {
                               background: 'transparent', color: 'var(--accent2)', border: '1px solid rgba(74,255,160,0.2)',
                               borderRadius: '3px', padding: '3px 10px', fontFamily: mono, fontSize: '10px',
                               letterSpacing: '0.5px', cursor: 'pointer',
-                            }}>Edit</button>
+                            }}>Edit — Editar</button>
                             <button onClick={() => handleDelete(w.id)} style={{
                               background: 'transparent', color: 'var(--danger)', border: '1px solid rgba(255,74,74,0.2)',
                               borderRadius: '3px', padding: '3px 10px', fontFamily: mono, fontSize: '10px',
                               letterSpacing: '0.5px', cursor: 'pointer',
-                            }}>Delete</button>
+                            }}>Delete — Eliminar</button>
                             <button onClick={() => setRenewingWorker(w)} style={{
                               background: 'transparent', color: 'var(--accent)', border: '1px solid rgba(232,255,74,0.2)',
                               borderRadius: '3px', padding: '3px 10px', fontFamily: mono, fontSize: '10px',
                               letterSpacing: '0.5px', cursor: 'pointer',
-                            }}>Renew</button>
+                            }}>Renew — Renovar</button>
                           </div>
                         </td>
                       </tr>

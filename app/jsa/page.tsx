@@ -146,6 +146,13 @@ export default function JSAPage() {
     setSelectedWorkers(prev => prev.includes(id) ? prev.filter(w => w !== id) : [...prev, id])
   }
 
+  const statusLabel: Record<string, string> = {
+    draft: 'DRAFT — BORRADOR',
+    active: 'ACTIVE — ACTIVO',
+    completed: 'COMPLETED — COMPLETADO',
+    cancelled: 'CANCELLED — CANCELADO',
+  }
+
   function statusChip(status: string) {
     const map: Record<string, { color: string; bg: string; border: string }> = {
       draft:     { color: 'var(--text3)',   bg: 'rgba(138,158,147,0.1)',  border: 'var(--border2)' },
@@ -159,7 +166,7 @@ export default function JSAPage() {
         fontFamily: mono, fontSize: '10px', padding: '3px 8px', borderRadius: '3px', fontWeight: 500,
         color: s.color, background: s.bg, border: `1px solid ${s.border}`,
       }}>
-        {status.toUpperCase()}
+        {statusLabel[status] ?? status.toUpperCase()}
       </span>
     )
   }
@@ -231,13 +238,13 @@ export default function JSAPage() {
           display: 'flex', alignItems: 'center', padding: '0 28px',
           position: 'sticky', top: 0, background: 'rgba(13,15,14,0.92)', backdropFilter: 'blur(8px)', zIndex: 50,
         }}>
-          <span style={{ fontFamily: mono, fontSize: '18px', letterSpacing: '3px', textTransform: 'uppercase' }}>JSA</span>
+          <span style={{ fontFamily: mono, fontSize: '18px', letterSpacing: '3px', textTransform: 'uppercase' }}>JSA — Análisis de Seguridad</span>
           <div style={{ marginLeft: 'auto' }}>
             <button onClick={() => setShowForm(true)} style={{
               background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px',
               padding: '7px 16px', fontFamily: mono, fontSize: '12px', fontWeight: '500',
               letterSpacing: '1px', cursor: 'pointer',
-            }}>+ New JSA</button>
+            }}>+ New JSA — Nueva JSA</button>
           </div>
         </header>
 
@@ -246,7 +253,7 @@ export default function JSAPage() {
           {/* NEW JSA FORM */}
           {showForm && (
             <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', padding: '24px', marginBottom: '24px' }}>
-              <div style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)', marginBottom: '20px' }}>New JSA</div>
+              <div style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)', marginBottom: '20px' }}>New JSA — Nueva JSA</div>
 
               {/* Base fields */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '20px' }}>
@@ -284,7 +291,7 @@ export default function JSAPage() {
 
               {/* Workers */}
               <div style={{ marginBottom: '20px' }}>
-                <div style={{ ...labelStyle, marginBottom: '10px' }}>Assigned Workers</div>
+                <div style={{ ...labelStyle, marginBottom: '10px' }}>Assigned Workers — Trabajadores</div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                   {workers.map(w => (
                     <label key={w.id} style={{
@@ -319,7 +326,7 @@ export default function JSAPage() {
                 {tasks.length > 0 && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 28px', gap: '8px' }}>
-                      {['Task', 'Risks', 'Controls'].map(h => (
+                      {['Task — Tarea', 'Risks — Riesgos', 'Controls — Controles'].map(h => (
                         <div key={h} style={labelStyle}>{h}</div>
                       ))}
                       <div/>
@@ -350,11 +357,11 @@ export default function JSAPage() {
                   background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px',
                   padding: '8px 20px', fontFamily: mono, fontSize: '12px', fontWeight: '500',
                   letterSpacing: '1px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1,
-                }}>{saving ? 'SAVING...' : 'SAVE JSA'}</button>
+                }}>{saving ? 'SAVING...' : 'SAVE JSA — GUARDAR'}</button>
                 <button onClick={() => { setShowForm(false); setTasks([]); setSelectedWorkers([]) }} style={{
                   background: 'transparent', color: 'var(--text2)', border: '1px solid var(--border2)',
                   borderRadius: '4px', padding: '8px 20px', fontFamily: mono, fontSize: '12px', cursor: 'pointer',
-                }}>Cancel</button>
+                }}>Cancel — Cancelar</button>
               </div>
             </div>
           )}
@@ -374,7 +381,7 @@ export default function JSAPage() {
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                    {['Title', 'Location', 'Date', 'Supervisor', 'Workers', 'Tasks', 'Status', 'Actions'].map(h => (
+                    {['Title — Título', 'Location — Ubicación', 'Date — Fecha', 'Supervisor', 'Workers — Trabajadores', 'Tasks — Tareas', 'Status — Estado', 'Actions — Acciones'].map(h => (
                       <th key={h} style={{ padding: '10px 20px', textAlign: 'left', fontFamily: mono, fontSize: '10px', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 400 }}>{h}</th>
                     ))}
                   </tr>
@@ -413,10 +420,10 @@ export default function JSAPage() {
                             fontFamily: mono, fontSize: '10px', cursor: 'pointer', outline: 'none',
                           }}
                         >
-                          <option value="draft">Draft</option>
-                          <option value="active">Active</option>
-                          <option value="completed">Completed</option>
-                          <option value="cancelled">Cancelled</option>
+                          <option value="draft">Draft — Borrador</option>
+                          <option value="active">Active — Activo</option>
+                          <option value="completed">Completed — Completado</option>
+                          <option value="cancelled">Cancelled — Cancelado</option>
                         </select>
                       </td>
                     </tr>

@@ -203,14 +203,14 @@ export default function EquipmentPage() {
           display: 'flex', alignItems: 'center', padding: '0 28px',
           position: 'sticky', top: 0, background: 'rgba(13,15,14,0.92)', backdropFilter: 'blur(8px)', zIndex: 50,
         }}>
-          <span style={{ fontFamily: mono, fontSize: '18px', letterSpacing: '3px', textTransform: 'uppercase' }}>Equipment</span>
+          <span style={{ fontFamily: mono, fontSize: '18px', letterSpacing: '3px', textTransform: 'uppercase' }}>Equipment — Equipos</span>
           <div style={{ marginLeft: 'auto' }}>
             {userRole !== 'viewer' && (
               <button onClick={() => setShowForm(true)} style={{
                 background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px',
                 padding: '7px 16px', fontFamily: mono, fontSize: '12px', fontWeight: '500',
                 letterSpacing: '1px', cursor: 'pointer',
-              }}>+ Add Equipment</button>
+              }}>+ Add Equipment — Equipo</button>
             )}
           </div>
         </header>
@@ -220,7 +220,7 @@ export default function EquipmentPage() {
           {/* FORM */}
           {showForm && (
             <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', padding: '24px', marginBottom: '24px' }}>
-              <div style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)', marginBottom: '20px' }}>New Equipment</div>
+              <div style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)', marginBottom: '20px' }}>New Equipment — Nuevo Equipo</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '16px' }}>
                 {[
                   { label: 'Name', key: 'name', placeholder: 'Petzl Avao Bod Fast' },
@@ -257,9 +257,9 @@ export default function EquipmentPage() {
                   <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px', textTransform: 'uppercase' }}>Status</div>
                   <select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}
                     style={{ width: '100%', background: 'var(--surface2)', border: '1px solid var(--border2)', borderRadius: '4px', padding: '8px 12px', color: 'var(--text)', fontFamily: mono, fontSize: '12px', outline: 'none' }}>
-                    <option value="active">Active</option>
-                    <option value="inspection_required">Inspection Required</option>
-                    <option value="retired">Retired</option>
+                    <option value="active">Active — Activo</option>
+                    <option value="inspection_required">Inspection Required — Requiere Inspección</option>
+                    <option value="retired">Retired — Retirado</option>
                   </select>
                 </div>
               </div>
@@ -268,11 +268,11 @@ export default function EquipmentPage() {
                   background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px',
                   padding: '8px 20px', fontFamily: mono, fontSize: '12px', fontWeight: '500',
                   letterSpacing: '1px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1,
-                }}>{saving ? 'SAVING...' : 'SAVE EQUIPMENT'}</button>
+                }}>{saving ? 'SAVING...' : 'SAVE EQUIPMENT — GUARDAR'}</button>
                 <button onClick={() => setShowForm(false)} style={{
                   background: 'transparent', color: 'var(--text2)', border: '1px solid var(--border2)',
                   borderRadius: '4px', padding: '8px 20px', fontFamily: mono, fontSize: '12px', cursor: 'pointer',
-                }}>Cancel</button>
+                }}>Cancel — Cancelar</button>
               </div>
             </div>
           )}
@@ -280,7 +280,7 @@ export default function EquipmentPage() {
           {/* EDIT EQUIPMENT FORM */}
           {editingEquip && (
             <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', padding: '24px', marginBottom: '24px' }}>
-              <div style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)', marginBottom: '20px' }}>Edit Equipment</div>
+              <div style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)', marginBottom: '20px' }}>Edit Equipment — Editar Equipo</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '16px' }}>
                 {[
                   { label: 'Name', key: 'name', placeholder: 'Petzl Avao Bod Fast' },
@@ -317,9 +317,9 @@ export default function EquipmentPage() {
                   <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px', textTransform: 'uppercase' }}>Status</div>
                   <select value={editForm.status} onChange={e => setEditForm(f => ({ ...f, status: e.target.value }))}
                     style={{ width: '100%', background: 'var(--surface2)', border: '1px solid var(--border2)', borderRadius: '4px', padding: '8px 12px', color: 'var(--text)', fontFamily: mono, fontSize: '12px', outline: 'none' }}>
-                    <option value="active">Active</option>
-                    <option value="inspection_required">Inspection Required</option>
-                    <option value="retired">Retired</option>
+                    <option value="active">Active — Activo</option>
+                    <option value="inspection_required">Inspection Required — Requiere Inspección</option>
+                    <option value="retired">Retired — Retirado</option>
                   </select>
                 </div>
               </div>
@@ -328,11 +328,11 @@ export default function EquipmentPage() {
                   background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px',
                   padding: '8px 20px', fontFamily: mono, fontSize: '12px', fontWeight: '500',
                   letterSpacing: '1px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1,
-                }}>{saving ? 'SAVING...' : 'UPDATE EQUIPMENT'}</button>
+                }}>{saving ? 'SAVING...' : 'UPDATE EQUIPMENT — ACTUALIZAR'}</button>
                 <button onClick={() => setEditingEquip(null)} style={{
                   background: 'transparent', color: 'var(--text2)', border: '1px solid var(--border2)',
                   borderRadius: '4px', padding: '8px 20px', fontFamily: mono, fontSize: '12px', cursor: 'pointer',
-                }}>Cancel</button>
+                }}>Cancel — Cancelar</button>
               </div>
             </div>
           )}
@@ -399,7 +399,7 @@ export default function EquipmentPage() {
                         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                           <thead>
                             <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                              {['Equipment', 'Serial', 'Last Inspection', 'Next Inspection', 'Status', 'Actions'].map(h => (
+                              {['Equipment — Equipo', 'Serial — N/S', 'Last Inspection — Últ. Inspecc.', 'Next Inspection — Próx. Inspecc.', 'Status — Estado', 'Actions — Acciones'].map(h => (
                                 <th key={h} style={{ padding: '10px 20px', textAlign: 'left', fontFamily: mono, fontSize: '10px', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 400 }}>{h}</th>
                               ))}
                             </tr>
@@ -435,12 +435,12 @@ export default function EquipmentPage() {
                                         background: 'transparent', color: 'var(--accent2)', border: '1px solid rgba(74,255,160,0.2)',
                                         borderRadius: '3px', padding: '3px 10px', fontFamily: mono, fontSize: '10px',
                                         letterSpacing: '0.5px', cursor: 'pointer',
-                                      }}>Edit</button>
+                                      }}>Edit — Editar</button>
                                       <button onClick={() => handleDelete(eq.id)} style={{
                                         background: 'transparent', color: 'var(--danger)', border: '1px solid rgba(255,74,74,0.2)',
                                         borderRadius: '3px', padding: '3px 10px', fontFamily: mono, fontSize: '10px',
                                         letterSpacing: '0.5px', cursor: 'pointer',
-                                      }}>Delete</button>
+                                      }}>Delete — Eliminar</button>
                                     </div>
                                   </td>
                                 </tr>

@@ -214,14 +214,14 @@ export default function DashboardPage() {
                 background: 'var(--danger)', color: '#fff',
                 fontFamily: mono, fontSize: '10px',
                 padding: '3px 8px', borderRadius: '2px', letterSpacing: '1px',
-              }}>{openAlerts} ALERTS</span>
+              }}>{openAlerts} ALERTS — ALERTAS</span>
             )}
             {userRole !== 'viewer' && (
               <button onClick={() => router.push('/workers')} style={{
                 background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px',
                 padding: '7px 16px', fontFamily: mono, fontSize: '12px', fontWeight: '500',
                 letterSpacing: '1px', cursor: 'pointer',
-              }}>+ Add Worker</button>
+              }}>+ Add Worker — Trabajador</button>
             )}
           </div>
         </header>
@@ -237,10 +237,10 @@ export default function DashboardPage() {
             overflow: 'hidden', marginBottom: '24px',
           }}>
             {[
-              { label: 'Active Workers', value: workers.filter(w => w.is_active).length, detail: `${workers.length} total`, status: 'ok' },
-              { label: 'Certs Expiring <30d', value: criticalCount, detail: 'Renewal required', status: criticalCount > 0 ? 'danger' : 'ok' },
-              { label: 'Equipment Due', value: equipmentDue, detail: 'Inspections pending', status: equipmentDue > 0 ? 'warning' : 'ok' },
-              { label: 'Open Alerts', value: openAlerts, detail: 'Unread notifications', status: openAlerts > 0 ? 'warning' : 'ok' },
+              { label: 'Active Workers — Trabajadores', value: workers.filter(w => w.is_active).length, detail: `${workers.length} total`, status: 'ok' },
+              { label: 'Certs Expiring — Por Vencer', value: criticalCount, detail: 'Renewal required — Renovación', status: criticalCount > 0 ? 'danger' : 'ok' },
+              { label: 'Equipment Due — Equipos', value: equipmentDue, detail: 'Inspections pending — Por revisar', status: equipmentDue > 0 ? 'warning' : 'ok' },
+              { label: 'Open Alerts — Alertas', value: openAlerts, detail: 'Unread — Sin leer', status: openAlerts > 0 ? 'warning' : 'ok' },
             ].map((kpi, i) => (
               <div key={i} style={{ background: 'var(--surface)', padding: '20px 24px', position: 'relative' }}>
                 <div style={{
@@ -263,7 +263,7 @@ export default function DashboardPage() {
             {/* WORKERS TABLE */}
             <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
               <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)' }}>Worker Certifications</span>
+                <span style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)' }}>Worker Certifications — Certificaciones</span>
                 {criticalCount > 0 && (
                   <span style={{ marginLeft: 'auto', fontFamily: mono, fontSize: '10px', padding: '2px 8px', borderRadius: '2px', background: 'rgba(255,74,74,0.15)', color: 'var(--danger)', border: '1px solid rgba(255,74,74,0.3)' }}>
                     {criticalCount} EXPIRING
@@ -324,7 +324,7 @@ export default function DashboardPage() {
             {/* ALERTS */}
             <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
               <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)' }}>Alert Feed</span>
+                <span style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)' }}>Alert Feed — Alertas</span>
                 {openAlerts > 0 && (
                   <span style={{ marginLeft: 'auto', fontFamily: mono, fontSize: '10px', padding: '2px 8px', borderRadius: '2px', background: 'rgba(255,74,74,0.15)', color: 'var(--danger)', border: '1px solid rgba(255,74,74,0.3)' }}>
                     {openAlerts} NEW
@@ -374,14 +374,14 @@ export default function DashboardPage() {
             return (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <span style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)' }}>Equipment</span>
+                  <span style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)' }}>Equipment — Equipos</span>
                   {equipmentDue > 0 && (
                     <span style={{ fontFamily: mono, fontSize: '10px', padding: '2px 8px', borderRadius: '2px', background: 'rgba(255,184,74,0.15)', color: 'var(--warning)', border: '1px solid rgba(255,184,74,0.3)' }}>
                       {equipmentDue} DUE
                     </span>
                   )}
                   <span onClick={() => router.push('/equipment')} style={{ marginLeft: 'auto', fontFamily: mono, fontSize: '10px', color: 'var(--accent)', cursor: 'pointer', letterSpacing: '0.5px' }}>
-                    Manage →
+                    Manage — Gestionar →
                   </span>
                 </div>
                 {equipment.length === 0 ? (
