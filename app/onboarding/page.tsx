@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 
 const mono = 'var(--font-dm-mono)'
-const bebas = 'var(--font-bebas)'
 
 export default function OnboardingPage() {
   const router = useRouter()
@@ -102,7 +101,7 @@ export default function OnboardingPage() {
               letterSpacing: '1px', cursor: 'pointer', textAlign: 'left',
             }}>
               CREATE NEW ORGANIZATION
-              <div style={{ fontSize: '10px', fontWeight: 400, marginTop: '4px', opacity: 0.7 }}>I'm setting up RopesTrack for my company</div>
+              <div style={{ fontSize: '10px', fontWeight: 400, marginTop: '4px', opacity: 0.7 }}>I&apos;m setting up RopesTrack for my company</div>
             </button>
             <button onClick={() => setStep('join')} style={{
               background: 'transparent', color: 'var(--text2)', border: '1px solid var(--border2)',

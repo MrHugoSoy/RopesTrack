@@ -38,6 +38,7 @@ export default function EquipmentPage() {
   const [userRole, setUserRole] = useState<string>('')
   const [editingEquip, setEditingEquip] = useState<Equipment | null>(null)
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set())
+  const [search, setSearch] = useState('')
   const [editForm, setEditForm] = useState({
     name: '', type: 'Harness', serial_number: '',
     manufacture_date: '', last_inspection: '', next_inspection: '', status: 'active',
@@ -61,6 +62,7 @@ export default function EquipmentPage() {
       setLoading(false)
     }
     init()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   async function fetchEquipment() {
@@ -158,53 +160,60 @@ export default function EquipmentPage() {
 
       {/* SIDEBAR */}
       <aside style={{
-        width: '64px', background: 'var(--surface)', borderRight: '1px solid var(--border)',
-        display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px 0',
+        width: '220px', background: 'var(--surface)', borderRight: '1px solid var(--border)',
+        display: 'flex', flexDirection: 'column', padding: '20px 0',
         position: 'fixed', top: 0, bottom: 0, left: 0, zIndex: 100,
       }}>
-        <div style={{ width: '36px', height: '36px', background: 'var(--accent)', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '32px', cursor: 'pointer' }}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '0 16px', marginBottom: '28px', cursor: 'pointer' }}
           onClick={() => router.push('/dashboard')}>
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <circle cx="10" cy="10" r="3" fill="#0d0f0e"/>
-            <path d="M10 2 L10 7 M10 13 L10 18 M2 10 L7 10 M13 10 L18 10" stroke="#0d0f0e" strokeWidth="2" strokeLinecap="round"/>
-            <circle cx="10" cy="10" r="8" stroke="#0d0f0e" strokeWidth="1.5"/>
-          </svg>
+          <div style={{ width: '32px', height: '32px', background: 'var(--accent)', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+              <circle cx="10" cy="10" r="3" fill="#0d0f0e"/>
+              <path d="M10 2 L10 7 M10 13 L10 18 M2 10 L7 10 M13 10 L18 10" stroke="#0d0f0e" strokeWidth="2" strokeLinecap="round"/>
+              <circle cx="10" cy="10" r="8" stroke="#0d0f0e" strokeWidth="1.5"/>
+            </svg>
+          </div>
+          <span style={{ fontFamily: mono, fontSize: '12px', letterSpacing: '2px', color: 'var(--text)', fontWeight: 600, textTransform: 'uppercase' }}>RopesTrack</span>
         </div>
         {[
-          { icon: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z', path: '/dashboard' },
-          { icon: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z', path: '/workers' },
-          { icon: 'M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5', path: '/equipment', active: true },
-          { icon: 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75', path: '/team' },
-          { icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z', path: '/jsa' },
-          { icon: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M16 13H8M16 17H8', path: '/reports' },
+          { icon: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z', path: '/dashboard', label: 'Dashboard' },
+          { icon: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z', path: '/workers', label: 'Workers' },
+          { icon: 'M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5', path: '/equipment', label: 'Equipment', active: true },
+          { icon: 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75', path: '/team', label: 'Team' },
+          { icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z', path: '/jsa', label: 'JSA' },
+          { icon: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M16 13H8M16 17H8', path: '/reports', label: 'Reports' },
         ].map((item, i) => (
           <div key={i} onClick={() => router.push(item.path)} style={{
-            width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            borderRadius: '8px', cursor: 'pointer', marginBottom: '4px',
-            background: item.active ? 'var(--surface2)' : 'transparent',
+            display: 'flex', alignItems: 'center', gap: '10px', padding: '0 16px',
+            height: '38px', borderRadius: '6px', cursor: 'pointer', marginBottom: '2px',
+            background: item.active ? 'rgba(232,255,74,0.08)' : 'transparent',
             color: item.active ? 'var(--accent)' : 'var(--text3)',
             position: 'relative',
           }}>
-            {item.active && <div style={{ position: 'absolute', left: '-1px', width: '3px', height: '20px', background: 'var(--accent)', borderRadius: '0 2px 2px 0' }}/>}
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d={item.icon}/></svg>
+            {item.active && <div style={{ position: 'absolute', left: 0, top: '9px', width: '3px', height: '20px', background: 'var(--accent)', borderRadius: '0 2px 2px 0' }}/>}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d={item.icon}/></svg>
+            <span style={{ fontFamily: mono, fontSize: '11px', letterSpacing: '0.5px', textTransform: 'uppercase', fontWeight: item.active ? 600 : 400, whiteSpace: 'nowrap' }}>{item.label}</span>
           </div>
         ))}
         <div style={{ flex: 1 }}/>
         <div onClick={async () => { await supabase.auth.signOut(); router.push('/login') }}
-          style={{ width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', cursor: 'pointer', color: 'var(--text3)' }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+          style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '0 16px', height: '38px', borderRadius: '6px', cursor: 'pointer', color: 'var(--text3)' }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+          <span style={{ fontFamily: mono, fontSize: '11px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>Logout / Salir</span>
         </div>
       </aside>
 
       {/* MAIN */}
-      <div style={{ marginLeft: '64px', flex: 1 }}>
+      <div style={{ marginLeft: '220px', flex: 1 }}>
         <header style={{
           height: '56px', borderBottom: '1px solid var(--border)',
           display: 'flex', alignItems: 'center', padding: '0 28px',
           position: 'sticky', top: 0, background: 'rgba(13,15,14,0.92)', backdropFilter: 'blur(8px)', zIndex: 50,
         }}>
           <span style={{ fontFamily: mono, fontSize: '18px', letterSpacing: '3px', textTransform: 'uppercase' }}>Equipment / Equipos</span>
-          <div style={{ marginLeft: 'auto' }}>
+          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <input placeholder="Search / Buscar..." value={search} onChange={e => setSearch(e.target.value)}
+              style={{ background: 'var(--surface2)', border: '1px solid var(--border2)', borderRadius: '4px', padding: '5px 12px', color: 'var(--text)', fontFamily: mono, fontSize: '11px', outline: 'none', width: '200px' }} />
             {userRole !== 'viewer' && (
               <button onClick={() => setShowForm(true)} style={{
                 background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px',
@@ -217,126 +226,6 @@ export default function EquipmentPage() {
 
         <div style={{ padding: '28px' }}>
 
-          {/* FORM */}
-          {showForm && (
-            <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', padding: '24px', marginBottom: '24px' }}>
-              <div style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)', marginBottom: '20px' }}>New Equipment / Nuevo Equipo</div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '16px' }}>
-                {[
-                  { label: 'Name', key: 'name', placeholder: 'Petzl Avao Bod Fast' },
-                  { label: 'Serial Number', key: 'serial_number', placeholder: 'HAR-001' },
-                  { label: 'Manufacture Date', key: 'manufacture_date', type: 'date' },
-                  { label: 'Last Inspection', key: 'last_inspection', type: 'date' },
-                  { label: 'Next Inspection', key: 'next_inspection', type: 'date' },
-                ].map(field => (
-                  <div key={field.key}>
-                    <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px', textTransform: 'uppercase' }}>{field.label}</div>
-                    <input
-                      type={field.type || 'text'}
-                      placeholder={field.placeholder || ''}
-                      value={(form as any)[field.key]}
-                      onChange={e => setForm(f => ({ ...f, [field.key]: e.target.value }))}
-                      style={{
-                        width: '100%', background: 'var(--surface2)', border: '1px solid var(--border2)',
-                        borderRadius: '4px', padding: '8px 12px', color: 'var(--text)',
-                        fontFamily: mono, fontSize: '12px', outline: 'none',
-                      }}
-                    />
-                  </div>
-                ))}
-                <div>
-                  <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px', textTransform: 'uppercase' }}>Type</div>
-                  <select value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))}
-                    style={{ width: '100%', background: 'var(--surface2)', border: '1px solid var(--border2)', borderRadius: '4px', padding: '8px 12px', color: 'var(--text)', fontFamily: mono, fontSize: '12px', outline: 'none' }}>
-                    {['Harness', 'Rope', 'Descender', 'Ascender', 'Anchor', 'Helmet', 'Lanyard', 'Other'].map(t => (
-                      <option key={t} value={t}>{typeLabels[t] ?? t}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px', textTransform: 'uppercase' }}>Status</div>
-                  <select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}
-                    style={{ width: '100%', background: 'var(--surface2)', border: '1px solid var(--border2)', borderRadius: '4px', padding: '8px 12px', color: 'var(--text)', fontFamily: mono, fontSize: '12px', outline: 'none' }}>
-                    <option value="active">Active / Activo</option>
-                    <option value="inspection_required">Inspection Required / Requiere Inspección</option>
-                    <option value="retired">Retired / Retirado</option>
-                  </select>
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <button onClick={handleSave} disabled={saving || !form.name || !form.serial_number} style={{
-                  background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px',
-                  padding: '8px 20px', fontFamily: mono, fontSize: '12px', fontWeight: '500',
-                  letterSpacing: '1px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1,
-                }}>{saving ? 'SAVING...' : 'SAVE EQUIPMENT / GUARDAR'}</button>
-                <button onClick={() => setShowForm(false)} style={{
-                  background: 'transparent', color: 'var(--text2)', border: '1px solid var(--border2)',
-                  borderRadius: '4px', padding: '8px 20px', fontFamily: mono, fontSize: '12px', cursor: 'pointer',
-                }}>Cancel / Cancelar</button>
-              </div>
-            </div>
-          )}
-
-          {/* EDIT EQUIPMENT FORM */}
-          {editingEquip && (
-            <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', padding: '24px', marginBottom: '24px' }}>
-              <div style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)', marginBottom: '20px' }}>Edit Equipment / Editar Equipo</div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '16px' }}>
-                {[
-                  { label: 'Name', key: 'name', placeholder: 'Petzl Avao Bod Fast' },
-                  { label: 'Serial Number', key: 'serial_number', placeholder: 'HAR-001' },
-                  { label: 'Manufacture Date', key: 'manufacture_date', type: 'date' },
-                  { label: 'Last Inspection', key: 'last_inspection', type: 'date' },
-                  { label: 'Next Inspection', key: 'next_inspection', type: 'date' },
-                ].map(field => (
-                  <div key={field.key}>
-                    <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px', textTransform: 'uppercase' }}>{field.label}</div>
-                    <input
-                      type={field.type || 'text'}
-                      placeholder={field.placeholder || ''}
-                      value={(editForm as any)[field.key]}
-                      onChange={e => setEditForm(f => ({ ...f, [field.key]: e.target.value }))}
-                      style={{
-                        width: '100%', background: 'var(--surface2)', border: '1px solid var(--border2)',
-                        borderRadius: '4px', padding: '8px 12px', color: 'var(--text)',
-                        fontFamily: mono, fontSize: '12px', outline: 'none',
-                      }}
-                    />
-                  </div>
-                ))}
-                <div>
-                  <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px', textTransform: 'uppercase' }}>Type</div>
-                  <select value={editForm.type} onChange={e => setEditForm(f => ({ ...f, type: e.target.value }))}
-                    style={{ width: '100%', background: 'var(--surface2)', border: '1px solid var(--border2)', borderRadius: '4px', padding: '8px 12px', color: 'var(--text)', fontFamily: mono, fontSize: '12px', outline: 'none' }}>
-                    {['Harness', 'Rope', 'Descender', 'Ascender', 'Anchor', 'Helmet', 'Lanyard', 'Other'].map(t => (
-                      <option key={t} value={t}>{typeLabels[t] ?? t}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px', textTransform: 'uppercase' }}>Status</div>
-                  <select value={editForm.status} onChange={e => setEditForm(f => ({ ...f, status: e.target.value }))}
-                    style={{ width: '100%', background: 'var(--surface2)', border: '1px solid var(--border2)', borderRadius: '4px', padding: '8px 12px', color: 'var(--text)', fontFamily: mono, fontSize: '12px', outline: 'none' }}>
-                    <option value="active">Active / Activo</option>
-                    <option value="inspection_required">Inspection Required / Requiere Inspección</option>
-                    <option value="retired">Retired / Retirado</option>
-                  </select>
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <button onClick={handleUpdate} disabled={saving || !editForm.name || !editForm.serial_number} style={{
-                  background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px',
-                  padding: '8px 20px', fontFamily: mono, fontSize: '12px', fontWeight: '500',
-                  letterSpacing: '1px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1,
-                }}>{saving ? 'SAVING...' : 'UPDATE EQUIPMENT / ACTUALIZAR'}</button>
-                <button onClick={() => setEditingEquip(null)} style={{
-                  background: 'transparent', color: 'var(--text2)', border: '1px solid var(--border2)',
-                  borderRadius: '4px', padding: '8px 20px', fontFamily: mono, fontSize: '12px', cursor: 'pointer',
-                }}>Cancel / Cancelar</button>
-              </div>
-            </div>
-          )}
-
           {/* GROUPED BY TYPE */}
           {equipment.length === 0 ? (
             <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', padding: '60px', textAlign: 'center', fontFamily: mono, fontSize: '12px', color: 'var(--text3)' }}>
@@ -344,22 +233,25 @@ export default function EquipmentPage() {
             </div>
           ) : (() => {
             const typeOrder = ['Harness', 'Rope', 'Descender', 'Ascender', 'Anchor', 'Helmet', 'Lanyard', 'Other']
+            const filtered = search
+              ? equipment.filter(e => e.name.toLowerCase().includes(search.toLowerCase()) || e.serial_number.toLowerCase().includes(search.toLowerCase()))
+              : equipment
             const groups = typeOrder
-              .map(type => ({ type, items: equipment.filter(e => e.type === type) }))
+              .map(type => ({ type, items: filtered.filter(e => e.type === type) }))
               .filter(g => g.items.length > 0)
-            const extraTypes = [...new Set(equipment.map(e => e.type))].filter(t => !typeOrder.includes(t))
-            extraTypes.forEach(type => groups.push({ type, items: equipment.filter(e => e.type === type) }))
+            const extraTypes = [...new Set(filtered.map(e => e.type))].filter(t => !typeOrder.includes(t))
+            extraTypes.forEach(type => groups.push({ type, items: filtered.filter(e => e.type === type) }))
 
             return (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text3)' }}>
-                  {equipment.length} Items · {groups.length} Groups
+                  {filtered.length} Items · {groups.length} Groups
                 </div>
                 {groups.map(({ type, items }) => {
                   const collapsed = collapsedGroups.has(type)
                   const toggleCollapse = () => setCollapsedGroups(prev => {
                     const next = new Set(prev)
-                    next.has(type) ? next.delete(type) : next.add(type)
+                    if (next.has(type)) { next.delete(type) } else { next.add(type) }
                     return next
                   })
                   const groupAlert = items.some(e => getStatus(e) === 'critical') ? 'critical'
@@ -457,6 +349,84 @@ export default function EquipmentPage() {
           })()}
         </div>
       </div>
+
+      {/* DRAWER */}
+      {(showForm || !!editingEquip) && (
+        <>
+          <div onClick={() => { setShowForm(false); setEditingEquip(null) }}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200 }} />
+          <div style={{ position: 'fixed', right: 0, top: 0, bottom: 0, width: '440px', background: 'var(--surface)', borderLeft: '1px solid var(--border)', zIndex: 201, display: 'flex', flexDirection: 'column' }}>
+            <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)' }}>
+                {showForm ? 'New Equipment / Nuevo Equipo' : 'Edit Equipment / Editar Equipo'}
+              </span>
+              <button onClick={() => { setShowForm(false); setEditingEquip(null) }}
+                style={{ background: 'none', border: 'none', color: 'var(--text3)', fontSize: '20px', cursor: 'pointer', lineHeight: 1 }}>×</button>
+            </div>
+            <div style={{ flex: 1, overflowY: 'auto', padding: '24px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              {[
+                { label: 'Name / Nombre', key: 'name', placeholder: 'Petzl Avao Bod Fast' },
+                { label: 'Serial Number / N/S', key: 'serial_number', placeholder: 'HAR-001' },
+                { label: 'Manufacture Date / Fabricación', key: 'manufacture_date', type: 'date' },
+                { label: 'Last Inspection / Últ. Inspecc.', key: 'last_inspection', type: 'date' },
+                { label: 'Next Inspection / Próx. Inspecc.', key: 'next_inspection', type: 'date' },
+              ].map(field => {
+                const val = showForm ? (form as Record<string, string>)[field.key] : (editForm as Record<string, string>)[field.key]
+                const onChange = showForm
+                  ? (e: React.ChangeEvent<HTMLInputElement>) => setForm(f => ({ ...f, [field.key]: e.target.value }))
+                  : (e: React.ChangeEvent<HTMLInputElement>) => setEditForm(f => ({ ...f, [field.key]: e.target.value }))
+                return (
+                  <div key={field.key}>
+                    <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px', textTransform: 'uppercase' }}>{field.label}</div>
+                    <input type={field.type || 'text'} placeholder={field.placeholder || ''} value={val} onChange={onChange}
+                      style={{ width: '100%', boxSizing: 'border-box', background: 'var(--surface2)', border: '1px solid var(--border2)', borderRadius: '4px', padding: '8px 12px', color: 'var(--text)', fontFamily: mono, fontSize: '12px', outline: 'none' }} />
+                  </div>
+                )
+              })}
+              <div>
+                <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px', textTransform: 'uppercase' }}>Type / Tipo</div>
+                <select value={showForm ? form.type : editForm.type}
+                  onChange={e => showForm ? setForm(f => ({ ...f, type: e.target.value })) : setEditForm(f => ({ ...f, type: e.target.value }))}
+                  style={{ width: '100%', background: 'var(--surface2)', border: '1px solid var(--border2)', borderRadius: '4px', padding: '8px 12px', color: 'var(--text)', fontFamily: mono, fontSize: '12px', outline: 'none' }}>
+                  {['Harness', 'Rope', 'Descender', 'Ascender', 'Anchor', 'Helmet', 'Lanyard', 'Other'].map(t => (
+                    <option key={t} value={t}>{typeLabels[t] ?? t}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px', textTransform: 'uppercase' }}>Status / Estado</div>
+                <select value={showForm ? form.status : editForm.status}
+                  onChange={e => showForm ? setForm(f => ({ ...f, status: e.target.value })) : setEditForm(f => ({ ...f, status: e.target.value }))}
+                  style={{ width: '100%', background: 'var(--surface2)', border: '1px solid var(--border2)', borderRadius: '4px', padding: '8px 12px', color: 'var(--text)', fontFamily: mono, fontSize: '12px', outline: 'none' }}>
+                  <option value="active">Active / Activo</option>
+                  <option value="inspection_required">Inspection Required / Requiere Inspección</option>
+                  <option value="retired">Retired / Retirado</option>
+                </select>
+              </div>
+            </div>
+            <div style={{ padding: '16px 24px', borderTop: '1px solid var(--border)', display: 'flex', gap: '8px' }}>
+              {showForm && (
+                <button onClick={handleSave} disabled={saving || !form.name || !form.serial_number} style={{
+                  background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px',
+                  padding: '8px 20px', fontFamily: mono, fontSize: '12px', fontWeight: '500',
+                  letterSpacing: '1px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1, flex: 1,
+                }}>{saving ? 'SAVING...' : 'SAVE / GUARDAR'}</button>
+              )}
+              {editingEquip && (
+                <button onClick={handleUpdate} disabled={saving || !editForm.name || !editForm.serial_number} style={{
+                  background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px',
+                  padding: '8px 20px', fontFamily: mono, fontSize: '12px', fontWeight: '500',
+                  letterSpacing: '1px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1, flex: 1,
+                }}>{saving ? 'SAVING...' : 'UPDATE / ACTUALIZAR'}</button>
+              )}
+              <button onClick={() => { setShowForm(false); setEditingEquip(null) }} style={{
+                background: 'transparent', color: 'var(--text2)', border: '1px solid var(--border2)',
+                borderRadius: '4px', padding: '8px 16px', fontFamily: mono, fontSize: '12px', cursor: 'pointer',
+              }}>Cancel / Cancelar</button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }

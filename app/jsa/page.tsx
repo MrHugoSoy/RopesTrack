@@ -47,6 +47,7 @@ export default function JSAPage() {
       setLoading(false)
     }
     init()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   async function fetchData(userId: string) {
@@ -193,46 +194,51 @@ export default function JSAPage() {
 
       {/* SIDEBAR */}
       <aside style={{
-        width: '64px', background: 'var(--surface)', borderRight: '1px solid var(--border)',
-        display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px 0',
+        width: '220px', background: 'var(--surface)', borderRight: '1px solid var(--border)',
+        display: 'flex', flexDirection: 'column', padding: '20px 0',
         position: 'fixed', top: 0, bottom: 0, left: 0, zIndex: 100,
       }}>
-        <div style={{ width: '36px', height: '36px', background: 'var(--accent)', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '32px', cursor: 'pointer' }}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '0 16px', marginBottom: '28px', cursor: 'pointer' }}
           onClick={() => router.push('/dashboard')}>
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <circle cx="10" cy="10" r="3" fill="#0d0f0e"/>
-            <path d="M10 2 L10 7 M10 13 L10 18 M2 10 L7 10 M13 10 L18 10" stroke="#0d0f0e" strokeWidth="2" strokeLinecap="round"/>
-            <circle cx="10" cy="10" r="8" stroke="#0d0f0e" strokeWidth="1.5"/>
-          </svg>
+          <div style={{ width: '32px', height: '32px', background: 'var(--accent)', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+              <circle cx="10" cy="10" r="3" fill="#0d0f0e"/>
+              <path d="M10 2 L10 7 M10 13 L10 18 M2 10 L7 10 M13 10 L18 10" stroke="#0d0f0e" strokeWidth="2" strokeLinecap="round"/>
+              <circle cx="10" cy="10" r="8" stroke="#0d0f0e" strokeWidth="1.5"/>
+            </svg>
+          </div>
+          <span style={{ fontFamily: mono, fontSize: '12px', letterSpacing: '2px', color: 'var(--text)', fontWeight: 600, textTransform: 'uppercase' }}>RopesTrack</span>
         </div>
         {[
-          { icon: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z', path: '/dashboard' },
-          { icon: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z', path: '/workers' },
-          { icon: 'M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5', path: '/equipment' },
-          { icon: 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75', path: '/team' },
-          { icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z', path: '/jsa', active: true },
-          { icon: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M16 13H8M16 17H8', path: '/reports' },
+          { icon: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z', path: '/dashboard', label: 'Dashboard' },
+          { icon: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z', path: '/workers', label: 'Workers' },
+          { icon: 'M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5', path: '/equipment', label: 'Equipment' },
+          { icon: 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75', path: '/team', label: 'Team' },
+          { icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z', path: '/jsa', label: 'JSA', active: true },
+          { icon: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M16 13H8M16 17H8', path: '/reports', label: 'Reports' },
         ].map((item, i) => (
           <div key={i} onClick={() => router.push(item.path)} style={{
-            width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            borderRadius: '8px', cursor: 'pointer', marginBottom: '4px',
-            background: item.active ? 'var(--surface2)' : 'transparent',
+            display: 'flex', alignItems: 'center', gap: '10px', padding: '0 16px',
+            height: '38px', borderRadius: '6px', cursor: 'pointer', marginBottom: '2px',
+            background: item.active ? 'rgba(232,255,74,0.08)' : 'transparent',
             color: item.active ? 'var(--accent)' : 'var(--text3)',
             position: 'relative',
           }}>
-            {item.active && <div style={{ position: 'absolute', left: '-1px', width: '3px', height: '20px', background: 'var(--accent)', borderRadius: '0 2px 2px 0' }}/>}
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d={item.icon}/></svg>
+            {item.active && <div style={{ position: 'absolute', left: 0, top: '9px', width: '3px', height: '20px', background: 'var(--accent)', borderRadius: '0 2px 2px 0' }}/>}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d={item.icon}/></svg>
+            <span style={{ fontFamily: mono, fontSize: '11px', letterSpacing: '0.5px', textTransform: 'uppercase', fontWeight: item.active ? 600 : 400, whiteSpace: 'nowrap' }}>{item.label}</span>
           </div>
         ))}
         <div style={{ flex: 1 }}/>
         <div onClick={async () => { await supabase.auth.signOut(); router.push('/login') }}
-          style={{ width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', cursor: 'pointer', color: 'var(--text3)' }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+          style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '0 16px', height: '38px', borderRadius: '6px', cursor: 'pointer', color: 'var(--text3)' }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+          <span style={{ fontFamily: mono, fontSize: '11px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>Logout / Salir</span>
         </div>
       </aside>
 
       {/* MAIN */}
-      <div style={{ marginLeft: '64px', flex: 1 }}>
+      <div style={{ marginLeft: '220px', flex: 1 }}>
         <header style={{
           height: '56px', borderBottom: '1px solid var(--border)',
           display: 'flex', alignItems: 'center', padding: '0 28px',
@@ -249,122 +255,6 @@ export default function JSAPage() {
         </header>
 
         <div style={{ padding: '28px' }}>
-
-          {/* NEW JSA FORM */}
-          {showForm && (
-            <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', padding: '24px', marginBottom: '24px' }}>
-              <div style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)', marginBottom: '20px' }}>New JSA / Nueva JSA</div>
-
-              {/* Base fields */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '20px' }}>
-                <div>
-                  <div style={labelStyle}>Title</div>
-                  <input type="text" placeholder="Roof Anchor Installation" value={form.title}
-                    onChange={e => setForm(f => ({ ...f, title: e.target.value }))} style={inputStyle} />
-                </div>
-                <div>
-                  <div style={labelStyle}>Location</div>
-                  <input type="text" placeholder="Tower A / Floor 12" value={form.location}
-                    onChange={e => setForm(f => ({ ...f, location: e.target.value }))} style={inputStyle} />
-                </div>
-                <div>
-                  <div style={labelStyle}>Date</div>
-                  <input type="date" value={form.date}
-                    onChange={e => setForm(f => ({ ...f, date: e.target.value }))} style={inputStyle} />
-                </div>
-                <div>
-                  <div style={labelStyle}>Supervisor</div>
-                  <select value={form.supervisor_id} onChange={e => setForm(f => ({ ...f, supervisor_id: e.target.value }))} style={inputStyle}>
-                    <option value="">— Select supervisor —</option>
-                    {workers.map(w => (
-                      <option key={w.id} value={w.id}>{w.name} (L{w.level})</option>
-                    ))}
-                  </select>
-                </div>
-                <div style={{ gridColumn: 'span 2' }}>
-                  <div style={labelStyle}>Notes</div>
-                  <textarea placeholder="Additional notes or context..." value={form.notes} rows={3}
-                    onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
-                    style={{ ...inputStyle, resize: 'vertical' as const }} />
-                </div>
-              </div>
-
-              {/* Workers */}
-              <div style={{ marginBottom: '20px' }}>
-                <div style={{ ...labelStyle, marginBottom: '10px' }}>Assigned Workers / Trabajadores</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                  {workers.map(w => (
-                    <label key={w.id} style={{
-                      display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer',
-                      background: selectedWorkers.includes(w.id) ? 'rgba(232,255,74,0.1)' : 'var(--surface2)',
-                      border: `1px solid ${selectedWorkers.includes(w.id) ? 'rgba(232,255,74,0.3)' : 'var(--border2)'}`,
-                      borderRadius: '4px', padding: '5px 10px',
-                      fontFamily: mono, fontSize: '11px',
-                      color: selectedWorkers.includes(w.id) ? 'var(--accent)' : 'var(--text2)',
-                    }}>
-                      <input type="checkbox" checked={selectedWorkers.includes(w.id)}
-                        onChange={() => toggleWorker(w.id)}
-                        style={{ accentColor: 'var(--accent)', cursor: 'pointer' }} />
-                      {w.name}
-                    </label>
-                  ))}
-                  {workers.length === 0 && (
-                    <span style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text3)' }}>No active workers found.</span>
-                  )}
-                </div>
-              </div>
-
-              {/* Tasks */}
-              <div style={{ marginBottom: '20px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
-                  <div style={labelStyle}>Tasks</div>
-                  <button onClick={() => setTasks(prev => [...prev, { task: '', risks: '', controls: '' }])} style={{
-                    background: 'transparent', color: 'var(--accent2)', border: '1px solid rgba(74,255,160,0.2)',
-                    borderRadius: '3px', padding: '2px 10px', fontFamily: mono, fontSize: '10px', cursor: 'pointer',
-                  }}>+ Add Task</button>
-                </div>
-                {tasks.length > 0 && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 28px', gap: '8px' }}>
-                      {['Task / Tarea', 'Risks / Riesgos', 'Controls / Controles'].map(h => (
-                        <div key={h} style={labelStyle}>{h}</div>
-                      ))}
-                      <div/>
-                    </div>
-                    {tasks.map((t, i) => (
-                      <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 28px', gap: '8px', alignItems: 'center' }}>
-                        <input type="text" placeholder="Task description" value={t.task}
-                          onChange={e => setTasks(prev => prev.map((x, j) => j === i ? { ...x, task: e.target.value } : x))}
-                          style={inputStyle} />
-                        <input type="text" placeholder="Potential risks" value={t.risks}
-                          onChange={e => setTasks(prev => prev.map((x, j) => j === i ? { ...x, risks: e.target.value } : x))}
-                          style={inputStyle} />
-                        <input type="text" placeholder="Control measures" value={t.controls}
-                          onChange={e => setTasks(prev => prev.map((x, j) => j === i ? { ...x, controls: e.target.value } : x))}
-                          style={inputStyle} />
-                        <button onClick={() => setTasks(prev => prev.filter((_, j) => j !== i))} style={{
-                          background: 'transparent', color: 'var(--danger)', border: 'none',
-                          cursor: 'pointer', fontFamily: mono, fontSize: '18px', lineHeight: 1, padding: 0,
-                        }}>×</button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <button onClick={handleSave} disabled={saving || !form.title} style={{
-                  background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px',
-                  padding: '8px 20px', fontFamily: mono, fontSize: '12px', fontWeight: '500',
-                  letterSpacing: '1px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1,
-                }}>{saving ? 'SAVING...' : 'SAVE JSA / GUARDAR'}</button>
-                <button onClick={() => { setShowForm(false); setTasks([]); setSelectedWorkers([]) }} style={{
-                  background: 'transparent', color: 'var(--text2)', border: '1px solid var(--border2)',
-                  borderRadius: '4px', padding: '8px 20px', fontFamily: mono, fontSize: '12px', cursor: 'pointer',
-                }}>Cancel / Cancelar</button>
-              </div>
-            </div>
-          )}
 
           {/* JSA TABLE */}
           <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
@@ -434,6 +324,114 @@ export default function JSAPage() {
           </div>
         </div>
       </div>
+
+      {/* DRAWER */}
+      {showForm && (
+        <>
+          <div onClick={() => { setShowForm(false); setTasks([]); setSelectedWorkers([]) }}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200 }} />
+          <div style={{ position: 'fixed', right: 0, top: 0, bottom: 0, width: '500px', background: 'var(--surface)', borderLeft: '1px solid var(--border)', zIndex: 201, display: 'flex', flexDirection: 'column' }}>
+            <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)' }}>New JSA / Nueva JSA</span>
+              <button onClick={() => { setShowForm(false); setTasks([]); setSelectedWorkers([]) }}
+                style={{ background: 'none', border: 'none', color: 'var(--text3)', fontSize: '20px', cursor: 'pointer', lineHeight: 1 }}>×</button>
+            </div>
+            <div style={{ flex: 1, overflowY: 'auto', padding: '24px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div>
+                <div style={labelStyle}>Title / Título</div>
+                <input type="text" placeholder="Roof Anchor Installation" value={form.title}
+                  onChange={e => setForm(f => ({ ...f, title: e.target.value }))} style={{ ...inputStyle, boxSizing: 'border-box' }} />
+              </div>
+              <div>
+                <div style={labelStyle}>Location / Ubicación</div>
+                <input type="text" placeholder="Tower A / Floor 12" value={form.location}
+                  onChange={e => setForm(f => ({ ...f, location: e.target.value }))} style={{ ...inputStyle, boxSizing: 'border-box' }} />
+              </div>
+              <div>
+                <div style={labelStyle}>Date / Fecha</div>
+                <input type="date" value={form.date}
+                  onChange={e => setForm(f => ({ ...f, date: e.target.value }))} style={{ ...inputStyle, boxSizing: 'border-box' }} />
+              </div>
+              <div>
+                <div style={labelStyle}>Supervisor</div>
+                <select value={form.supervisor_id} onChange={e => setForm(f => ({ ...f, supervisor_id: e.target.value }))}
+                  style={{ ...inputStyle, boxSizing: 'border-box' }}>
+                  <option value="">— Select supervisor —</option>
+                  {workers.map(w => (
+                    <option key={w.id} value={w.id}>{w.name} (L{w.level})</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <div style={labelStyle}>Notes / Notas</div>
+                <textarea placeholder="Additional notes or context..." value={form.notes} rows={3}
+                  onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
+                  style={{ ...inputStyle, boxSizing: 'border-box', resize: 'vertical' as const }} />
+              </div>
+              <div>
+                <div style={{ ...labelStyle, marginBottom: '10px' }}>Workers / Trabajadores</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                  {workers.map(w => (
+                    <label key={w.id} style={{
+                      display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer',
+                      background: selectedWorkers.includes(w.id) ? 'rgba(232,255,74,0.1)' : 'var(--surface2)',
+                      border: `1px solid ${selectedWorkers.includes(w.id) ? 'rgba(232,255,74,0.3)' : 'var(--border2)'}`,
+                      borderRadius: '4px', padding: '5px 10px', fontFamily: mono, fontSize: '11px',
+                      color: selectedWorkers.includes(w.id) ? 'var(--accent)' : 'var(--text2)',
+                    }}>
+                      <input type="checkbox" checked={selectedWorkers.includes(w.id)} onChange={() => toggleWorker(w.id)}
+                        style={{ accentColor: 'var(--accent)', cursor: 'pointer' }} />
+                      {w.name}
+                    </label>
+                  ))}
+                  {workers.length === 0 && (
+                    <span style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text3)' }}>No active workers.</span>
+                  )}
+                </div>
+              </div>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                  <div style={labelStyle}>Tasks / Tareas</div>
+                  <button onClick={() => setTasks(prev => [...prev, { task: '', risks: '', controls: '' }])} style={{
+                    background: 'transparent', color: 'var(--accent2)', border: '1px solid rgba(74,255,160,0.2)',
+                    borderRadius: '3px', padding: '2px 10px', fontFamily: mono, fontSize: '10px', cursor: 'pointer',
+                  }}>+ Add / Agregar</button>
+                </div>
+                {tasks.map((t, i) => (
+                  <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '6px', padding: '10px', marginBottom: '8px', background: 'var(--surface2)', borderRadius: '4px', border: '1px solid var(--border2)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '1px' }}>Task {i + 1}</span>
+                      <button onClick={() => setTasks(prev => prev.filter((_, j) => j !== i))} style={{
+                        background: 'transparent', color: 'var(--danger)', border: 'none', cursor: 'pointer', fontSize: '16px', lineHeight: 1, padding: 0,
+                      }}>×</button>
+                    </div>
+                    <input type="text" placeholder="Task / Tarea" value={t.task}
+                      onChange={e => setTasks(prev => prev.map((x, j) => j === i ? { ...x, task: e.target.value } : x))}
+                      style={{ ...inputStyle, boxSizing: 'border-box' }} />
+                    <input type="text" placeholder="Risks / Riesgos" value={t.risks}
+                      onChange={e => setTasks(prev => prev.map((x, j) => j === i ? { ...x, risks: e.target.value } : x))}
+                      style={{ ...inputStyle, boxSizing: 'border-box' }} />
+                    <input type="text" placeholder="Controls / Controles" value={t.controls}
+                      onChange={e => setTasks(prev => prev.map((x, j) => j === i ? { ...x, controls: e.target.value } : x))}
+                      style={{ ...inputStyle, boxSizing: 'border-box' }} />
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={{ padding: '16px 24px', borderTop: '1px solid var(--border)', display: 'flex', gap: '8px' }}>
+              <button onClick={handleSave} disabled={saving || !form.title} style={{
+                background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px',
+                padding: '8px 20px', fontFamily: mono, fontSize: '12px', fontWeight: '500',
+                letterSpacing: '1px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1, flex: 1,
+              }}>{saving ? 'SAVING...' : 'SAVE JSA / GUARDAR'}</button>
+              <button onClick={() => { setShowForm(false); setTasks([]); setSelectedWorkers([]) }} style={{
+                background: 'transparent', color: 'var(--text2)', border: '1px solid var(--border2)',
+                borderRadius: '4px', padding: '8px 16px', fontFamily: mono, fontSize: '12px', cursor: 'pointer',
+              }}>Cancel / Cancelar</button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }
