@@ -95,10 +95,10 @@ export default function JSADetailPage({ params }: { params: Promise<{ id: string
   }
 
   const statusLabel: Record<string, string> = {
-    draft: 'DRAFT — BORRADOR',
-    active: 'ACTIVE — ACTIVO',
-    completed: 'COMPLETED — COMPLETADO',
-    cancelled: 'CANCELLED — CANCELADO',
+    draft: 'DRAFT / BORRADOR',
+    active: 'ACTIVE / ACTIVO',
+    completed: 'COMPLETED / COMPLETADO',
+    cancelled: 'CANCELLED / CANCELADO',
   }
 
   function statusChip(status: string) {
@@ -198,8 +198,8 @@ export default function JSADetailPage({ params }: { params: Promise<{ id: string
             background: 'transparent', color: 'var(--text3)', border: '1px solid var(--border2)',
             borderRadius: '4px', padding: '5px 12px', fontFamily: mono, fontSize: '11px', cursor: 'pointer',
             letterSpacing: '0.5px',
-          }}>← Back — Atrás</button>
-          <span style={{ fontFamily: mono, fontSize: '18px', letterSpacing: '3px', textTransform: 'uppercase' }}>JSA — Análisis de Seguridad</span>
+          }}>← Back / Atrás</button>
+          <span style={{ fontFamily: mono, fontSize: '18px', letterSpacing: '3px', textTransform: 'uppercase' }}>JSA / Análisis de Seguridad</span>
         </header>
 
         <div style={{ padding: '28px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -224,10 +224,10 @@ export default function JSADetailPage({ params }: { params: Promise<{ id: string
                     fontFamily: mono, fontSize: '10px', cursor: 'pointer', outline: 'none',
                   }}
                 >
-                  <option value="draft">Draft — Borrador</option>
-                  <option value="active">Active — Activo</option>
-                  <option value="completed">Completed — Completado</option>
-                  <option value="cancelled">Cancelled — Cancelado</option>
+                  <option value="draft">Draft / Borrador</option>
+                  <option value="active">Active / Activo</option>
+                  <option value="completed">Completed / Completado</option>
+                  <option value="cancelled">Cancelled / Cancelado</option>
                 </select>
               </div>
             </div>
@@ -260,7 +260,7 @@ export default function JSADetailPage({ params }: { params: Promise<{ id: string
           <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
             <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)' }}>
               <span style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)' }}>
-                Workers — Trabajadores ({jsa.jsa_workers?.length ?? 0})
+                Workers / Trabajadores ({jsa.jsa_workers?.length ?? 0})
               </span>
             </div>
             {!jsa.jsa_workers?.length ? (
@@ -271,7 +271,7 @@ export default function JSADetailPage({ params }: { params: Promise<{ id: string
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                    {['Worker — Trabajador', 'IRATA ID', 'Level — Nivel', 'Signed — Firma'].map(h => (
+                    {['Worker / Trabajador', 'IRATA ID', 'Level / Nivel', 'Signed / Firma'].map(h => (
                       <th key={h} style={{ padding: '10px 20px', textAlign: 'left', fontFamily: mono, fontSize: '10px', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 400 }}>{h}</th>
                     ))}
                   </tr>
@@ -289,14 +289,14 @@ export default function JSADetailPage({ params }: { params: Promise<{ id: string
                             color: jw.worker.level === 3 ? 'var(--accent)' : jw.worker.level === 2 ? 'var(--accent2)' : 'var(--text2)',
                             border: `1px solid ${jw.worker.level === 3 ? 'rgba(232,255,74,0.2)' : jw.worker.level === 2 ? 'rgba(74,255,160,0.2)' : 'var(--border2)'}`,
                           }}>
-                            L{jw.worker.level} {jw.worker.level === 3 ? 'SUPERVISOR' : jw.worker.level === 2 ? 'TECHNICIAN — TÉCNICO' : 'OPERATIVE — OPERATIVO'}
+                            L{jw.worker.level} {jw.worker.level === 3 ? 'SUPERVISOR' : jw.worker.level === 2 ? 'TECHNICIAN / TÉCNICO' : 'OPERATIVE / OPERATIVO'}
                           </span>
                         ) : '—'}
                       </td>
                       <td style={{ padding: '14px 20px' }}>
                         {jw.is_signed ? (
                           <span style={{ fontFamily: mono, fontSize: '11px', color: 'var(--accent2)', letterSpacing: '0.5px' }}>
-                            ✓ SIGNED — FIRMADO
+                            ✓ SIGNED / FIRMADO
                             {jw.signed_at && (
                               <span style={{ color: 'var(--text3)', marginLeft: '8px', fontSize: '10px' }}>
                                 {new Date(jw.signed_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}
@@ -308,7 +308,7 @@ export default function JSADetailPage({ params }: { params: Promise<{ id: string
                             background: 'transparent', color: 'var(--accent)', border: '1px solid rgba(232,255,74,0.2)',
                             borderRadius: '3px', padding: '3px 12px', fontFamily: mono, fontSize: '10px',
                             letterSpacing: '0.5px', cursor: 'pointer',
-                          }}>Sign — Firmar</button>
+                          }}>Sign / Firmar</button>
                         )}
                       </td>
                     </tr>
@@ -322,21 +322,21 @@ export default function JSADetailPage({ params }: { params: Promise<{ id: string
           <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
             <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <span style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)' }}>
-                Tasks — Tareas ({sortedTasks.length})
+                Tasks / Tareas ({sortedTasks.length})
               </span>
               <button onClick={() => setShowTaskForm(v => !v)} style={{
                 background: 'transparent', color: 'var(--accent2)', border: '1px solid rgba(74,255,160,0.2)',
                 borderRadius: '3px', padding: '3px 12px', fontFamily: mono, fontSize: '10px', cursor: 'pointer',
-              }}>+ Add Task — Tarea</button>
+              }}>+ Add Task / Tarea</button>
             </div>
 
             {showTaskForm && (
               <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', background: 'var(--surface2)' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '12px' }}>
                   {[
-                    { key: 'task', label: 'Task — Tarea', placeholder: 'Task description' },
-                    { key: 'risks', label: 'Risks — Riesgos', placeholder: 'Potential risks' },
-                    { key: 'controls', label: 'Controls — Controles', placeholder: 'Control measures' },
+                    { key: 'task', label: 'Task / Tarea', placeholder: 'Task description' },
+                    { key: 'risks', label: 'Risks / Riesgos', placeholder: 'Potential risks' },
+                    { key: 'controls', label: 'Controls / Controles', placeholder: 'Control measures' },
                   ].map(f => (
                     <div key={f.key}>
                       <div style={labelStyle}>{f.label}</div>
@@ -352,11 +352,11 @@ export default function JSADetailPage({ params }: { params: Promise<{ id: string
                     background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px',
                     padding: '6px 16px', fontFamily: mono, fontSize: '11px', fontWeight: '500',
                     letterSpacing: '1px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1,
-                  }}>{saving ? 'SAVING...' : 'ADD TASK — AGREGAR'}</button>
+                  }}>{saving ? 'SAVING...' : 'ADD TASK / AGREGAR'}</button>
                   <button onClick={() => setShowTaskForm(false)} style={{
                     background: 'transparent', color: 'var(--text2)', border: '1px solid var(--border2)',
                     borderRadius: '4px', padding: '6px 16px', fontFamily: mono, fontSize: '11px', cursor: 'pointer',
-                  }}>Cancel — Cancelar</button>
+                  }}>Cancel / Cancelar</button>
                 </div>
               </div>
             )}
@@ -369,7 +369,7 @@ export default function JSADetailPage({ params }: { params: Promise<{ id: string
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                    {['#', 'Task — Tarea', 'Risks — Riesgos', 'Controls — Controles'].map(h => (
+                    {['#', 'Task / Tarea', 'Risks / Riesgos', 'Controls / Controles'].map(h => (
                       <th key={h} style={{ padding: '10px 20px', textAlign: 'left', fontFamily: mono, fontSize: '10px', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 400 }}>{h}</th>
                     ))}
                   </tr>
