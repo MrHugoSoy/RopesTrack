@@ -26,6 +26,7 @@ export default function EquipmentPage() {
   const [saving, setSaving] = useState(false)
   const [userRole, setUserRole] = useState<string>('')
   const [editingEquip, setEditingEquip] = useState<Equipment | null>(null)
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set())
   const [editForm, setEditForm] = useState({
     name: '', type: 'Harness', serial_number: '',
     manufacture_date: '', last_inspection: '', next_inspection: '', status: 'active',
@@ -325,75 +326,124 @@ export default function EquipmentPage() {
             </div>
           )}
 
-          {/* TABLE */}
-          <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
-            <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)' }}>
-              <span style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)' }}>
-                {equipment.length} Items Registered
-              </span>
+          {/* GROUPED BY TYPE */}
+          {equipment.length === 0 ? (
+            <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', padding: '60px', textAlign: 'center', fontFamily: mono, fontSize: '12px', color: 'var(--text3)' }}>
+              No equipment yet. Click &quot;+ Add Equipment&quot; to register your first item.
             </div>
-            {equipment.length === 0 ? (
-              <div style={{ padding: '60px', textAlign: 'center', fontFamily: mono, fontSize: '12px', color: 'var(--text3)' }}>
-                No equipment yet. Click "+ Add Equipment" to register your first item.
-              </div>
-            ) : (
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                    {['Equipment', 'Type', 'Serial', 'Last Inspection', 'Next Inspection', 'Status', 'Actions'].map(h => (
-                      <th key={h} style={{ padding: '10px 20px', textAlign: 'left', fontFamily: mono, fontSize: '10px', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 400 }}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {equipment.map(eq => {
-                    const s = getStatus(eq)
-                    const days = eq.next_inspection ? getDays(eq.next_inspection) : null
-                    return (
-                      <tr key={eq.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                        <td style={{ padding: '14px 20px', fontWeight: 500, fontSize: '13px' }}>{eq.name}</td>
-                        <td style={{ padding: '14px 20px' }}>
-                          <span style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', background: 'var(--surface2)', padding: '2px 8px', borderRadius: '3px', border: '1px solid var(--border2)' }}>{eq.type}</span>
-                        </td>
-                        <td style={{ padding: '14px 20px', fontFamily: mono, fontSize: '11px', color: 'var(--text3)' }}>{eq.serial_number}</td>
-                        <td style={{ padding: '14px 20px', fontFamily: mono, fontSize: '11px', color: 'var(--text2)' }}>
-                          {eq.last_inspection ? new Date(eq.last_inspection).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
-                        </td>
-                        <td style={{ padding: '14px 20px', fontFamily: mono, fontSize: '11px', color: s === 'critical' ? 'var(--danger)' : s === 'warning' ? 'var(--warning)' : 'var(--text2)' }}>
-                          {eq.next_inspection ? new Date(eq.next_inspection).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
-                          {days !== null && <span style={{ marginLeft: '8px', fontSize: '10px', opacity: 0.7 }}>({days}d)</span>}
-                        </td>
-                        <td style={{ padding: '14px 20px' }}>
+          ) : (() => {
+            const typeOrder = ['Harness', 'Rope', 'Descender', 'Ascender', 'Anchor', 'Helmet', 'Lanyard', 'Other']
+            const groups = typeOrder
+              .map(type => ({ type, items: equipment.filter(e => e.type === type) }))
+              .filter(g => g.items.length > 0)
+            const extraTypes = [...new Set(equipment.map(e => e.type))].filter(t => !typeOrder.includes(t))
+            extraTypes.forEach(type => groups.push({ type, items: equipment.filter(e => e.type === type) }))
+
+            return (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text3)' }}>
+                  {equipment.length} Items · {groups.length} Groups
+                </div>
+                {groups.map(({ type, items }) => {
+                  const collapsed = collapsedGroups.has(type)
+                  const toggleCollapse = () => setCollapsedGroups(prev => {
+                    const next = new Set(prev)
+                    next.has(type) ? next.delete(type) : next.add(type)
+                    return next
+                  })
+                  const groupAlert = items.some(e => getStatus(e) === 'critical') ? 'critical'
+                    : items.some(e => getStatus(e) === 'warning') ? 'warning' : 'ok'
+
+                  return (
+                    <div key={type} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
+                      <div
+                        onClick={toggleCollapse}
+                        style={{
+                          padding: '12px 20px', display: 'flex', alignItems: 'center', gap: '12px',
+                          cursor: 'pointer', userSelect: 'none',
+                          borderBottom: collapsed ? 'none' : '1px solid var(--border)',
+                        }}
+                      >
+                        <span style={{
+                          fontFamily: mono, fontSize: '13px', fontWeight: 600, letterSpacing: '1px',
+                          textTransform: 'uppercase', color: 'var(--text)',
+                        }}>{type}</span>
+                        <span style={{
+                          fontFamily: mono, fontSize: '10px', padding: '2px 8px', borderRadius: '3px',
+                          background: 'var(--surface2)', border: '1px solid var(--border2)', color: 'var(--text3)',
+                        }}>{items.length}</span>
+                        {groupAlert !== 'ok' && (
                           <span style={{
-                            fontFamily: mono, fontSize: '10px', padding: '3px 8px', borderRadius: '3px',
-                            background: s === 'critical' ? 'rgba(255,74,74,0.15)' : s === 'warning' ? 'rgba(255,184,74,0.15)' : 'rgba(74,255,160,0.08)',
-                            color: s === 'critical' ? 'var(--danger)' : s === 'warning' ? 'var(--warning)' : 'var(--accent2)',
-                            border: `1px solid ${s === 'critical' ? 'rgba(255,74,74,0.3)' : s === 'warning' ? 'rgba(255,184,74,0.3)' : 'rgba(74,255,160,0.2)'}`,
-                          }}>
-                            {s.toUpperCase()}
-                          </span>
-                        </td>
-                        <td style={{ padding: '14px 20px' }}>
-                          <div style={{ display: 'flex', gap: '8px' }}>
-                            <button onClick={() => handleEdit(eq)} style={{
-                              background: 'transparent', color: 'var(--accent2)', border: '1px solid rgba(74,255,160,0.2)',
-                              borderRadius: '3px', padding: '3px 10px', fontFamily: mono, fontSize: '10px',
-                              letterSpacing: '0.5px', cursor: 'pointer',
-                            }}>Edit</button>
-                            <button onClick={() => handleDelete(eq.id)} style={{
-                              background: 'transparent', color: 'var(--danger)', border: '1px solid rgba(255,74,74,0.2)',
-                              borderRadius: '3px', padding: '3px 10px', fontFamily: mono, fontSize: '10px',
-                              letterSpacing: '0.5px', cursor: 'pointer',
-                            }}>Delete</button>
-                          </div>
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            )}
-          </div>
+                            fontFamily: mono, fontSize: '10px', padding: '2px 8px', borderRadius: '3px',
+                            background: groupAlert === 'critical' ? 'rgba(255,74,74,0.15)' : 'rgba(255,184,74,0.15)',
+                            color: groupAlert === 'critical' ? 'var(--danger)' : 'var(--warning)',
+                            border: `1px solid ${groupAlert === 'critical' ? 'rgba(255,74,74,0.3)' : 'rgba(255,184,74,0.3)'}`,
+                          }}>{groupAlert.toUpperCase()}</span>
+                        )}
+                        <span style={{ marginLeft: 'auto', fontFamily: mono, fontSize: '12px', color: 'var(--text3)' }}>
+                          {collapsed ? '▸' : '▾'}
+                        </span>
+                      </div>
+                      {!collapsed && (
+                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                          <thead>
+                            <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                              {['Equipment', 'Serial', 'Last Inspection', 'Next Inspection', 'Status', 'Actions'].map(h => (
+                                <th key={h} style={{ padding: '10px 20px', textAlign: 'left', fontFamily: mono, fontSize: '10px', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 400 }}>{h}</th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {items.map(eq => {
+                              const s = getStatus(eq)
+                              const days = eq.next_inspection ? getDays(eq.next_inspection) : null
+                              return (
+                                <tr key={eq.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                                  <td style={{ padding: '14px 20px', fontWeight: 500, fontSize: '13px' }}>{eq.name}</td>
+                                  <td style={{ padding: '14px 20px', fontFamily: mono, fontSize: '11px', color: 'var(--text3)' }}>{eq.serial_number}</td>
+                                  <td style={{ padding: '14px 20px', fontFamily: mono, fontSize: '11px', color: 'var(--text2)' }}>
+                                    {eq.last_inspection ? new Date(eq.last_inspection).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
+                                  </td>
+                                  <td style={{ padding: '14px 20px', fontFamily: mono, fontSize: '11px', color: s === 'critical' ? 'var(--danger)' : s === 'warning' ? 'var(--warning)' : 'var(--text2)' }}>
+                                    {eq.next_inspection ? new Date(eq.next_inspection).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
+                                    {days !== null && <span style={{ marginLeft: '8px', fontSize: '10px', opacity: 0.7 }}>({days}d)</span>}
+                                  </td>
+                                  <td style={{ padding: '14px 20px' }}>
+                                    <span style={{
+                                      fontFamily: mono, fontSize: '10px', padding: '3px 8px', borderRadius: '3px',
+                                      background: s === 'critical' ? 'rgba(255,74,74,0.15)' : s === 'warning' ? 'rgba(255,184,74,0.15)' : 'rgba(74,255,160,0.08)',
+                                      color: s === 'critical' ? 'var(--danger)' : s === 'warning' ? 'var(--warning)' : 'var(--accent2)',
+                                      border: `1px solid ${s === 'critical' ? 'rgba(255,74,74,0.3)' : s === 'warning' ? 'rgba(255,184,74,0.3)' : 'rgba(74,255,160,0.2)'}`,
+                                    }}>
+                                      {s.toUpperCase()}
+                                    </span>
+                                  </td>
+                                  <td style={{ padding: '14px 20px' }}>
+                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                      <button onClick={() => handleEdit(eq)} style={{
+                                        background: 'transparent', color: 'var(--accent2)', border: '1px solid rgba(74,255,160,0.2)',
+                                        borderRadius: '3px', padding: '3px 10px', fontFamily: mono, fontSize: '10px',
+                                        letterSpacing: '0.5px', cursor: 'pointer',
+                                      }}>Edit</button>
+                                      <button onClick={() => handleDelete(eq.id)} style={{
+                                        background: 'transparent', color: 'var(--danger)', border: '1px solid rgba(255,74,74,0.2)',
+                                        borderRadius: '3px', padding: '3px 10px', fontFamily: mono, fontSize: '10px',
+                                        letterSpacing: '0.5px', cursor: 'pointer',
+                                      }}>Delete</button>
+                                    </div>
+                                  </td>
+                                </tr>
+                              )
+                            })}
+                          </tbody>
+                        </table>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            )
+          })()}
         </div>
       </div>
     </div>

@@ -382,7 +382,13 @@ export default function JSAPage() {
                 <tbody>
                   {jsas.map(j => (
                     <tr key={j.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                      <td style={{ padding: '14px 20px', fontWeight: 500, fontSize: '13px' }}>{j.title}</td>
+                      <td style={{ padding: '14px 20px', fontWeight: 500, fontSize: '13px' }}>
+                        <span onClick={() => router.push(`/jsa/${j.id}`)} style={{ cursor: 'pointer', color: 'var(--text)' }}
+                          onMouseEnter={e => (e.currentTarget.style.color = 'var(--accent)')}
+                          onMouseLeave={e => (e.currentTarget.style.color = 'var(--text)')}>
+                          {j.title}
+                        </span>
+                      </td>
                       <td style={{ padding: '14px 20px', fontFamily: mono, fontSize: '11px', color: 'var(--text2)' }}>{j.location || '—'}</td>
                       <td style={{ padding: '14px 20px', fontFamily: mono, fontSize: '11px', color: 'var(--text2)' }}>
                         {j.date ? new Date(j.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
