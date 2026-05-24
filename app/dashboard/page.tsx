@@ -55,6 +55,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [org, setOrg] = useState<OrgProfile | null>(null)
   const [userRole, setUserRole] = useState<string>('')
+  const [collapsedEqGroups, setCollapsedEqGroups] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     async function init() {
@@ -350,47 +351,97 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* EQUIPMENT */}
-          <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
-            <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center' }}>
-              <span style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)' }}>Equipment</span>
-              {equipmentDue > 0 && (
-                <span style={{ marginLeft: 'auto', fontFamily: mono, fontSize: '10px', padding: '2px 8px', borderRadius: '2px', background: 'rgba(255,184,74,0.15)', color: 'var(--warning)', border: '1px solid rgba(255,184,74,0.3)' }}>
-                  {equipmentDue} DUE
-                </span>
-              )}
-            </div>
-            {equipment.length === 0 ? (
-              <div style={{ padding: '40px', textAlign: 'center', fontFamily: mono, fontSize: '12px', color: 'var(--text3)' }}>
-                No equipment registered yet.{' '}
-                <span onClick={() => router.push('/equipment')} style={{ color: 'var(--accent)', cursor: 'pointer' }}>Add equipment →</span>
-              </div>
-            ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1px', background: 'var(--border)' }}>
-                {equipment.map(eq => {
-                  const days = eq.next_inspection ? getDaysUntil(eq.next_inspection) : null
-                  const status = eq.status === 'inspection_required' || (days !== null && days <= 7) ? 'critical' : days !== null && days <= 30 ? 'warning' : 'ok'
-                  const pct = days !== null ? Math.min(100, Math.max(0, (days / 365) * 100)) : 80
+          {/* EQUIPMENT BY GROUP */}
+          {(() => {
+            const typeOrder = ['Harness', 'Rope', 'Descender', 'Ascender', 'Anchor', 'Helmet', 'Lanyard', 'Other']
+            const groups = typeOrder
+              .map(type => ({ type, items: equipment.filter(e => e.type === type) }))
+              .filter(g => g.items.length > 0)
+            const extraTypes = [...new Set(equipment.map(e => e.type))].filter(t => !typeOrder.includes(t))
+            extraTypes.forEach(type => groups.push({ type, items: equipment.filter(e => e.type === type) }))
+
+            return (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <span style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)' }}>Equipment</span>
+                  {equipmentDue > 0 && (
+                    <span style={{ fontFamily: mono, fontSize: '10px', padding: '2px 8px', borderRadius: '2px', background: 'rgba(255,184,74,0.15)', color: 'var(--warning)', border: '1px solid rgba(255,184,74,0.3)' }}>
+                      {equipmentDue} DUE
+                    </span>
+                  )}
+                  <span onClick={() => router.push('/equipment')} style={{ marginLeft: 'auto', fontFamily: mono, fontSize: '10px', color: 'var(--accent)', cursor: 'pointer', letterSpacing: '0.5px' }}>
+                    Manage →
+                  </span>
+                </div>
+                {equipment.length === 0 ? (
+                  <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', padding: '40px', textAlign: 'center', fontFamily: mono, fontSize: '12px', color: 'var(--text3)' }}>
+                    No equipment registered yet.{' '}
+                    <span onClick={() => router.push('/equipment')} style={{ color: 'var(--accent)', cursor: 'pointer' }}>Add equipment →</span>
+                  </div>
+                ) : groups.map(({ type, items }) => {
+                  const collapsed = collapsedEqGroups.has(type)
+                  const toggle = () => setCollapsedEqGroups(prev => {
+                    const next = new Set(prev)
+                    next.has(type) ? next.delete(type) : next.add(type)
+                    return next
+                  })
+                  const groupAlert = items.some(eq => {
+                    const days = eq.next_inspection ? getDaysUntil(eq.next_inspection) : null
+                    return eq.status === 'inspection_required' || (days !== null && days <= 7)
+                  }) ? 'critical' : items.some(eq => {
+                    const days = eq.next_inspection ? getDaysUntil(eq.next_inspection) : null
+                    return days !== null && days <= 30
+                  }) ? 'warning' : 'ok'
+
                   return (
-                    <div key={eq.id} style={{ background: 'var(--surface)', padding: '16px 20px' }}>
-                      <div style={{ fontFamily: mono, fontSize: '9px', textTransform: 'uppercase', letterSpacing: '2px', color: 'var(--text3)', marginBottom: '4px' }}>{eq.type}</div>
-                      <div style={{ fontSize: '13px', fontWeight: 500, marginBottom: '2px' }}>{eq.name}</div>
-                      <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', marginBottom: '10px' }}>SN: {eq.serial_number}</div>
-                      <div style={{ height: '3px', background: 'var(--border2)', borderRadius: '2px', marginBottom: '6px' }}>
-                        <div style={{ height: '3px', borderRadius: '2px', width: `${pct}%`, background: status === 'critical' ? 'var(--danger)' : status === 'warning' ? 'var(--warning)' : 'var(--accent2)' }}/>
+                    <div key={type} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
+                      <div onClick={toggle} style={{
+                        padding: '11px 20px', display: 'flex', alignItems: 'center', gap: '10px',
+                        cursor: 'pointer', userSelect: 'none',
+                        borderBottom: collapsed ? 'none' : '1px solid var(--border)',
+                      }}>
+                        <span style={{ fontFamily: mono, fontSize: '11px', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--text)' }}>{type}</span>
+                        <span style={{ fontFamily: mono, fontSize: '10px', padding: '1px 7px', borderRadius: '3px', background: 'var(--surface2)', border: '1px solid var(--border2)', color: 'var(--text3)' }}>{items.length}</span>
+                        {groupAlert !== 'ok' && (
+                          <span style={{
+                            fontFamily: mono, fontSize: '10px', padding: '1px 7px', borderRadius: '3px',
+                            background: groupAlert === 'critical' ? 'rgba(255,74,74,0.15)' : 'rgba(255,184,74,0.15)',
+                            color: groupAlert === 'critical' ? 'var(--danger)' : 'var(--warning)',
+                            border: `1px solid ${groupAlert === 'critical' ? 'rgba(255,74,74,0.3)' : 'rgba(255,184,74,0.3)'}`,
+                          }}>{groupAlert.toUpperCase()}</span>
+                        )}
+                        <span style={{ marginLeft: 'auto', fontFamily: mono, fontSize: '12px', color: 'var(--text3)' }}>{collapsed ? '▸' : '▾'}</span>
                       </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: mono, fontSize: '10px', color: 'var(--text3)' }}>
-                        <span>{days !== null ? `${days}d to inspection` : eq.status}</span>
-                        <span style={{ color: status === 'critical' ? 'var(--danger)' : status === 'warning' ? 'var(--warning)' : 'var(--accent2)' }}>
-                          {status.toUpperCase()}
-                        </span>
-                      </div>
+                      {!collapsed && (
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1px', background: 'var(--border)' }}>
+                          {items.map(eq => {
+                            const days = eq.next_inspection ? getDaysUntil(eq.next_inspection) : null
+                            const status = eq.status === 'inspection_required' || (days !== null && days <= 7) ? 'critical' : days !== null && days <= 30 ? 'warning' : 'ok'
+                            const pct = days !== null ? Math.min(100, Math.max(0, (days / 365) * 100)) : 80
+                            return (
+                              <div key={eq.id} style={{ background: 'var(--surface)', padding: '16px 20px' }}>
+                                <div style={{ fontSize: '13px', fontWeight: 500, marginBottom: '2px' }}>{eq.name}</div>
+                                <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', marginBottom: '10px' }}>SN: {eq.serial_number}</div>
+                                <div style={{ height: '3px', background: 'var(--border2)', borderRadius: '2px', marginBottom: '6px' }}>
+                                  <div style={{ height: '3px', borderRadius: '2px', width: `${pct}%`, background: status === 'critical' ? 'var(--danger)' : status === 'warning' ? 'var(--warning)' : 'var(--accent2)' }}/>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: mono, fontSize: '10px', color: 'var(--text3)' }}>
+                                  <span>{days !== null ? `${days}d to inspection` : eq.status}</span>
+                                  <span style={{ color: status === 'critical' ? 'var(--danger)' : status === 'warning' ? 'var(--warning)' : 'var(--accent2)' }}>
+                                    {status.toUpperCase()}
+                                  </span>
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      )}
                     </div>
                   )
                 })}
               </div>
-            )}
-          </div>
+            )
+          })()}
 
         </div>
       </div>
