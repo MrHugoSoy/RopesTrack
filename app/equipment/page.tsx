@@ -17,6 +17,17 @@ interface Equipment {
 
 const mono = 'var(--font-dm-mono)'
 
+const typeLabels: Record<string, string> = {
+  Harness: 'Harness — Arnés',
+  Rope: 'Rope — Cuerda',
+  Descender: 'Descender — Descensor',
+  Ascender: 'Ascender — Ascendedor',
+  Anchor: 'Anchor — Anclaje',
+  Helmet: 'Helmet — Casco',
+  Lanyard: 'Lanyard — Eslinga',
+  Other: 'Other — Otro',
+}
+
 export default function EquipmentPage() {
   const router = useRouter()
   const supabase = createClient()
@@ -238,7 +249,7 @@ export default function EquipmentPage() {
                   <select value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))}
                     style={{ width: '100%', background: 'var(--surface2)', border: '1px solid var(--border2)', borderRadius: '4px', padding: '8px 12px', color: 'var(--text)', fontFamily: mono, fontSize: '12px', outline: 'none' }}>
                     {['Harness', 'Rope', 'Descender', 'Ascender', 'Anchor', 'Helmet', 'Lanyard', 'Other'].map(t => (
-                      <option key={t} value={t}>{t}</option>
+                      <option key={t} value={t}>{typeLabels[t] ?? t}</option>
                     ))}
                   </select>
                 </div>
@@ -298,7 +309,7 @@ export default function EquipmentPage() {
                   <select value={editForm.type} onChange={e => setEditForm(f => ({ ...f, type: e.target.value }))}
                     style={{ width: '100%', background: 'var(--surface2)', border: '1px solid var(--border2)', borderRadius: '4px', padding: '8px 12px', color: 'var(--text)', fontFamily: mono, fontSize: '12px', outline: 'none' }}>
                     {['Harness', 'Rope', 'Descender', 'Ascender', 'Anchor', 'Helmet', 'Lanyard', 'Other'].map(t => (
-                      <option key={t} value={t}>{t}</option>
+                      <option key={t} value={t}>{typeLabels[t] ?? t}</option>
                     ))}
                   </select>
                 </div>
@@ -367,7 +378,7 @@ export default function EquipmentPage() {
                         <span style={{
                           fontFamily: mono, fontSize: '13px', fontWeight: 600, letterSpacing: '1px',
                           textTransform: 'uppercase', color: 'var(--text)',
-                        }}>{type}</span>
+                        }}>{typeLabels[type] ?? type}</span>
                         <span style={{
                           fontFamily: mono, fontSize: '10px', padding: '2px 8px', borderRadius: '3px',
                           background: 'var(--surface2)', border: '1px solid var(--border2)', color: 'var(--text3)',

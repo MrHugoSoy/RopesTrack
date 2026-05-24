@@ -46,6 +46,17 @@ interface OrgProfile {
 const mono = 'var(--font-dm-mono)'
 const bebas = 'var(--font-bebas)'
 
+const typeLabels: Record<string, string> = {
+  Harness: 'Harness — Arnés',
+  Rope: 'Rope — Cuerda',
+  Descender: 'Descender — Descensor',
+  Ascender: 'Ascender — Ascendedor',
+  Anchor: 'Anchor — Anclaje',
+  Helmet: 'Helmet — Casco',
+  Lanyard: 'Lanyard — Eslinga',
+  Other: 'Other — Otro',
+}
+
 export default function DashboardPage() {
   const router = useRouter()
   const supabase = createClient()
@@ -400,7 +411,7 @@ export default function DashboardPage() {
                         cursor: 'pointer', userSelect: 'none',
                         borderBottom: collapsed ? 'none' : '1px solid var(--border)',
                       }}>
-                        <span style={{ fontFamily: mono, fontSize: '11px', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--text)' }}>{type}</span>
+                        <span style={{ fontFamily: mono, fontSize: '11px', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--text)' }}>{typeLabels[type] ?? type}</span>
                         <span style={{ fontFamily: mono, fontSize: '10px', padding: '1px 7px', borderRadius: '3px', background: 'var(--surface2)', border: '1px solid var(--border2)', color: 'var(--text3)' }}>{items.length}</span>
                         {groupAlert !== 'ok' && (
                           <span style={{
