@@ -13,7 +13,7 @@ export default function OnboardingPage() {
   const [createMode, setCreateMode] = useState<'independent' | 'team'>('team')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
-  const [form, setForm] = useState({ name: '', slug: '' })
+  const [form, setForm] = useState({ full_name: '', name: '', slug: '' })
   const [joinSlug, setJoinSlug] = useState('')
 
   async function handleCreate() {
@@ -37,7 +37,7 @@ export default function OnboardingPage() {
     // Create profile
     const { error: profileError } = await supabase
       .from('profiles')
-      .insert({ id: user.id, org_id: org.id, role: 'admin' })
+      .insert({ id: user.id, org_id: org.id, role: 'admin', full_name: form.full_name })
 
     if (profileError) { setError(profileError.message); setSaving(false); return }
 
@@ -131,6 +131,19 @@ export default function OnboardingPage() {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '20px' }}>
               <div>
+                <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px', textTransform: 'uppercase' }}>Your Full Name</div>
+                <input
+                  placeholder="Carlos Mendoza"
+                  value={form.full_name}
+                  onChange={e => setForm(f => ({ ...f, full_name: e.target.value }))}
+                  style={{
+                    width: '100%', background: 'var(--surface2)', border: '1px solid var(--border2)',
+                    borderRadius: '4px', padding: '10px 14px', color: 'var(--text)',
+                    fontFamily: mono, fontSize: '13px', outline: 'none',
+                  }}
+                />
+              </div>
+              <div>
                 <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px', textTransform: 'uppercase' }}>
                   {createMode === 'independent' ? 'Your name' : 'Company Name'}
                 </div>
@@ -140,7 +153,7 @@ export default function OnboardingPage() {
                   onChange={e => {
                     const name = e.target.value
                     const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')
-                    setForm({ name, slug })
+                    setForm(f => ({ ...f, name, slug }))
                   }}
                   style={{
                     width: '100%', background: 'var(--surface2)', border: '1px solid var(--border2)',
@@ -175,7 +188,7 @@ export default function OnboardingPage() {
             </div>
             {error && <div style={{ fontFamily: mono, fontSize: '11px', color: 'var(--danger)', marginBottom: '16px' }}>{error}</div>}
             <div style={{ display: 'flex', gap: '8px' }}>
-              <button onClick={handleCreate} disabled={saving || !form.name || (createMode === 'team' && !form.slug)} style={{
+              <button onClick={handleCreate} disabled={saving || !form.full_name || !form.name || (createMode === 'team' && !form.slug)} style={{
                 flex: 1, background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px',
                 padding: '10px', fontFamily: mono, fontSize: '12px', fontWeight: '500',
                 letterSpacing: '1px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1,
