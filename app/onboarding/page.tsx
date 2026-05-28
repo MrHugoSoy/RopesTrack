@@ -23,9 +23,7 @@ export default function OnboardingPage() {
     if (!user) { router.push('/login'); return }
 
     // Create org
-    const slug = createMode === 'independent'
-      ? form.name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '') + '-' + Math.random().toString(36).slice(2, 6)
-      : form.slug
+    const slug = form.slug
     const { data: org, error: orgError } = await supabase
       .from('organizations')
       .insert({ name: form.name, slug, owner_id: user.id })
@@ -145,14 +143,16 @@ export default function OnboardingPage() {
               </div>
               <div>
                 <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px', textTransform: 'uppercase' }}>
-                  {createMode === 'independent' ? 'Your name' : 'Company Name'}
+                  {createMode === 'independent' ? 'Username' : 'Company Name'}
                 </div>
                 <input
-                  placeholder={createMode === 'independent' ? 'Carlos Mendoza' : 'Altus Services MX'}
+                  placeholder={createMode === 'independent' ? 'carlosmendoza' : 'Altus Services MX'}
                   value={form.name}
                   onChange={e => {
                     const name = e.target.value
-                    const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')
+                    const slug = createMode === 'independent'
+                      ? name.toLowerCase().replace(/[^a-z0-9]/g, '')
+                      : name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')
                     setForm(f => ({ ...f, name, slug }))
                   }}
                   style={{
@@ -161,6 +161,11 @@ export default function OnboardingPage() {
                     fontFamily: mono, fontSize: '13px', outline: 'none',
                   }}
                 />
+                {createMode === 'independent' && (
+                  <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', marginTop: '4px' }}>
+                    This will be your unique identifier in RopesTrack
+                  </div>
+                )}
               </div>
               {createMode === 'team' && (
                 <div>
