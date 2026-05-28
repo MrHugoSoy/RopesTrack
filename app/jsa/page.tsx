@@ -121,10 +121,10 @@ export default function JSAPage() {
 
     if (selectedWorkers.length > 0) {
       await supabase.from('jsa_workers').insert(
-        selectedWorkers.map(wid => ({
+        selectedWorkers.map(workerId => ({
           jsa_id: jsa.id,
-          worker_id: wid,
-          org_id: orgId,
+          worker_id: workerId,
+          is_signed: false,
         }))
       )
     }
@@ -379,7 +379,14 @@ export default function JSAPage() {
                       borderRadius: '4px', padding: '5px 10px', fontFamily: mono, fontSize: '11px',
                       color: selectedWorkers.includes(w.id) ? 'var(--accent)' : 'var(--text2)',
                     }}>
-                      <input type="checkbox" checked={selectedWorkers.includes(w.id)} onChange={() => toggleWorker(w.id)}
+                      <input type="checkbox" checked={selectedWorkers.includes(w.id)}
+                        onChange={e => {
+                          if (e.target.checked) {
+                            setSelectedWorkers(prev => [...prev, w.id])
+                          } else {
+                            setSelectedWorkers(prev => prev.filter(id => id !== w.id))
+                          }
+                        }}
                         style={{ accentColor: 'var(--accent)', cursor: 'pointer' }} />
                       {w.name}
                     </label>

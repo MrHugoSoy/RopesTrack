@@ -21,6 +21,7 @@ interface JSATask {
 
 interface JSADetail {
   id: string
+  org_id: string
   title: string
   location: string
   date: string
@@ -57,10 +58,10 @@ export default function JSADetailPage({ params }: { params: Promise<{ id: string
   async function fetchJSA() {
     const { data } = await supabase
       .from('jsas')
-      .select('*, supervisor:supervisor_id(name, irata_id), jsa_workers(id, is_signed, signed_at, worker:worker_id(name, irata_id, level)), jsa_tasks(id, task, risks, controls, order_index)')
+      .select('id, org_id, title, location, date, notes, status, supervisor:supervisor_id(name, irata_id), jsa_workers(id, is_signed, signed_at, worker:worker_id(name, irata_id, level)), jsa_tasks(id, task, risks, controls, order_index)')
       .eq('id', id)
       .single()
-    if (data) setJsa(data as JSADetail)
+    if (data) setJsa(data as unknown as JSADetail)
   }
 
   async function handleSign(jsaWorkerId: string) {
@@ -82,13 +83,14 @@ export default function JSADetailPage({ params }: { params: Promise<{ id: string
     const maxOrder = jsa.jsa_tasks.length > 0
       ? Math.max(...jsa.jsa_tasks.map(t => t.order_index ?? 0)) + 1
       : 1
-    await supabase.from('jsa_tasks').insert({
+    const { error } = await supabase.from('jsa_tasks').insert({
       jsa_id: id,
       task: taskForm.task,
       risks: taskForm.risks,
       controls: taskForm.controls,
       order_index: maxOrder,
     })
+    if (error) { alert(error.message); setSaving(false); return }
     setTaskForm({ task: '', risks: '', controls: '' })
     setShowTaskForm(false)
     setSaving(false)
