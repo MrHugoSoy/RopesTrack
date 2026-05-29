@@ -302,7 +302,13 @@ export default function EquipmentPage() {
                               const days = eq.next_inspection ? getDays(eq.next_inspection) : null
                               return (
                                 <tr key={eq.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                                  <td style={{ padding: '14px 20px', fontWeight: 500, fontSize: '13px' }}>{eq.name}</td>
+                                  <td style={{ padding: '14px 20px', fontWeight: 500, fontSize: '13px' }}>
+                                    <span onClick={() => router.push(`/equipment/${eq.id}`)} style={{ cursor: 'pointer', color: 'var(--text)' }}
+                                      onMouseEnter={e => (e.currentTarget.style.color = 'var(--accent)')}
+                                      onMouseLeave={e => (e.currentTarget.style.color = 'var(--text)')}>
+                                      {eq.name}
+                                    </span>
+                                  </td>
                                   <td style={{ padding: '14px 20px', fontFamily: mono, fontSize: '11px', color: 'var(--text3)' }}>{eq.serial_number}</td>
                                   <td style={{ padding: '14px 20px', fontFamily: mono, fontSize: '11px', color: 'var(--text2)' }}>
                                     {eq.last_inspection ? new Date(eq.last_inspection).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
