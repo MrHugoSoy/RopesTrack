@@ -62,7 +62,16 @@ export default function WorkersPage() {
       .from('workers')
       .select('*, certifications(expiry_date)')
       .order('name')
-    if (data) setWorkers(data)
+    if (data) {
+      const sorted = data.map(w => ({
+        ...w,
+        certifications: (w.certifications ?? []).sort(
+          (a: { expiry_date: string }, b: { expiry_date: string }) =>
+            new Date(b.expiry_date).getTime() - new Date(a.expiry_date).getTime()
+        ),
+      }))
+      setWorkers(sorted)
+    }
   }
 
   async function handleSave() {
