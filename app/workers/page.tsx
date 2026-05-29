@@ -464,11 +464,26 @@ export default function WorkersPage() {
                               borderRadius: '3px', padding: '3px 10px', fontFamily: mono, fontSize: '10px',
                               letterSpacing: '0.5px', cursor: 'pointer',
                             }}>Delete / Eliminar</button>
-                            <button onClick={() => setRenewingWorker(w)} style={{
-                              background: 'transparent', color: 'var(--accent)', border: '1px solid rgba(232,255,74,0.2)',
-                              borderRadius: '3px', padding: '3px 10px', fontFamily: mono, fontSize: '10px',
-                              letterSpacing: '0.5px', cursor: 'pointer',
-                            }}>Renew / Renovar</button>
+                            <button
+                              onClick={() => {
+                                console.log('Setting renewing worker:', w)
+                                setRenewingWorker(w)
+                                setRenewForm({ cert_issue: '', cert_expiry: '', cert_number: '' })
+                              }}
+                              style={{
+                                background: 'transparent',
+                                color: 'var(--accent)',
+                                border: '1px solid rgba(232,255,74,0.3)',
+                                borderRadius: '4px',
+                                padding: '4px 10px',
+                                fontFamily: mono,
+                                fontSize: '10px',
+                                cursor: 'pointer',
+                                letterSpacing: '0.5px',
+                              }}
+                            >
+                              Renew / Renovar
+                            </button>
                           </div>
                         </td>
                       </tr>
