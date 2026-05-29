@@ -80,6 +80,16 @@ export default function DashboardPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  async function markAsRead(alertId: string) {
+    await supabase.from('alerts').update({ is_read: true }).eq('id', alertId)
+    await fetchData()
+  }
+
+  async function markAllAsRead() {
+    await supabase.from('alerts').update({ is_read: true }).eq('is_read', false)
+    await fetchData()
+  }
+
   async function fetchData() {
     const [{ data: w }, { data: e }, { data: a }] = await Promise.all([
       supabase.from('workers').select('*, certifications(expiry_date)').order('name'),
@@ -321,9 +331,16 @@ export default function DashboardPage() {
               <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <span style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)' }}>Alert Feed / Alertas</span>
                 {openAlerts > 0 && (
-                  <span style={{ marginLeft: 'auto', fontFamily: mono, fontSize: '10px', padding: '2px 8px', borderRadius: '2px', background: 'rgba(255,74,74,0.15)', color: 'var(--danger)', border: '1px solid rgba(255,74,74,0.3)' }}>
+                  <span style={{ fontFamily: mono, fontSize: '10px', padding: '2px 8px', borderRadius: '2px', background: 'rgba(255,74,74,0.15)', color: 'var(--danger)', border: '1px solid rgba(255,74,74,0.3)' }}>
                     {openAlerts} NEW
                   </span>
+                )}
+                {openAlerts > 0 && (
+                  <span onClick={markAllAsRead} style={{
+                    marginLeft: 'auto', fontFamily: mono, fontSize: '10px',
+                    color: 'var(--text3)', cursor: 'pointer', textDecoration: 'underline',
+                    letterSpacing: '0.5px'
+                  }}>Marcar todas</span>
                 )}
               </div>
               {alerts.length === 0 ? (
@@ -332,7 +349,7 @@ export default function DashboardPage() {
                 </div>
               ) : (
                 alerts.map(alert => (
-                  <div key={alert.id} style={{ padding: '12px 20px', borderBottom: '1px solid var(--border)', display: 'flex', gap: '12px' }}>
+                  <div key={alert.id} style={{ padding: '12px 20px', borderBottom: '1px solid var(--border)', display: 'flex', gap: '12px', opacity: alert.is_read ? 0.4 : 1 }}>
                     <div style={{
                       width: '28px', height: '28px', borderRadius: '4px', flexShrink: 0,
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -344,13 +361,23 @@ export default function DashboardPage() {
                         <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
                       </svg>
                     </div>
-                    <div>
+                    <div style={{ flex: 1 }}>
                       <div style={{ fontSize: '12px', color: 'var(--text2)', lineHeight: 1.5, marginBottom: '3px' }}>{alert.message}</div>
                       <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)' }}>
                         {new Date(alert.created_at).toLocaleDateString()}
                         {alert.whatsapp_sent && <span style={{ color: '#25d366', marginLeft: '8px' }}>· WhatsApp ✓</span>}
                       </div>
                     </div>
+                    {!alert.is_read && (
+                      <div onClick={() => markAsRead(alert.id)} style={{
+                        marginLeft: 'auto', flexShrink: 0,
+                        width: '20px', height: '20px',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        borderRadius: '3px', cursor: 'pointer',
+                        background: 'rgba(74,255,160,0.1)',
+                        color: 'var(--accent2)', fontSize: '11px',
+                      }}>✓</div>
+                    )}
                   </div>
                 ))
               )}
