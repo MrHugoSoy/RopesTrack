@@ -153,16 +153,29 @@ export default function WorkersPage() {
 
   async function handleRenew() {
     if (!renewingWorker) return
+    if (!renewForm.cert_expiry) { alert('Expiry date is required'); return }
     setSaving(true)
-    const { error } = await supabase
-      .from('certifications')
-      .insert({
-        worker_id: renewingWorker.id,
-        org_id: (await supabase.from('profiles').select('org_id').eq('id', (await supabase.auth.getUser()).data.user!.id).single()).data?.org_id,
-        issue_date: renewForm.cert_issue,
-        expiry_date: renewForm.cert_expiry,
-        certificate_number: renewForm.cert_number,
-      })
+
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) { setSaving(false); return }
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('org_id')
+      .eq('id', user.id)
+      .single()
+
+    if (!profile?.org_id) { alert('No organization found'); setSaving(false); return }
+
+    const { error } = await supabase.from('certifications').insert({
+      worker_id: renewingWorker.id,
+      org_id: profile.org_id,
+      issue_date: renewForm.cert_issue || new Date().toISOString().split('T')[0],
+      expiry_date: renewForm.cert_expiry,
+      certificate_number: renewForm.cert_number || null,
+      issuing_body: 'IRATA',
+    })
+
     if (error) { alert(error.message); setSaving(false); return }
 
     const days = Math.ceil((new Date(renewForm.cert_expiry).getTime() - Date.now()) / 86400000)
@@ -171,6 +184,7 @@ export default function WorkersPage() {
         type: days <= 7 ? 'critical' : 'warning',
         message: `${renewingWorker.name} IRATA L${renewingWorker.level} cert expires in ${days} days.`,
         related_worker: renewingWorker.id,
+        org_id: profile.org_id,
       })
     }
 
