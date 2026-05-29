@@ -77,6 +77,9 @@ export default function DashboardPage() {
       setLoading(false)
     }
     init()
+    const onFocus = () => fetchData()
+    window.addEventListener('focus', onFocus)
+    return () => window.removeEventListener('focus', onFocus)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

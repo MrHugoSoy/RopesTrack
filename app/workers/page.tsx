@@ -198,10 +198,11 @@ export default function WorkersPage() {
       })
     }
 
+    await fetchWorkers()
     setRenewingWorker(null)
     setRenewForm({ cert_issue: '', cert_expiry: '', cert_number: '' })
     setSaving(false)
-    await fetchWorkers()
+    router.refresh()
   }
 
   async function handleDelete(id: string) {
