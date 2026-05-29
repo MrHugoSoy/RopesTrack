@@ -152,6 +152,7 @@ export default function WorkersPage() {
   }
 
   async function handleRenew() {
+    console.log('handleRenew called', renewForm, renewingWorker)
     if (!renewingWorker) return
     if (!renewForm.cert_expiry) { alert('Expiry date is required'); return }
     setSaving(true)
