@@ -99,7 +99,13 @@ export default function DashboardPage() {
       supabase.from('equipment').select('*').order('name'),
       supabase.from('alerts').select('*').order('created_at', { ascending: false }).limit(10),
     ])
-    if (w) setWorkers(w)
+    if (w) setWorkers(w.map(worker => ({
+      ...worker,
+      certifications: (worker.certifications ?? []).sort(
+        (a: { expiry_date: string }, b: { expiry_date: string }) =>
+          new Date(b.expiry_date).getTime() - new Date(a.expiry_date).getTime()
+      ),
+    })))
     if (e) setEquipment(e)
     if (a) setAlerts(a)
     const { data: { user } } = await supabase.auth.getUser()

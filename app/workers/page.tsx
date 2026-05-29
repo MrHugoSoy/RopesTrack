@@ -198,11 +198,20 @@ export default function WorkersPage() {
       })
     }
 
-    await fetchWorkers()
+    // Optimistic update — update UI immediately without waiting for re-fetch
+    setWorkers(prev => prev.map(w => {
+      if (w.id !== renewingWorker.id) return w
+      const newCert = { expiry_date: renewForm.cert_expiry }
+      const certs = [newCert, ...(w.certifications ?? [])].sort(
+        (a, b) => new Date(b.expiry_date).getTime() - new Date(a.expiry_date).getTime()
+      )
+      return { ...w, certifications: certs }
+    }))
     setRenewingWorker(null)
     setRenewForm({ cert_issue: '', cert_expiry: '', cert_number: '' })
     setSaving(false)
-    router.refresh()
+    // Background sync to confirm server state
+    fetchWorkers()
   }
 
   async function handleDelete(id: string) {
