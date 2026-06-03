@@ -113,10 +113,84 @@ function StatusSelect({ value, onChange, disabled }: { value: string; onChange: 
   )
 }
 
+const SESSION_KEY = 'rt_admin_unlocked'
+const ADMIN_PIN = process.env.NEXT_PUBLIC_ADMIN_PIN ?? ''
+
+function PinGate({ onUnlock }: { onUnlock: () => void }) {
+  const [pin, setPin] = useState('')
+  const [error, setError] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => { inputRef.current?.focus() }, [])
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (pin === ADMIN_PIN) {
+      sessionStorage.setItem(SESSION_KEY, '1')
+      onUnlock()
+    } else {
+      setError(true)
+      setPin('')
+      setTimeout(() => setError(false), 1200)
+    }
+  }
+
+  return (
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ width: '320px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '40px', justifyContent: 'center' }}>
+          <div style={{ width: '28px', height: '28px', background: 'var(--accent)', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+              <circle cx="10" cy="10" r="3" fill="#0d0f0e"/>
+              <path d="M10 2 L10 7 M10 13 L10 18 M2 10 L7 10 M13 10 L18 10" stroke="#0d0f0e" strokeWidth="2" strokeLinecap="round"/>
+              <circle cx="10" cy="10" r="8" stroke="#0d0f0e" strokeWidth="1.5"/>
+            </svg>
+          </div>
+          <span style={{ fontFamily: mono, fontSize: '12px', letterSpacing: '2px', fontWeight: 600, textTransform: 'uppercase', color: 'var(--text)' }}>RopesTrack</span>
+        </div>
+
+        <div style={{ background: 'var(--surface)', border: `1px solid ${error ? 'rgba(255,74,74,0.4)' : 'var(--border)'}`, borderRadius: '8px', padding: '32px', transition: 'border-color 0.2s' }}>
+          <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '8px', textAlign: 'center' }}>Admin</div>
+          <div style={{ fontFamily: bebas, fontSize: '28px', letterSpacing: '3px', color: 'var(--text)', marginBottom: '28px', textAlign: 'center' }}>ACCESO RESTRINGIDO</div>
+
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div>
+              <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '6px' }}>Contraseña</div>
+              <input
+                ref={inputRef}
+                type="password"
+                value={pin}
+                onChange={e => setPin(e.target.value)}
+                placeholder="••••••••"
+                style={{
+                  width: '100%', boxSizing: 'border-box',
+                  background: 'var(--surface2)', border: `1px solid ${error ? 'rgba(255,74,74,0.5)' : 'var(--border2)'}`,
+                  borderRadius: '4px', padding: '10px 14px', color: 'var(--text)',
+                  fontFamily: mono, fontSize: '14px', outline: 'none', letterSpacing: '4px',
+                  transition: 'border-color 0.2s',
+                }}
+              />
+            </div>
+            {error && (
+              <div style={{ fontFamily: mono, fontSize: '11px', color: 'rgb(255,74,74)', letterSpacing: '0.5px' }}>
+                Contraseña incorrecta.
+              </div>
+            )}
+            <button type="submit" style={{ background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px', padding: '11px', fontFamily: mono, fontSize: '11px', fontWeight: 700, letterSpacing: '1.5px', cursor: 'pointer', textTransform: 'uppercase', marginTop: '4px' }}>
+              Entrar
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function AdminPage() {
   const router = useRouter()
   const supabase = createClient()
 
+  const [unlocked, setUnlocked] = useState(false)
   const [ready, setReady] = useState(false)
   const [requests, setRequests] = useState<Request[]>([])
   const [filter, setFilter] = useState<Filter>('all')
@@ -124,6 +198,11 @@ export default function AdminPage() {
   const [updating, setUpdating] = useState<string | null>(null)
 
   useEffect(() => {
+    if (sessionStorage.getItem(SESSION_KEY) === '1') setUnlocked(true)
+  }, [])
+
+  useEffect(() => {
+    if (!unlocked) return
     async function init() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user || user.email !== ADMIN_EMAIL) {
@@ -138,7 +217,7 @@ export default function AdminPage() {
       setReady(true)
     }
     init()
-  }, [])
+  }, [unlocked])
 
   async function updateStatus(id: string, status: string) {
     setUpdating(id)
@@ -163,6 +242,8 @@ export default function AdminPage() {
   const filtered = filter === 'all'
     ? requests
     : requests.filter(r => (r.status ?? 'pendiente') === filter)
+
+  if (!unlocked) return <PinGate onUnlock={() => setUnlocked(true)} />
 
   if (!ready) return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
