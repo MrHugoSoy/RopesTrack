@@ -273,7 +273,7 @@ export default function AdminPage() {
                 const date = new Date(req.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: '2-digit' })
 
                 return (
-                  <div key={req.id} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '6px', overflow: 'hidden', transition: 'border-color 0.15s' }}
+                  <div key={req.id} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '6px', transition: 'border-color 0.15s' }}
                     onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--border2)')}
                     onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}>
 
