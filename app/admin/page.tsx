@@ -258,9 +258,9 @@ export default function AdminPage() {
                           borderRadius: '3px', padding: '5px 8px', cursor: 'pointer', outline: 'none', width: '100%',
                           opacity: updating === req.id ? 0.5 : 1,
                         }}>
-                        <option value="pendiente">Pendiente</option>
-                        <option value="aprobada">Aprobada</option>
-                        <option value="rechazada">Rechazada</option>
+                        <option value="pendiente" style={{ background: '#0d0f0e', color: '#e8ff4a' }}>Pendiente</option>
+                        <option value="aprobada"  style={{ background: '#0d0f0e', color: 'rgb(74,255,160)' }}>Aprobada</option>
+                        <option value="rechazada" style={{ background: '#0d0f0e', color: 'rgb(255,74,74)' }}>Rechazada</option>
                       </select>
 
                       {/* Action buttons */}
