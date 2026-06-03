@@ -219,6 +219,54 @@ export default function TalentPage() {
             ))}
           </div>
 
+          {/* Preview de perfiles */}
+          <div style={{ marginBottom: '64px' }}>
+            <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '12px' }}>Directorio</div>
+            <h3 style={{ fontFamily: bebas, fontSize: 'clamp(28px, 4vw, 48px)', letterSpacing: '3px', margin: '0 0 12px', color: 'var(--text)' }}>
+              TÉCNICOS DISPONIBLES
+            </h3>
+            <p style={{ fontFamily: mono, fontSize: '12px', color: 'var(--text3)', marginBottom: '32px', letterSpacing: '0.3px', lineHeight: 1.65 }}>
+              Vista previa — los datos de contacto son exclusivos para empresas verificadas.
+            </p>
+            <div style={{ position: 'relative' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', filter: 'blur(3px)', pointerEvents: 'none', userSelect: 'none' }}>
+                {mockWorkers.map((w, i) => (
+                  <div key={i} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', padding: '24px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+                      <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'var(--surface2)', border: '1px solid var(--border2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <span style={{ fontFamily: mono, fontSize: '14px', fontWeight: 700, color: 'var(--text2)' }}>{w.name[0]}</span>
+                      </div>
+                      <span style={{ fontFamily: mono, fontSize: '10px', fontWeight: 700, letterSpacing: '1px', background: levelColor[w.level], border: `1px solid ${levelBorder[w.level]}`, color: levelText[w.level], borderRadius: '3px', padding: '3px 8px' }}>{w.level}</span>
+                    </div>
+                    <div style={{ fontFamily: mono, fontSize: '13px', fontWeight: 600, color: 'var(--text)', marginBottom: '4px' }}>{w.name}</div>
+                    <div style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text3)', marginBottom: '16px' }}>{w.city}</div>
+                    <div style={{ height: '1px', background: 'var(--border)', marginBottom: '16px' }}/>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Escuela</span>
+                        <span style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text2)' }}>{w.school}</span>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Cert activa</span>
+                        <span style={{ fontFamily: mono, fontSize: '10px', color: 'var(--accent)' }}>{w.days}d</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px', background: 'rgba(13,15,14,0.6)', backdropFilter: 'blur(2px)', borderRadius: '8px' }}>
+                <div style={{ width: '44px', height: '44px', background: 'rgba(232,255,74,0.08)', border: '1px solid rgba(232,255,74,0.2)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.8">
+                    <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                  </svg>
+                </div>
+                <div style={{ fontFamily: mono, fontSize: '12px', color: 'var(--text)', letterSpacing: '0.5px', textAlign: 'center', maxWidth: '320px', lineHeight: 1.65 }}>
+                  Acceso completo disponible para empresas verificadas
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Formulario de solicitud */}
           <div style={{ maxWidth: '560px' }}>
             <div style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text3)', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '24px' }}>
@@ -310,62 +358,6 @@ export default function TalentPage() {
           <button onClick={() => router.push('/login')} style={{ background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px', padding: '13px 32px', fontFamily: mono, fontSize: '12px', fontWeight: 700, letterSpacing: '1.5px', cursor: 'pointer', textTransform: 'uppercase' }}>
             Crear mi Perfil Gratuito
           </button>
-        </div>
-      </section>
-
-      {/* ── PREVIEW DE PERFILES ─────────────────────────────────────────────── */}
-      <section style={{ borderBottom: '1px solid var(--border)' }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '80px 48px' }}>
-          <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '12px' }}>Directorio</div>
-          <h2 style={{ fontFamily: bebas, fontSize: 'clamp(36px, 5vw, 60px)', letterSpacing: '3px', margin: '0 0 12px', color: 'var(--text)' }}>
-            TÉCNICOS DISPONIBLES
-          </h2>
-          <p style={{ fontFamily: mono, fontSize: '12px', color: 'var(--text3)', marginBottom: '40px', letterSpacing: '0.3px', lineHeight: 1.65 }}>
-            Vista previa — los datos de contacto son exclusivos para empresas verificadas.
-          </p>
-
-          <div style={{ position: 'relative' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', filter: 'blur(3px)', pointerEvents: 'none', userSelect: 'none' }}>
-              {mockWorkers.map((w, i) => (
-                <div key={i} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', padding: '24px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-                    <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'var(--surface2)', border: '1px solid var(--border2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <span style={{ fontFamily: mono, fontSize: '14px', fontWeight: 700, color: 'var(--text2)' }}>{w.name[0]}</span>
-                    </div>
-                    <span style={{ fontFamily: mono, fontSize: '10px', fontWeight: 700, letterSpacing: '1px', background: levelColor[w.level], border: `1px solid ${levelBorder[w.level]}`, color: levelText[w.level], borderRadius: '3px', padding: '3px 8px' }}>{w.level}</span>
-                  </div>
-                  <div style={{ fontFamily: mono, fontSize: '13px', fontWeight: 600, color: 'var(--text)', marginBottom: '4px' }}>{w.name}</div>
-                  <div style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text3)', marginBottom: '16px' }}>{w.city}</div>
-                  <div style={{ height: '1px', background: 'var(--border)', marginBottom: '16px' }}/>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Escuela</span>
-                      <span style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text2)' }}>{w.school}</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Cert activa</span>
-                      <span style={{ fontFamily: mono, fontSize: '10px', color: 'var(--accent)' }}>{w.days}d</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Overlay */}
-            <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px', background: 'rgba(13,15,14,0.6)', backdropFilter: 'blur(2px)', borderRadius: '8px' }}>
-              <div style={{ width: '44px', height: '44px', background: 'rgba(232,255,74,0.08)', border: '1px solid rgba(232,255,74,0.2)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.8">
-                  <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                </svg>
-              </div>
-              <div style={{ fontFamily: mono, fontSize: '12px', color: 'var(--text)', letterSpacing: '0.5px', textAlign: 'center', maxWidth: '320px', lineHeight: 1.65 }}>
-                Acceso completo disponible para empresas verificadas
-              </div>
-              <button onClick={() => scrollTo('empresas')} style={{ background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px', padding: '10px 24px', fontFamily: mono, fontSize: '11px', fontWeight: 700, letterSpacing: '1.5px', cursor: 'pointer', textTransform: 'uppercase' }}>
-                Solicitar Acceso
-              </button>
-            </div>
-          </div>
         </div>
       </section>
 
