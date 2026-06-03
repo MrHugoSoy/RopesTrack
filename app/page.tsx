@@ -89,9 +89,9 @@ export default function LandingPage() {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
           {[
-            { label: 'Features', id: 'features' },
-            { label: 'Pricing', id: 'pricing' },
-            { label: 'About', id: 'waitlist' },
+            { label: 'Funciones', id: 'features' },
+            { label: 'Precios', id: 'pricing' },
+            { label: 'Nosotros', id: 'waitlist' },
           ].map(item => (
             <button key={item.label} onClick={() => scrollTo(item.id)} style={{
               background: 'none', border: 'none', cursor: 'pointer',
@@ -119,12 +119,12 @@ export default function LandingPage() {
             background: 'transparent', color: 'var(--text2)', border: '1px solid var(--border2)',
             borderRadius: '4px', padding: '7px 18px', fontFamily: mono, fontSize: '11px',
             letterSpacing: '1px', cursor: 'pointer', textTransform: 'uppercase',
-          }}>Login</button>
+          }}>Ingresar</button>
           <button onClick={() => router.push('/login')} style={{
             background: 'var(--accent)', color: '#0d0f0e', border: 'none',
             borderRadius: '4px', padding: '7px 18px', fontFamily: mono, fontSize: '11px',
             letterSpacing: '1px', cursor: 'pointer', fontWeight: 700, textTransform: 'uppercase',
-          }}>Start Free</button>
+          }}>Empezar Gratis</button>
         </div>
       </nav>
 
@@ -136,7 +136,7 @@ export default function LandingPage() {
           borderRadius: '3px', padding: '4px 14px', marginBottom: '32px',
         }}>
           <span style={{ fontFamily: mono, fontSize: '10px', letterSpacing: '2px', color: 'var(--accent)', textTransform: 'uppercase' }}>
-            Built by a Certified IRATA Technician
+            Creado por un Técnico IRATA Certificado
           </span>
         </div>
 
@@ -145,15 +145,15 @@ export default function LandingPage() {
           letterSpacing: '4px', textTransform: 'uppercase', color: 'var(--text)',
           margin: '0 0 28px',
         }}>
-          IRATA Compliance.<br />Automated.
+          Cumplimiento IRATA.<br />Automatizado.
         </h1>
 
         <p style={{
           fontFamily: mono, fontSize: '14px', lineHeight: 1.75, color: 'var(--text2)',
           maxWidth: '580px', margin: '0 0 40px', letterSpacing: '0.3px',
         }}>
-          Stop managing certifications on spreadsheets. RopesTrack tracks your team&apos;s IRATA certs,
-          equipment inspections, and JSAs — and alerts you before anything expires.
+          Deja de gestionar certificaciones en hojas de cálculo. RopesTrack rastrea las certs IRATA de tu equipo,
+          inspecciones de equipos y JSAs — y te avisa antes de que algo venza.
         </p>
 
         <div style={{ display: 'flex', gap: '12px', marginBottom: '56px', flexWrap: 'wrap', justifyContent: 'center' }}>
@@ -161,18 +161,18 @@ export default function LandingPage() {
             background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px',
             padding: '13px 32px', fontFamily: mono, fontSize: '12px', fontWeight: 700,
             letterSpacing: '1.5px', cursor: 'pointer', textTransform: 'uppercase',
-          }}>Start Free</button>
+          }}>Empezar Gratis</button>
           <button onClick={() => scrollTo('features')} style={{
             background: 'transparent', color: 'var(--text)', border: '1px solid var(--border2)',
             borderRadius: '4px', padding: '13px 32px', fontFamily: mono, fontSize: '12px',
             letterSpacing: '1.5px', cursor: 'pointer', textTransform: 'uppercase',
-          }}>See How It Works</button>
+          }}>Cómo Funciona</button>
         </div>
 
         <div style={{
           display: 'flex', gap: '0', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '6px', overflow: 'hidden',
         }}>
-          {['12 Workers Tracked', '847 Cert Days Saved', '0 Compliance Failures'].map((stat, i) => (
+          {['12 Trabajadores Registrados', '847 Días de Cert Ahorrados', '0 Fallas de Cumplimiento'].map((stat, i) => (
             <div key={i} style={{
               padding: '14px 28px',
               borderRight: i < 2 ? '1px solid var(--border)' : 'none',
@@ -186,15 +186,15 @@ export default function LandingPage() {
       {/* ── PROBLEM ───────────────────────────────────────────────────────────── */}
       <section style={{ borderBottom: '1px solid var(--border)' }}>
         <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '80px 48px' }}>
-          <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '12px' }}>The Problem</div>
+          <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '12px' }}>El Problema</div>
           <h2 style={{ fontFamily: bebas, fontSize: 'clamp(36px, 5vw, 60px)', letterSpacing: '3px', margin: '0 0 48px', color: 'var(--text)' }}>
-            SOUND FAMILIAR?
+            ¿TE SUENA FAMILIAR?
           </h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
             {[
-              { icon: '⚠', title: "Your tech's cert expired last week.", sub: "You didn't know." },
-              { icon: '🔴', title: "The harness failed inspection.", sub: "It's still in use." },
-              { icon: '📄', title: "The JSA was signed on paper.", sub: "Now it's lost." },
+              { icon: '⚠', title: 'La cert de tu técnico venció la semana pasada.', sub: 'No lo sabías.' },
+              { icon: '🔴', title: 'El arnés no pasó la inspección.', sub: 'Sigue en uso.' },
+              { icon: '📄', title: 'La JSA fue firmada en papel.', sub: 'Ahora está perdida.' },
             ].map((card, i) => (
               <div key={i} style={{
                 background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px',
@@ -212,41 +212,41 @@ export default function LandingPage() {
       {/* ── FEATURES ──────────────────────────────────────────────────────────── */}
       <section id="features" style={{ borderBottom: '1px solid var(--border)' }}>
         <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '80px 48px' }}>
-          <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '12px' }}>Features</div>
+          <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '12px' }}>Funciones</div>
           <h2 style={{ fontFamily: bebas, fontSize: 'clamp(36px, 5vw, 60px)', letterSpacing: '3px', margin: '0 0 48px', color: 'var(--text)' }}>
-            EVERYTHING YOUR TEAM NEEDS<br />TO STAY COMPLIANT
+            TODO LO QUE TU EQUIPO NECESITA<br />PARA MANTENER EL CUMPLIMIENTO
           </h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
             {[
               {
                 path: 'M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z',
-                title: 'Cert Tracking',
-                desc: 'Know exactly when every IRATA cert expires. 30, 15, 7 and 1 day alerts.',
+                title: 'Control de Certificaciones',
+                desc: 'Sabe exactamente cuándo vence cada cert IRATA. Alertas a 30, 15, 7 y 1 día.',
               },
               {
                 path: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z',
-                title: 'WhatsApp Alerts',
-                desc: 'Automated WhatsApp messages to supervisors and technicians before certs expire.',
+                title: 'Alertas por WhatsApp',
+                desc: 'Mensajes automáticos a supervisores y técnicos antes de que venzan las certs.',
               },
               {
                 path: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
                 title: 'JSA Digital',
-                desc: 'Create, assign and sign Job Safety Analysis documents from any device.',
+                desc: 'Crea, asigna y firma Análisis de Seguridad en el Trabajo desde cualquier dispositivo.',
               },
               {
                 path: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4',
-                title: 'Equipment Lifecycle',
-                desc: 'Track inspection dates and useful life of every piece of equipment.',
+                title: 'Ciclo de Vida del Equipo',
+                desc: 'Registra fechas de inspección y vida útil de cada equipo de trabajo.',
               },
               {
                 path: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z',
-                title: 'Multi-Team',
-                desc: 'Manage multiple teams and locations from one dashboard.',
+                title: 'Multi-Equipo',
+                desc: 'Gestiona múltiples equipos y ubicaciones desde un solo panel.',
               },
               {
                 path: 'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
-                title: 'AI Reports',
-                desc: 'Generate compliance reports in PDF with one click using AI.',
+                title: 'Reportes con IA',
+                desc: 'Genera reportes de cumplimiento en PDF con un clic usando inteligencia artificial.',
               },
             ].map((feat, i) => (
               <div key={i} style={{
@@ -273,16 +273,16 @@ export default function LandingPage() {
       {/* ── PRICING ───────────────────────────────────────────────────────────── */}
       <section id="pricing" style={{ borderBottom: '1px solid var(--border)' }}>
         <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '80px 48px' }}>
-          <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '12px' }}>Pricing</div>
+          <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '12px' }}>Precios</div>
           <h2 style={{ fontFamily: bebas, fontSize: 'clamp(36px, 5vw, 60px)', letterSpacing: '3px', margin: '0 0 48px', color: 'var(--text)' }}>
-            SIMPLE PRICING
+            PRECIOS SIMPLES
           </h2>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', maxWidth: '680px' }}>
             {/* Free */}
             <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', padding: '32px' }}>
               <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '12px' }}>Free</div>
               <div style={{ fontFamily: bebas, fontSize: '52px', lineHeight: 1, marginBottom: '28px', color: 'var(--text)' }}>$0</div>
-              {['Up to 3 workers', 'Basic cert tracking', 'No WhatsApp alerts'].map((item, i) => (
+              {['Hasta 3 trabajadores', 'Control básico de certs', 'Sin alertas por WhatsApp'].map((item, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
                   <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'var(--text3)', display: 'inline-block', flexShrink: 0 }}/>
                   <span style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text3)' }}>{item}</span>
@@ -298,10 +298,10 @@ export default function LandingPage() {
               <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--accent)', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '12px' }}>Pro</div>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginBottom: '4px' }}>
                 <span style={{ fontFamily: bebas, fontSize: '52px', lineHeight: 1, color: 'var(--text)' }}>$49</span>
-                <span style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text3)' }}>USD/month</span>
+                <span style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text3)' }}>USD/mes</span>
               </div>
-              <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', marginBottom: '24px' }}>Annual plan available</div>
-              {['Unlimited workers', 'WhatsApp alerts', 'JSA digital', 'AI Reports', 'Priority support'].map((item, i) => (
+              <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', marginBottom: '24px' }}>Plan anual disponible</div>
+              {['Trabajadores ilimitados', 'Alertas por WhatsApp', 'JSA digital', 'Reportes con IA', 'Soporte prioritario'].map((item, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
                   <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'var(--accent)', display: 'inline-block', flexShrink: 0 }}/>
                   <span style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text2)' }}>{item}</span>
@@ -311,11 +311,11 @@ export default function LandingPage() {
                 marginTop: '16px', width: '100%', background: 'var(--accent)', color: '#0d0f0e',
                 border: 'none', borderRadius: '4px', padding: '10px', fontFamily: mono, fontSize: '11px',
                 fontWeight: 700, letterSpacing: '1px', cursor: 'pointer', textTransform: 'uppercase',
-              }}>Start Free</button>
+              }}>Empezar Gratis</button>
             </div>
           </div>
           <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', marginTop: '16px', letterSpacing: '0.5px' }}>
-            Annual plan available · Cancel anytime
+            Plan anual disponible · Cancela cuando quieras
           </div>
         </div>
       </section>
@@ -323,20 +323,20 @@ export default function LandingPage() {
       {/* ── WAITLIST FORM ─────────────────────────────────────────────────────── */}
       <section id="waitlist" style={{ ...gridBg, borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'center', padding: '80px 48px' }}>
         <div style={{ maxWidth: '520px', width: '100%' }}>
-          <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '12px', textAlign: 'center' }}>Waitlist</div>
+          <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '12px', textAlign: 'center' }}>Registro</div>
           <h2 style={{ fontFamily: bebas, fontSize: 'clamp(36px, 5vw, 60px)', letterSpacing: '3px', margin: '0 0 12px', color: 'var(--text)', textAlign: 'center' }}>
-            GET STARTED FREE
+            EMPIEZA GRATIS
           </h2>
           <p style={{ fontFamily: mono, fontSize: '12px', color: 'var(--text3)', textAlign: 'center', marginBottom: '40px', lineHeight: 1.65 }}>
-            Create your account and start tracking your team&apos;s compliance today.
+            Crea tu cuenta y empieza a gestionar el cumplimiento de tu equipo hoy.
           </p>
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               {[
-                { key: 'full_name', label: 'Full Name / Nombre *', placeholder: 'Carlos Mendoza', required: true },
-                { key: 'company', label: 'Company / Empresa', placeholder: 'Altura Industrial SA' },
-                { key: 'email', label: 'Email *', placeholder: 'carlos@company.com', type: 'email', required: true },
-                { key: 'country', label: 'Country / País', placeholder: 'Mexico' },
+                { key: 'full_name', label: 'Nombre completo *', placeholder: 'Carlos Mendoza', required: true },
+                { key: 'company', label: 'Empresa', placeholder: 'Altura Industrial SA' },
+                { key: 'email', label: 'Email *', placeholder: 'carlos@empresa.com', type: 'email', required: true },
+                { key: 'country', label: 'País', placeholder: 'México' },
               ].map(field => (
                 <div key={field.key}>
                   <div style={labelStyle}>{field.label}</div>
@@ -351,13 +351,13 @@ export default function LandingPage() {
                 </div>
               ))}
               <div>
-                <div style={labelStyle}>Number of Technicians / Técnicos</div>
+                <div style={labelStyle}>Número de técnicos</div>
                 <select
                   value={form.team_size}
                   onChange={e => setForm(f => ({ ...f, team_size: e.target.value }))}
                   style={{ ...inputStyle, color: form.team_size ? 'var(--text)' : 'var(--text3)' }}
                 >
-                  <option value="">Select team size</option>
+                  <option value="">Seleccionar</option>
                   <option value="1-5">1 – 5</option>
                   <option value="6-15">6 – 15</option>
                   <option value="16-50">16 – 50</option>
@@ -375,7 +375,7 @@ export default function LandingPage() {
                 letterSpacing: '1.5px', cursor: submitting ? 'not-allowed' : 'pointer',
                 opacity: submitting ? 0.7 : 1, textTransform: 'uppercase', marginTop: '4px',
               }}>
-                {submitting ? 'SUBMITTING...' : 'CREATE FREE ACCOUNT'}
+                {submitting ? 'ENVIANDO...' : 'CREAR CUENTA GRATIS'}
               </button>
             </form>
         </div>
@@ -399,9 +399,9 @@ export default function LandingPage() {
 
         <div style={{ display: 'flex', gap: '24px' }}>
           {[
-            { label: 'Privacy', href: '/privacy' },
-            { label: 'Terms', href: '/terms' },
-            { label: 'Contact', href: 'mailto:hello@ropestrack.com' },
+            { label: 'Privacidad', href: '/privacy' },
+            { label: 'Términos', href: '/terms' },
+            { label: 'Contacto', href: 'mailto:hello@ropestrack.com' },
           ].map(link => (
             <a key={link.label} href={link.href} style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', textDecoration: 'none', letterSpacing: '1px', textTransform: 'uppercase' }}
               onMouseEnter={e => (e.currentTarget.style.color = 'var(--text)')}
@@ -412,7 +412,7 @@ export default function LandingPage() {
         </div>
 
         <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '0.5px' }}>
-          © 2026 RopesTrack. Built by rope access professionals.
+          © 2026 RopesTrack. Hecho por profesionales de rope access.
         </div>
       </footer>
 
