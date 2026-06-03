@@ -13,6 +13,12 @@ interface Worker {
   phone: string
   is_active: boolean
   certifications: { expiry_date: string }[]
+  show_in_job_board?: boolean
+  is_available?: boolean
+  whatsapp?: string
+  linkedin?: string
+  bio?: string
+  years_experience?: number
 }
 
 const mono = 'var(--font-dm-mono)'
@@ -28,6 +34,7 @@ export default function WorkersPage() {
   const [editingWorker, setEditingWorker] = useState<Worker | null>(null)
   const [editForm, setEditForm] = useState({
     name: '', irata_id: '', level: 1, email: '', phone: '', is_active: true,
+    show_in_job_board: false, is_available: false, whatsapp: '', linkedin: '', bio: '', years_experience: 0,
   })
   const [renewingWorker, setRenewingWorker] = useState<Worker | null>(null)
   const [renewForm, setRenewForm] = useState({
@@ -137,6 +144,12 @@ export default function WorkersPage() {
       email: worker.email || '',
       phone: worker.phone || '',
       is_active: worker.is_active,
+      show_in_job_board: worker.show_in_job_board ?? false,
+      is_available: worker.is_available ?? false,
+      whatsapp: worker.whatsapp || '',
+      linkedin: worker.linkedin || '',
+      bio: worker.bio || '',
+      years_experience: worker.years_experience ?? 0,
     })
   }
 
@@ -152,6 +165,12 @@ export default function WorkersPage() {
         email: editForm.email,
         phone: editForm.phone,
         is_active: editForm.is_active,
+        show_in_job_board: editForm.show_in_job_board,
+        is_available: editForm.is_available,
+        whatsapp: editForm.whatsapp || null,
+        linkedin: editForm.linkedin || null,
+        bio: editForm.bio || null,
+        years_experience: editForm.years_experience || null,
       })
       .eq('id', editingWorker.id)
     if (error) { alert(error.message); setSaving(false); return }
@@ -263,6 +282,8 @@ export default function WorkersPage() {
           { icon: 'M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5', path: '/equipment', label: 'Equipment' },
           { icon: 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75', path: '/team', label: 'Team' },
           { icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z', path: '/jsa', label: 'JSA' },
+          { icon: 'M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z', path: '/jobs', label: 'Jobs' },
+          { icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4', path: '/openings', label: 'Ofertas' },
           { icon: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M16 13H8M16 17H8', path: '/reports', label: 'Reports' },
         ].map((item, i) => (
           <div key={i} onClick={() => router.push(item.path)} style={{
@@ -375,6 +396,43 @@ export default function WorkersPage() {
                       <option value="active">Active / Activo</option>
                       <option value="inactive">Inactive / Inactivo</option>
                     </select>
+                  </div>
+                  <div style={{ borderTop: '1px solid var(--border)', paddingTop: '14px' }}>
+                    <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: '12px' }}>Bolsa de Trabajo</div>
+                    {[
+                      { label: 'Mostrar en bolsa de trabajo', key: 'show_in_job_board', checked: editForm.show_in_job_board },
+                      { label: 'Disponible', key: 'is_available', checked: editForm.is_available },
+                    ].map(f => (
+                      <label key={f.key} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', marginBottom: '10px' }}>
+                        <input type="checkbox" checked={f.checked}
+                          onChange={e => setEditForm(prev => ({ ...prev, [f.key]: e.target.checked }))}
+                          style={{ accentColor: 'var(--accent)', width: '14px', height: '14px', cursor: 'pointer' }} />
+                        <span style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text2)' }}>{f.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                  {[
+                    { label: 'WhatsApp', key: 'whatsapp', placeholder: '+52 477 000 0000' },
+                    { label: 'LinkedIn', key: 'linkedin', placeholder: 'linkedin.com/in/username' },
+                  ].map(field => (
+                    <div key={field.key}>
+                      <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px', textTransform: 'uppercase' }}>{field.label}</div>
+                      <input type="text" placeholder={field.placeholder} value={(editForm as unknown as Record<string, string>)[field.key]}
+                        onChange={e => setEditForm(f => ({ ...f, [field.key]: e.target.value }))}
+                        style={{ width: '100%', background: 'var(--surface2)', border: '1px solid var(--border2)', borderRadius: '4px', padding: '9px 12px', color: 'var(--text)', fontFamily: mono, fontSize: '12px', outline: 'none', boxSizing: 'border-box' as const }} />
+                    </div>
+                  ))}
+                  <div>
+                    <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px', textTransform: 'uppercase' }}>Años de Experiencia</div>
+                    <input type="number" min={0} max={50} placeholder="5" value={editForm.years_experience || ''}
+                      onChange={e => setEditForm(f => ({ ...f, years_experience: Number(e.target.value) }))}
+                      style={{ width: '100%', background: 'var(--surface2)', border: '1px solid var(--border2)', borderRadius: '4px', padding: '9px 12px', color: 'var(--text)', fontFamily: mono, fontSize: '12px', outline: 'none', boxSizing: 'border-box' as const }} />
+                  </div>
+                  <div>
+                    <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px', textTransform: 'uppercase' }}>Bio</div>
+                    <textarea placeholder="Experiencia en trabajos en altura, mantenimiento industrial..." value={editForm.bio}
+                      onChange={e => setEditForm(f => ({ ...f, bio: e.target.value }))} rows={3}
+                      style={{ width: '100%', background: 'var(--surface2)', border: '1px solid var(--border2)', borderRadius: '4px', padding: '9px 12px', color: 'var(--text)', fontFamily: mono, fontSize: '12px', outline: 'none', boxSizing: 'border-box' as const, resize: 'vertical' as const }} />
                   </div>
                 </>}
                 {renewingWorker && <>

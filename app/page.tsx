@@ -103,6 +103,15 @@ export default function LandingPage() {
               {item.label}
             </button>
           ))}
+          <a href="/talent" style={{
+            fontFamily: mono, fontSize: '11px', color: 'var(--accent2)',
+            letterSpacing: '1px', textTransform: 'uppercase', textDecoration: 'none',
+            border: '1px solid rgba(74,255,160,0.25)', borderRadius: '3px', padding: '4px 10px',
+          }}
+          onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(74,255,160,0.6)')}
+          onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(74,255,160,0.25)')}>
+            Bolsa de Trabajo
+          </a>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
