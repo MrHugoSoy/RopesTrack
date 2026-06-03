@@ -22,7 +22,7 @@
     using (auth.email() = 'hugoivanrf@gmail.com');
 */
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 
@@ -52,6 +52,65 @@ const statusStyle = {
 
 function getStatusStyle(status: string) {
   return statusStyle[status as keyof typeof statusStyle] ?? statusStyle.pendiente
+}
+
+const STATUS_OPTIONS = [
+  { value: 'pendiente', label: 'Pendiente', color: '#e8ff4a' },
+  { value: 'aprobada',  label: 'Aprobada',  color: 'rgb(74,255,160)' },
+  { value: 'rechazada', label: 'Rechazada', color: 'rgb(255,74,74)' },
+]
+
+function StatusSelect({ value, onChange, disabled }: { value: string; onChange: (v: string) => void; disabled?: boolean }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  const current = STATUS_OPTIONS.find(o => o.value === value) ?? STATUS_OPTIONS[0]
+  const sc = getStatusStyle(value)
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
+
+  return (
+    <div ref={ref} style={{ position: 'relative', width: '100%' }}>
+      <button
+        onClick={() => !disabled && setOpen(o => !o)}
+        style={{
+          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          background: sc.bg, border: `1px solid ${sc.border}`, borderRadius: '4px',
+          padding: '6px 10px', cursor: disabled ? 'not-allowed' : 'pointer',
+          opacity: disabled ? 0.5 : 1, gap: '6px',
+        }}>
+        <span style={{ fontFamily: mono, fontSize: '10px', letterSpacing: '1px', textTransform: 'uppercase', color: current.color }}>{current.label}</span>
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style={{ flexShrink: 0, transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }}>
+          <path d="M2 3.5L5 6.5L8 3.5" stroke={current.color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </button>
+
+      {open && (
+        <div style={{
+          position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, zIndex: 50,
+          background: '#0d0f0e', border: '1px solid var(--border2)', borderRadius: '4px',
+          overflow: 'hidden', boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
+        }}>
+          {STATUS_OPTIONS.map(opt => (
+            <button key={opt.value} onClick={() => { onChange(opt.value); setOpen(false) }} style={{
+              width: '100%', textAlign: 'left', background: opt.value === value ? 'rgba(255,255,255,0.05)' : 'transparent',
+              border: 'none', padding: '8px 10px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px',
+            }}
+            onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.07)')}
+            onMouseLeave={e => (e.currentTarget.style.background = opt.value === value ? 'rgba(255,255,255,0.05)' : 'transparent')}>
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: opt.color, flexShrink: 0, display: 'inline-block' }}/>
+              <span style={{ fontFamily: mono, fontSize: '10px', letterSpacing: '1px', textTransform: 'uppercase', color: opt.color }}>{opt.label}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
 }
 
 export default function AdminPage() {
@@ -248,20 +307,11 @@ export default function AdminPage() {
                       </span>
 
                       {/* Status select */}
-                      <select
+                      <StatusSelect
                         value={status}
-                        onChange={e => updateStatus(req.id, e.target.value)}
+                        onChange={v => updateStatus(req.id, v)}
                         disabled={updating === req.id}
-                        style={{
-                          fontFamily: mono, fontSize: '10px', letterSpacing: '0.5px', textTransform: 'uppercase',
-                          background: sc.bg, border: `1px solid ${sc.border}`, color: sc.text,
-                          borderRadius: '3px', padding: '5px 8px', cursor: 'pointer', outline: 'none', width: '100%',
-                          opacity: updating === req.id ? 0.5 : 1,
-                        }}>
-                        <option value="pendiente" style={{ background: '#0d0f0e', color: '#e8ff4a' }}>Pendiente</option>
-                        <option value="aprobada"  style={{ background: '#0d0f0e', color: 'rgb(74,255,160)' }}>Aprobada</option>
-                        <option value="rechazada" style={{ background: '#0d0f0e', color: 'rgb(255,74,74)' }}>Rechazada</option>
-                      </select>
+                      />
 
                       {/* Action buttons */}
                       <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
