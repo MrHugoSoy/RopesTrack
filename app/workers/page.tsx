@@ -236,6 +236,7 @@ export default function WorkersPage() {
   async function handleDelete(id: string) {
     if (!confirm('Delete this worker? This cannot be undone.')) return
     // Delete related records first to avoid foreign key constraint errors
+    await supabase.from('jsa_workers').delete().eq('worker_id', id)
     await supabase.from('certifications').delete().eq('worker_id', id)
     await supabase.from('alerts').delete().eq('related_worker', id)
     const { error } = await supabase.from('workers').delete().eq('id', id)
