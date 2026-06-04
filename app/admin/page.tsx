@@ -186,16 +186,37 @@ function PinGate({ onUnlock }: { onUnlock: () => void }) {
   )
 }
 
+type AuthUser = {
+  id: string
+  email: string
+  created_at: string
+  last_sign_in_at: string | null
+  profile: { role?: string; org_id?: string; organizations?: { name: string } } | null
+}
+
+type DeleteTarget = { id: string; label: string; type: 'request' | 'user' } | null
+
 export default function AdminPage() {
   const router = useRouter()
   const supabase = createClient()
 
-  const [unlocked, setUnlocked] = useState(false)
-  const [ready, setReady] = useState(false)
-  const [requests, setRequests] = useState<Request[]>([])
-  const [filter, setFilter] = useState<Filter>('all')
+  const [unlocked, setUnlocked]     = useState(false)
+  const [ready, setReady]           = useState(false)
+  const [tab, setTab]               = useState<'solicitudes' | 'usuarios'>('solicitudes')
+
+  // Requests state
+  const [requests, setRequests]     = useState<Request[]>([])
+  const [filter, setFilter]         = useState<Filter>('all')
   const [expandedId, setExpandedId] = useState<string | null>(null)
-  const [updating, setUpdating] = useState<string | null>(null)
+  const [updating, setUpdating]     = useState<string | null>(null)
+
+  // Users state
+  const [users, setUsers]           = useState<AuthUser[]>([])
+  const [usersLoaded, setUsersLoaded] = useState(false)
+
+  // Delete confirmation modal
+  const [deleteTarget, setDeleteTarget] = useState<DeleteTarget>(null)
+  const [deleting, setDeleting]     = useState(false)
 
   useEffect(() => {
     if (sessionStorage.getItem(SESSION_KEY) === '1') setUnlocked(true)
@@ -219,6 +240,13 @@ export default function AdminPage() {
     init()
   }, [unlocked])
 
+  useEffect(() => {
+    if (tab !== 'usuarios' || usersLoaded) return
+    fetch('/api/admin/users')
+      .then(r => r.json())
+      .then(data => { setUsers(data); setUsersLoaded(true) })
+  }, [tab, usersLoaded])
+
   async function updateStatus(id: string, status: string) {
     setUpdating(id)
     await supabase.from('verified_requests').update({ status }).eq('id', id)
@@ -226,10 +254,18 @@ export default function AdminPage() {
     setUpdating(null)
   }
 
-  async function deleteRequest(id: string) {
-    if (!confirm('¿Eliminar esta solicitud? Esta acción no se puede deshacer.')) return
-    await supabase.from('verified_requests').delete().eq('id', id)
-    setRequests(prev => prev.filter(r => r.id !== id))
+  async function confirmDelete() {
+    if (!deleteTarget) return
+    setDeleting(true)
+    if (deleteTarget.type === 'request') {
+      await supabase.from('verified_requests').delete().eq('id', deleteTarget.id)
+      setRequests(prev => prev.filter(r => r.id !== deleteTarget.id))
+    } else {
+      await fetch(`/api/admin/users?id=${deleteTarget.id}`, { method: 'DELETE' })
+      setUsers(prev => prev.filter(u => u.id !== deleteTarget.id))
+    }
+    setDeleting(false)
+    setDeleteTarget(null)
   }
 
   const counts = {
@@ -289,162 +325,224 @@ export default function AdminPage() {
       {/* ── MAIN ──────────────────────────────────────────────────────────────── */}
       <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '48px' }}>
 
-        {/* Title */}
+        {/* Title + tabs */}
         <div style={{ marginBottom: '40px' }}>
           <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '8px' }}>Panel de administración</div>
           <h1 style={{ fontFamily: bebas, fontSize: 'clamp(36px, 4vw, 52px)', letterSpacing: '3px', margin: '0 0 28px', color: 'var(--text)' }}>
-            SOLICITUDES DE ACCESO
+            {tab === 'solicitudes' ? 'SOLICITUDES DE ACCESO' : 'GESTIÓN DE USUARIOS'}
           </h1>
 
-          {/* Stat chips */}
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '24px' }}>
+          {/* Main tabs */}
+          <div style={{ display: 'flex', gap: '4px', marginBottom: '28px', borderBottom: '1px solid var(--border)', paddingBottom: '0' }}>
             {([
-              { key: 'all',       label: 'Total' },
-              { key: 'pendiente', label: 'Pendientes' },
-              { key: 'aprobada',  label: 'Aprobadas' },
-              { key: 'rechazada', label: 'Rechazadas' },
-            ] as { key: Filter; label: string }[]).map(({ key, label }) => {
-              const active = filter === key
-              const sc = getStatusStyle(key === 'all' ? 'pendiente' : key)
-              return (
-                <button key={key} onClick={() => setFilter(key)} style={{
-                  fontFamily: mono, fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase',
-                  cursor: 'pointer', padding: '7px 18px', borderRadius: '4px',
-                  border: `1px solid ${active && key !== 'all' ? sc.border : active ? 'var(--border2)' : 'var(--border)'}`,
-                  background: active && key !== 'all' ? sc.bg : active ? 'var(--surface)' : 'transparent',
-                  color: active && key !== 'all' ? sc.text : active ? 'var(--text)' : 'var(--text3)',
-                  transition: 'all 0.1s',
-                }}>
-                  {label} <span style={{ opacity: 0.7 }}>({counts[key]})</span>
-                </button>
-              )
-            })}
+              { key: 'solicitudes', label: 'Solicitudes de Acceso' },
+              { key: 'usuarios',    label: 'Usuarios' },
+            ] as { key: typeof tab; label: string }[]).map(({ key, label }) => (
+              <button key={key} onClick={() => setTab(key)} style={{
+                fontFamily: mono, fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase',
+                cursor: 'pointer', padding: '10px 20px', border: 'none', background: 'none',
+                color: tab === key ? 'var(--text)' : 'var(--text3)',
+                borderBottom: `2px solid ${tab === key ? 'var(--accent)' : 'transparent'}`,
+                marginBottom: '-1px', transition: 'color 0.15s',
+              }}>
+                {label}
+              </button>
+            ))}
           </div>
-        </div>
 
-        {/* Empty state */}
-        {filtered.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '80px 0', border: '1px dashed var(--border)', borderRadius: '8px' }}>
-            <div style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text3)', letterSpacing: '1px' }}>
-              No hay solicitudes {filter !== 'all' ? `con estado "${filter}"` : ''}.
-            </div>
-          </div>
-        )}
-
-        {/* Table header */}
-        {filtered.length > 0 && (
-          <>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: '1.6fr 0.8fr 2fr 0.8fr 90px 140px 110px',
-              gap: '12px', padding: '0 16px 10px',
-              borderBottom: '1px solid var(--border)',
-            }}>
-              {['Empresa', 'País', 'Email', 'Técnicos', 'Fecha', 'Estado', 'Acciones'].map(h => (
-                <span key={h} style={{ fontFamily: mono, fontSize: '9px', color: 'var(--text3)', letterSpacing: '1.5px', textTransform: 'uppercase' }}>{h}</span>
-              ))}
-            </div>
-
-            {/* Rows */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px' }}>
-              {filtered.map(req => {
-                const status = req.status ?? 'pendiente'
-                const sc = getStatusStyle(status)
-                const expanded = expandedId === req.id
-                const date = new Date(req.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: '2-digit' })
-
+          {/* Solicitudes: filter chips */}
+          {tab === 'solicitudes' && (
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              {([
+                { key: 'all',       label: 'Total' },
+                { key: 'pendiente', label: 'Pendientes' },
+                { key: 'aprobada',  label: 'Aprobadas' },
+                { key: 'rechazada', label: 'Rechazadas' },
+              ] as { key: Filter; label: string }[]).map(({ key, label }) => {
+                const active = filter === key
+                const sc = getStatusStyle(key === 'all' ? 'pendiente' : key)
                 return (
-                  <div key={req.id} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '6px', transition: 'border-color 0.15s' }}
-                    onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--border2)')}
-                    onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}>
-
-                    {/* Main row */}
-                    <div style={{
-                      display: 'grid',
-                      gridTemplateColumns: '1.6fr 0.8fr 2fr 0.8fr 90px 140px 110px',
-                      gap: '12px', padding: '14px 16px', alignItems: 'center',
-                    }}>
-
-                      <span style={{ fontFamily: mono, fontSize: '12px', fontWeight: 600, color: 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {req.company_name}
-                      </span>
-
-                      <span style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text3)' }}>
-                        {req.country || '—'}
-                      </span>
-
-                      <a href={`mailto:${req.email}`} style={{ fontFamily: mono, fontSize: '11px', color: 'var(--accent)', textDecoration: 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}
-                        onMouseEnter={e => (e.currentTarget.style.textDecoration = 'underline')}
-                        onMouseLeave={e => (e.currentTarget.style.textDecoration = 'none')}>
-                        {req.email}
-                      </a>
-
-                      <span style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text3)' }}>
-                        {req.team_size || '—'}
-                      </span>
-
-                      <span style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)' }}>
-                        {date}
-                      </span>
-
-                      {/* Status select */}
-                      <StatusSelect
-                        value={status}
-                        onChange={v => updateStatus(req.id, v)}
-                        disabled={updating === req.id}
-                      />
-
-                      {/* Action buttons */}
-                      <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                        {req.message && (
-                          <button
-                            onClick={() => setExpandedId(expanded ? null : req.id)}
-                            title="Ver mensaje"
-                            style={{ background: expanded ? 'rgba(232,255,74,0.1)' : 'var(--surface2)', border: `1px solid ${expanded ? 'rgba(232,255,74,0.3)' : 'var(--border2)'}`, borderRadius: '4px', padding: '5px 7px', cursor: 'pointer', color: expanded ? 'var(--accent)' : 'var(--text3)', display: 'flex', alignItems: 'center' }}>
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-                            </svg>
-                          </button>
-                        )}
-
-                        <a
-                          href={`mailto:${req.email}?subject=RopesTrack%20%E2%80%94%20Solicitud%20de%20acceso%20verificado`}
-                          title="Enviar email"
-                          style={{ background: 'var(--surface2)', border: '1px solid var(--border2)', borderRadius: '4px', padding: '5px 7px', cursor: 'pointer', color: 'var(--text3)', display: 'flex', alignItems: 'center', textDecoration: 'none' }}
-                          onMouseEnter={e => { e.currentTarget.style.color = 'var(--text)'; e.currentTarget.style.borderColor = 'var(--border2)' }}
-                          onMouseLeave={e => { e.currentTarget.style.color = 'var(--text3)' }}>
-                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                          </svg>
-                        </a>
-
-                        <button
-                          onClick={() => deleteRequest(req.id)}
-                          title="Eliminar"
-                          style={{ background: 'var(--surface2)', border: '1px solid var(--border2)', borderRadius: '4px', padding: '5px 7px', cursor: 'pointer', color: 'var(--text3)', display: 'flex', alignItems: 'center' }}
-                          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,74,74,0.1)'; e.currentTarget.style.borderColor = 'rgba(255,74,74,0.3)'; e.currentTarget.style.color = 'rgb(255,74,74)' }}
-                          onMouseLeave={e => { e.currentTarget.style.background = 'var(--surface2)'; e.currentTarget.style.borderColor = 'var(--border2)'; e.currentTarget.style.color = 'var(--text3)' }}>
-                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Expanded message */}
-                    {expanded && req.message && (
-                      <div style={{ padding: '12px 16px 14px', borderTop: '1px solid var(--border)', background: 'rgba(232,255,74,0.03)' }}>
-                        <div style={{ fontFamily: mono, fontSize: '9px', color: 'var(--text3)', letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: '6px' }}>Mensaje</div>
-                        <div style={{ fontFamily: mono, fontSize: '12px', color: 'var(--text2)', lineHeight: 1.7 }}>{req.message}</div>
-                      </div>
-                    )}
-                  </div>
+                  <button key={key} onClick={() => setFilter(key)} style={{
+                    fontFamily: mono, fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase',
+                    cursor: 'pointer', padding: '7px 18px', borderRadius: '4px',
+                    border: `1px solid ${active && key !== 'all' ? sc.border : active ? 'var(--border2)' : 'var(--border)'}`,
+                    background: active && key !== 'all' ? sc.bg : active ? 'var(--surface)' : 'transparent',
+                    color: active && key !== 'all' ? sc.text : active ? 'var(--text)' : 'var(--text3)',
+                    transition: 'all 0.1s',
+                  }}>
+                    {label} <span style={{ opacity: 0.7 }}>({counts[key]})</span>
+                  </button>
                 )
               })}
             </div>
+          )}
+        </div>
+
+        {/* ── TAB: SOLICITUDES ──────────────────────────────────────────────────── */}
+        {tab === 'solicitudes' && (
+          <>
+            {filtered.length === 0 && (
+              <div style={{ textAlign: 'center', padding: '80px 0', border: '1px dashed var(--border)', borderRadius: '8px' }}>
+                <div style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text3)', letterSpacing: '1px' }}>
+                  No hay solicitudes {filter !== 'all' ? `con estado "${filter}"` : ''}.
+                </div>
+              </div>
+            )}
+
+            {filtered.length > 0 && (
+              <>
+                <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 0.8fr 2fr 0.8fr 90px 140px 110px', gap: '12px', padding: '0 16px 10px', borderBottom: '1px solid var(--border)' }}>
+                  {['Empresa', 'País', 'Email', 'Técnicos', 'Fecha', 'Estado', 'Acciones'].map(h => (
+                    <span key={h} style={{ fontFamily: mono, fontSize: '9px', color: 'var(--text3)', letterSpacing: '1.5px', textTransform: 'uppercase' }}>{h}</span>
+                  ))}
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px' }}>
+                  {filtered.map(req => {
+                    const status = req.status ?? 'pendiente'
+                    const expanded = expandedId === req.id
+                    const date = new Date(req.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: '2-digit' })
+                    return (
+                      <div key={req.id} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '6px', transition: 'border-color 0.15s' }}
+                        onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--border2)')}
+                        onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 0.8fr 2fr 0.8fr 90px 140px 110px', gap: '12px', padding: '14px 16px', alignItems: 'center' }}>
+                          <span style={{ fontFamily: mono, fontSize: '12px', fontWeight: 600, color: 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{req.company_name}</span>
+                          <span style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text3)' }}>{req.country || '—'}</span>
+                          <a href={`mailto:${req.email}`} style={{ fontFamily: mono, fontSize: '11px', color: 'var(--accent)', textDecoration: 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}
+                            onMouseEnter={e => (e.currentTarget.style.textDecoration = 'underline')}
+                            onMouseLeave={e => (e.currentTarget.style.textDecoration = 'none')}>{req.email}</a>
+                          <span style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text3)' }}>{req.team_size || '—'}</span>
+                          <span style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)' }}>{date}</span>
+                          <StatusSelect value={status} onChange={v => updateStatus(req.id, v)} disabled={updating === req.id} />
+                          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                            {req.message && (
+                              <button onClick={() => setExpandedId(expanded ? null : req.id)} title="Ver mensaje"
+                                style={{ background: expanded ? 'rgba(232,255,74,0.1)' : 'var(--surface2)', border: `1px solid ${expanded ? 'rgba(232,255,74,0.3)' : 'var(--border2)'}`, borderRadius: '4px', padding: '5px 7px', cursor: 'pointer', color: expanded ? 'var(--accent)' : 'var(--text3)', display: 'flex', alignItems: 'center' }}>
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                              </button>
+                            )}
+                            <a href={`mailto:${req.email}?subject=RopesTrack%20%E2%80%94%20Solicitud%20de%20acceso%20verificado`} title="Enviar email"
+                              style={{ background: 'var(--surface2)', border: '1px solid var(--border2)', borderRadius: '4px', padding: '5px 7px', cursor: 'pointer', color: 'var(--text3)', display: 'flex', alignItems: 'center', textDecoration: 'none' }}
+                              onMouseEnter={e => (e.currentTarget.style.color = 'var(--text)')}
+                              onMouseLeave={e => (e.currentTarget.style.color = 'var(--text3)')}>
+                              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                            </a>
+                            <button onClick={() => setDeleteTarget({ id: req.id, label: req.company_name, type: 'request' })} title="Eliminar"
+                              style={{ background: 'var(--surface2)', border: '1px solid var(--border2)', borderRadius: '4px', padding: '5px 7px', cursor: 'pointer', color: 'var(--text3)', display: 'flex', alignItems: 'center' }}
+                              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,74,74,0.1)'; e.currentTarget.style.borderColor = 'rgba(255,74,74,0.3)'; e.currentTarget.style.color = 'rgb(255,74,74)' }}
+                              onMouseLeave={e => { e.currentTarget.style.background = 'var(--surface2)'; e.currentTarget.style.borderColor = 'var(--border2)'; e.currentTarget.style.color = 'var(--text3)' }}>
+                              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            </button>
+                          </div>
+                        </div>
+                        {expanded && req.message && (
+                          <div style={{ padding: '12px 16px 14px', borderTop: '1px solid var(--border)', background: 'rgba(232,255,74,0.03)' }}>
+                            <div style={{ fontFamily: mono, fontSize: '9px', color: 'var(--text3)', letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: '6px' }}>Mensaje</div>
+                            <div style={{ fontFamily: mono, fontSize: '12px', color: 'var(--text2)', lineHeight: 1.7 }}>{req.message}</div>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              </>
+            )}
+          </>
+        )}
+
+        {/* ── TAB: USUARIOS ─────────────────────────────────────────────────────── */}
+        {tab === 'usuarios' && (
+          <>
+            {!usersLoaded && (
+              <div style={{ textAlign: 'center', padding: '80px 0' }}>
+                <span style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text3)', letterSpacing: '2px', textTransform: 'uppercase' }}>Cargando usuarios...</span>
+              </div>
+            )}
+
+            {usersLoaded && users.length === 0 && (
+              <div style={{ textAlign: 'center', padding: '80px 0', border: '1px dashed var(--border)', borderRadius: '8px' }}>
+                <div style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text3)', letterSpacing: '1px' }}>No hay usuarios registrados.</div>
+              </div>
+            )}
+
+            {usersLoaded && users.length > 0 && (
+              <>
+                <div style={{ display: 'grid', gridTemplateColumns: '2.5fr 1.2fr 1.2fr 1fr 80px', gap: '12px', padding: '0 16px 10px', borderBottom: '1px solid var(--border)' }}>
+                  {['Email', 'Registrado', 'Último acceso', 'Organización', 'Acción'].map(h => (
+                    <span key={h} style={{ fontFamily: mono, fontSize: '9px', color: 'var(--text3)', letterSpacing: '1.5px', textTransform: 'uppercase' }}>{h}</span>
+                  ))}
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px' }}>
+                  {users.map(u => {
+                    const created = new Date(u.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: '2-digit' })
+                    const lastLogin = u.last_sign_in_at
+                      ? new Date(u.last_sign_in_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: '2-digit' })
+                      : '—'
+                    const orgName = (u.profile?.organizations as { name?: string } | null)?.name ?? '—'
+                    const isAdminUser = u.email === ADMIN_EMAIL
+                    return (
+                      <div key={u.id} style={{ display: 'grid', gridTemplateColumns: '2.5fr 1.2fr 1.2fr 1fr 80px', gap: '12px', padding: '14px 16px', alignItems: 'center', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '6px', transition: 'border-color 0.15s' }}
+                        onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--border2)')}
+                        onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden' }}>
+                          <span style={{ fontFamily: mono, fontSize: '12px', color: 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.email}</span>
+                          {isAdminUser && <span style={{ fontFamily: mono, fontSize: '9px', color: 'var(--accent)', background: 'rgba(232,255,74,0.1)', border: '1px solid rgba(232,255,74,0.25)', borderRadius: '3px', padding: '1px 6px', flexShrink: 0 }}>ADMIN</span>}
+                        </div>
+                        <span style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text3)' }}>{created}</span>
+                        <span style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text3)' }}>{lastLogin}</span>
+                        <span style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text3)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{orgName}</span>
+                        <button
+                          disabled={isAdminUser}
+                          onClick={() => setDeleteTarget({ id: u.id, label: u.email, type: 'user' })}
+                          title={isAdminUser ? 'No puedes eliminar al administrador' : 'Eliminar usuario por incumplimiento'}
+                          style={{ background: 'var(--surface2)', border: '1px solid var(--border2)', borderRadius: '4px', padding: '6px 10px', cursor: isAdminUser ? 'not-allowed' : 'pointer', color: 'var(--text3)', display: 'flex', alignItems: 'center', gap: '5px', opacity: isAdminUser ? 0.4 : 1, fontFamily: mono, fontSize: '10px', letterSpacing: '0.5px', textTransform: 'uppercase' }}
+                          onMouseEnter={e => { if (!isAdminUser) { e.currentTarget.style.background = 'rgba(255,74,74,0.1)'; e.currentTarget.style.borderColor = 'rgba(255,74,74,0.3)'; e.currentTarget.style.color = 'rgb(255,74,74)' } }}
+                          onMouseLeave={e => { e.currentTarget.style.background = 'var(--surface2)'; e.currentTarget.style.borderColor = 'var(--border2)'; e.currentTarget.style.color = 'var(--text3)' }}>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                          Eliminar
+                        </button>
+                      </div>
+                    )
+                  })}
+                </div>
+              </>
+            )}
           </>
         )}
       </main>
+
+      {/* ── MODAL DE CONFIRMACIÓN ─────────────────────────────────────────────── */}
+      {deleteTarget && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }}
+          onClick={e => { if (e.target === e.currentTarget) setDeleteTarget(null) }}>
+          <div style={{ background: 'var(--surface)', border: '1px solid rgba(255,74,74,0.3)', borderRadius: '8px', padding: '32px', maxWidth: '420px', width: '90%' }}>
+            <div style={{ width: '40px', height: '40px', background: 'rgba(255,74,74,0.1)', border: '1px solid rgba(255,74,74,0.3)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px' }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgb(255,74,74)" strokeWidth="2"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            </div>
+            <div style={{ fontFamily: bebas, fontSize: '24px', letterSpacing: '2px', color: 'var(--text)', marginBottom: '8px' }}>
+              {deleteTarget.type === 'user' ? 'ELIMINAR USUARIO' : 'ELIMINAR SOLICITUD'}
+            </div>
+            <div style={{ fontFamily: mono, fontSize: '12px', color: 'var(--text3)', lineHeight: 1.65, marginBottom: '8px' }}>
+              {deleteTarget.type === 'user'
+                ? 'Esta acción eliminará al usuario y todos sus datos de la plataforma por incumplimiento de políticas. Es irreversible.'
+                : 'Esta acción eliminará la solicitud de acceso permanentemente.'}
+            </div>
+            <div style={{ fontFamily: mono, fontSize: '11px', color: 'rgb(255,74,74)', background: 'rgba(255,74,74,0.08)', border: '1px solid rgba(255,74,74,0.2)', borderRadius: '4px', padding: '8px 12px', marginBottom: '24px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {deleteTarget.label}
+            </div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button onClick={() => setDeleteTarget(null)} disabled={deleting} style={{ flex: 1, background: 'var(--surface2)', border: '1px solid var(--border2)', borderRadius: '4px', padding: '10px', fontFamily: mono, fontSize: '11px', color: 'var(--text3)', cursor: 'pointer', letterSpacing: '1px', textTransform: 'uppercase' }}>
+                Cancelar
+              </button>
+              <button onClick={confirmDelete} disabled={deleting} style={{ flex: 1, background: 'rgba(255,74,74,0.15)', border: '1px solid rgba(255,74,74,0.4)', borderRadius: '4px', padding: '10px', fontFamily: mono, fontSize: '11px', fontWeight: 700, color: 'rgb(255,74,74)', cursor: deleting ? 'not-allowed' : 'pointer', letterSpacing: '1px', textTransform: 'uppercase', opacity: deleting ? 0.6 : 1 }}>
+                {deleting ? 'Eliminando...' : 'Sí, eliminar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
