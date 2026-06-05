@@ -231,7 +231,6 @@ export default function TeamPage() {
               </table>
             )}
           </div>
-          </div>
         </div>
       </div>
     </div>
