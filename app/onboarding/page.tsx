@@ -32,10 +32,10 @@ export default function OnboardingPage() {
 
     if (orgError) { setError(orgError.message); setSaving(false); return }
 
-    // Create profile
+    // Upsert profile (handles both new users and existing profiles)
     const { error: profileError } = await supabase
       .from('profiles')
-      .insert({ id: user.id, org_id: org.id, role: 'admin', full_name: form.full_name })
+      .upsert({ id: user.id, org_id: org.id, role: 'admin', full_name: form.full_name })
 
     if (profileError) { setError(profileError.message); setSaving(false); return }
 
@@ -58,7 +58,7 @@ export default function OnboardingPage() {
 
     const { error: profileError } = await supabase
       .from('profiles')
-      .insert({ id: user.id, org_id: org.id, role: 'viewer' })
+      .upsert({ id: user.id, org_id: org.id, role: 'viewer' })
 
     if (profileError) { setError(profileError.message); setSaving(false); return }
 
