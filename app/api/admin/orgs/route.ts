@@ -16,8 +16,7 @@ function verifyAdmin(request: Request): boolean {
   return request.headers.get('X-Admin-Pin') === serverPin
 }
 
-export async function GET(request: Request) {
-  if (!verifyAdmin(request)) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+export async function GET() {
   const admin = adminClient()
   const { data, error } = await admin
     .from('organizations')
