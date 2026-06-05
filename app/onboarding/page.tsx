@@ -178,36 +178,12 @@ export default function OnboardingPage() {
     </div>
   ) : null
 
-  const BackBtn = () => (
-    <button onClick={() => { setStep('choice'); setError('') }} style={{ background: 'transparent', color: 'var(--text2)', border: '1px solid var(--border2)', borderRadius: '4px', padding: '11px 16px', fontFamily: mono, fontSize: '12px', cursor: 'pointer' }}>
-      Atrás
-    </button>
+  const sessionPill = sessionUser && (
+    <div style={{ background: 'rgba(232,255,74,0.06)', border: '1px solid rgba(232,255,74,0.15)', borderRadius: '4px', padding: '10px 14px' }}>
+      <div style={{ fontFamily: mono, fontSize: '9px', color: 'var(--text3)', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '2px' }}>Sesión activa</div>
+      <div style={{ fontFamily: mono, fontSize: '12px', color: 'var(--text)' }}>{sessionUser.email}</div>
+    </div>
   )
-
-  const AuthFields = ({ form, setForm }: { form: { email: string; password: string }; setForm: (fn: (f: typeof form) => typeof form) => void }) => {
-    if (sessionUser) return (
-      <div style={{ background: 'rgba(232,255,74,0.06)', border: '1px solid rgba(232,255,74,0.15)', borderRadius: '4px', padding: '10px 14px' }}>
-        <div style={{ fontFamily: mono, fontSize: '9px', color: 'var(--text3)', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '2px' }}>Sesión activa</div>
-        <div style={{ fontFamily: mono, fontSize: '12px', color: 'var(--text)' }}>{sessionUser.email}</div>
-      </div>
-    )
-    return (
-      <>
-        <div>
-          <label style={labelStyle}>Correo electrónico *</label>
-          <input type="email" placeholder="carlos@empresa.com" value={form.email}
-            onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-            autoComplete="off" style={inputStyle}/>
-        </div>
-        <div>
-          <label style={labelStyle}>Contraseña *</label>
-          <input type="password" placeholder="Mínimo 6 caracteres" value={form.password}
-            onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
-            autoComplete="new-password" style={inputStyle}/>
-        </div>
-      </>
-    )
-  }
 
   return (
     <div style={{
@@ -258,7 +234,20 @@ export default function OnboardingPage() {
             <div style={{ fontFamily: bebas, fontSize: '28px', letterSpacing: '3px', color: 'var(--text)', marginBottom: '4px' }}>TÉCNICO INDEPENDIENTE</div>
             <div style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text3)', marginBottom: '28px' }}>Crea tu perfil personal sin necesidad de empresa.</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '20px' }}>
-              <AuthFields form={indForm} setForm={setIndForm as never} />
+              {sessionUser ? sessionPill : <>
+                <div>
+                  <label style={labelStyle}>Correo electrónico *</label>
+                  <input type="email" placeholder="carlos@empresa.com" value={indForm.email}
+                    onChange={e => setIndForm(f => ({ ...f, email: e.target.value }))}
+                    autoComplete="off" style={inputStyle}/>
+                </div>
+                <div>
+                  <label style={labelStyle}>Contraseña *</label>
+                  <input type="password" placeholder="Mínimo 6 caracteres" value={indForm.password}
+                    onChange={e => setIndForm(f => ({ ...f, password: e.target.value }))}
+                    autoComplete="new-password" style={inputStyle}/>
+                </div>
+              </>}
               <div>
                 <label style={labelStyle}>Nombre completo *</label>
                 <input placeholder="Carlos Mendoza" value={indForm.full_name}
@@ -290,7 +279,20 @@ export default function OnboardingPage() {
             <div style={{ fontFamily: bebas, fontSize: '28px', letterSpacing: '3px', color: 'var(--text)', marginBottom: '4px' }}>REGISTRAR EMPRESA</div>
             <div style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text3)', marginBottom: '28px' }}>Crea tu organización y empieza a gestionar tu equipo.</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '20px' }}>
-              <AuthFields form={compForm} setForm={setCompForm as never} />
+              {sessionUser ? sessionPill : <>
+                <div>
+                  <label style={labelStyle}>Correo electrónico *</label>
+                  <input type="email" placeholder="carlos@empresa.com" value={compForm.email}
+                    onChange={e => setCompForm(f => ({ ...f, email: e.target.value }))}
+                    autoComplete="off" style={inputStyle}/>
+                </div>
+                <div>
+                  <label style={labelStyle}>Contraseña *</label>
+                  <input type="password" placeholder="Mínimo 6 caracteres" value={compForm.password}
+                    onChange={e => setCompForm(f => ({ ...f, password: e.target.value }))}
+                    autoComplete="new-password" style={inputStyle}/>
+                </div>
+              </>}
               <div>
                 <label style={labelStyle}>Tu nombre completo *</label>
                 <input placeholder="Carlos Mendoza" value={compForm.full_name}
