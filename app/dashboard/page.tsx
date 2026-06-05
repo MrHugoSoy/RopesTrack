@@ -252,7 +252,7 @@ export default function DashboardPage() {
                 <div style={{ fontFamily: mono, fontSize: '12px', fontWeight: 600, color: 'var(--text)', marginBottom: '2px' }}>No perteneces a ninguna empresa</div>
                 <div style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text3)' }}>Únete a una empresa existente usando su código de organización.</div>
               </div>
-              <button onClick={() => router.push('/onboarding')} style={{ background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px', padding: '9px 20px', fontFamily: mono, fontSize: '11px', fontWeight: 700, letterSpacing: '1px', cursor: 'pointer', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
+              <button onClick={() => router.push('/onboarding?step=join')} style={{ background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px', padding: '9px 20px', fontFamily: mono, fontSize: '11px', fontWeight: 700, letterSpacing: '1px', cursor: 'pointer', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
                 Unirme a una empresa
               </button>
             </div>

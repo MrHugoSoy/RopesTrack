@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 
 const mono = 'var(--font-dm-mono)'
@@ -39,7 +39,8 @@ export default function OnboardingPage() {
   const router = useRouter()
   const supabase = createClient()
 
-  const [step, setStep] = useState<Step>('choice')
+  const searchParams = useSearchParams()
+  const [step, setStep] = useState<Step>((searchParams.get('step') as Step) ?? 'choice')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [joinSent, setJoinSent] = useState(false)
