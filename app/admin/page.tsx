@@ -194,7 +194,15 @@ type AuthUser = {
   profile: { role?: string; org_id?: string; organizations?: { name: string } } | null
 }
 
-type DeleteTarget = { id: string; label: string; type: 'request' | 'user' } | null
+type Org = {
+  id: string
+  name: string
+  slug: string
+  plan: string
+  created_at: string
+}
+
+type DeleteTarget = { id: string; label: string; type: 'request' | 'user' | 'org' } | null
 
 export default function AdminPage() {
   const router = useRouter()
@@ -202,7 +210,7 @@ export default function AdminPage() {
 
   const [unlocked, setUnlocked]     = useState(false)
   const [ready, setReady]           = useState(false)
-  const [tab, setTab]               = useState<'solicitudes' | 'usuarios'>('solicitudes')
+  const [tab, setTab]               = useState<'solicitudes' | 'usuarios' | 'empresas'>('solicitudes')
 
   // Requests state
   const [requests, setRequests]     = useState<Request[]>([])
@@ -213,6 +221,10 @@ export default function AdminPage() {
   // Users state
   const [users, setUsers]           = useState<AuthUser[]>([])
   const [usersLoaded, setUsersLoaded] = useState(false)
+
+  // Orgs state
+  const [orgs, setOrgs]             = useState<Org[]>([])
+  const [orgsLoaded, setOrgsLoaded] = useState(false)
 
   // Delete confirmation modal
   const [deleteTarget, setDeleteTarget] = useState<DeleteTarget>(null)
@@ -247,6 +259,13 @@ export default function AdminPage() {
       .then(data => { setUsers(data); setUsersLoaded(true) })
   }, [tab, usersLoaded])
 
+  useEffect(() => {
+    if (tab !== 'empresas' || orgsLoaded) return
+    fetch('/api/admin/orgs')
+      .then(r => r.json())
+      .then(data => { setOrgs(data); setOrgsLoaded(true) })
+  }, [tab, orgsLoaded])
+
   async function updateStatus(id: string, status: string) {
     setUpdating(id)
     await supabase.from('verified_requests').update({ status }).eq('id', id)
@@ -260,9 +279,12 @@ export default function AdminPage() {
     if (deleteTarget.type === 'request') {
       await supabase.from('verified_requests').delete().eq('id', deleteTarget.id)
       setRequests(prev => prev.filter(r => r.id !== deleteTarget.id))
-    } else {
+    } else if (deleteTarget.type === 'user') {
       await fetch(`/api/admin/users?id=${deleteTarget.id}`, { method: 'DELETE' })
       setUsers(prev => prev.filter(u => u.id !== deleteTarget.id))
+    } else {
+      await fetch(`/api/admin/orgs?id=${deleteTarget.id}`, { method: 'DELETE' })
+      setOrgs(prev => prev.filter(o => o.id !== deleteTarget.id))
     }
     setDeleting(false)
     setDeleteTarget(null)
@@ -337,6 +359,7 @@ export default function AdminPage() {
             {([
               { key: 'solicitudes', label: 'Solicitudes de Acceso' },
               { key: 'usuarios',    label: 'Usuarios' },
+              { key: 'empresas',    label: 'Empresas' },
             ] as { key: typeof tab; label: string }[]).map(({ key, label }) => (
               <button key={key} onClick={() => setTab(key)} style={{
                 fontFamily: mono, fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase',
@@ -511,6 +534,55 @@ export default function AdminPage() {
             )}
           </>
         )}
+
+        {/* ── TAB: EMPRESAS ─────────────────────────────────────────────────────── */}
+        {tab === 'empresas' && (
+          <>
+            {!orgsLoaded && (
+              <div style={{ textAlign: 'center', padding: '80px 0' }}>
+                <span style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text3)', letterSpacing: '2px', textTransform: 'uppercase' }}>Cargando empresas...</span>
+              </div>
+            )}
+
+            {orgsLoaded && orgs.length === 0 && (
+              <div style={{ textAlign: 'center', padding: '80px 0', border: '1px dashed var(--border)', borderRadius: '8px' }}>
+                <div style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text3)', letterSpacing: '1px' }}>No hay empresas registradas.</div>
+              </div>
+            )}
+
+            {orgsLoaded && orgs.length > 0 && (
+              <>
+                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.2fr 0.8fr 1.2fr 80px', gap: '12px', padding: '0 16px 10px', borderBottom: '1px solid var(--border)' }}>
+                  {['Empresa', 'Slug', 'Plan', 'Registrada', 'Acción'].map(h => (
+                    <span key={h} style={{ fontFamily: mono, fontSize: '9px', color: 'var(--text3)', letterSpacing: '1.5px', textTransform: 'uppercase' }}>{h}</span>
+                  ))}
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px' }}>
+                  {orgs.map(org => (
+                    <div key={org.id} style={{ display: 'grid', gridTemplateColumns: '2fr 1.2fr 0.8fr 1.2fr 80px', gap: '12px', padding: '14px 16px', alignItems: 'center', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '6px', transition: 'border-color 0.15s' }}
+                      onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--border2)')}
+                      onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}>
+                      <span style={{ fontFamily: mono, fontSize: '12px', fontWeight: 600, color: 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{org.name}</span>
+                      <span style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text3)' }}>{org.slug}</span>
+                      <span style={{ fontFamily: mono, fontSize: '10px', color: 'var(--accent)', background: 'rgba(232,255,74,0.08)', border: '1px solid rgba(232,255,74,0.2)', borderRadius: '3px', padding: '2px 8px', textTransform: 'uppercase' }}>{org.plan ?? 'free'}</span>
+                      <span style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)' }}>
+                        {new Date(org.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: '2-digit' })}
+                      </span>
+                      <button
+                        onClick={() => setDeleteTarget({ id: org.id, label: org.name, type: 'org' })}
+                        style={{ background: 'var(--surface2)', border: '1px solid var(--border2)', borderRadius: '4px', padding: '6px 10px', cursor: 'pointer', color: 'var(--text3)', display: 'flex', alignItems: 'center', gap: '5px', fontFamily: mono, fontSize: '10px', letterSpacing: '0.5px', textTransform: 'uppercase' }}
+                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,74,74,0.1)'; e.currentTarget.style.borderColor = 'rgba(255,74,74,0.3)'; e.currentTarget.style.color = 'rgb(255,74,74)' }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'var(--surface2)'; e.currentTarget.style.borderColor = 'var(--border2)'; e.currentTarget.style.color = 'var(--text3)' }}>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        Eliminar
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </>
+        )}
       </main>
 
       {/* ── MODAL DE CONFIRMACIÓN ─────────────────────────────────────────────── */}
@@ -522,11 +594,13 @@ export default function AdminPage() {
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgb(255,74,74)" strokeWidth="2"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
             </div>
             <div style={{ fontFamily: bebas, fontSize: '24px', letterSpacing: '2px', color: 'var(--text)', marginBottom: '8px' }}>
-              {deleteTarget.type === 'user' ? 'ELIMINAR USUARIO' : 'ELIMINAR SOLICITUD'}
+              {deleteTarget.type === 'user' ? 'ELIMINAR USUARIO' : deleteTarget.type === 'org' ? 'ELIMINAR EMPRESA' : 'ELIMINAR SOLICITUD'}
             </div>
             <div style={{ fontFamily: mono, fontSize: '12px', color: 'var(--text3)', lineHeight: 1.65, marginBottom: '8px' }}>
               {deleteTarget.type === 'user'
-                ? 'Esta acción eliminará al usuario y todos sus datos de la plataforma por incumplimiento de políticas. Es irreversible.'
+                ? 'Esta acción eliminará al usuario y todos sus datos de la plataforma. Es irreversible.'
+                : deleteTarget.type === 'org'
+                ? 'Esta acción eliminará la empresa, todos sus trabajadores, equipos y JSAs. Los usuarios quedarán sin organización. Es irreversible.'
                 : 'Esta acción eliminará la solicitud de acceso permanentemente.'}
             </div>
             <div style={{ fontFamily: mono, fontSize: '11px', color: 'rgb(255,74,74)', background: 'rgba(255,74,74,0.08)', border: '1px solid rgba(255,74,74,0.2)', borderRadius: '4px', padding: '8px 12px', marginBottom: '24px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
