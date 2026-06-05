@@ -1,7 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
-const ADMIN_EMAIL = 'hugoivanrf@gmail.com'
 
 function adminClient() {
   return createClient(
@@ -11,16 +10,12 @@ function adminClient() {
   )
 }
 
-async function verifyAdmin(request: Request): Promise<boolean> {
-  const token = request.headers.get('Authorization')?.replace('Bearer ', '')
-  if (!token) return false
-  const admin = adminClient()
-  const { data: { user } } = await admin.auth.getUser(token)
-  return user?.email === ADMIN_EMAIL
+function verifyAdmin(request: Request): boolean {
+  return request.headers.get('X-Admin-Pin') === process.env.NEXT_PUBLIC_ADMIN_PIN
 }
 
 export async function GET(request: Request) {
-  if (!await verifyAdmin(request)) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+  if (!verifyAdmin(request)) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   const admin = adminClient()
   const { data, error } = await admin
     .from('organizations')
@@ -31,7 +26,7 @@ export async function GET(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  if (!await verifyAdmin(request)) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+  if (!verifyAdmin(request)) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
 
   const { searchParams } = new URL(request.url)
   const id = searchParams.get('id')

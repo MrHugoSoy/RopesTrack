@@ -234,19 +234,19 @@ export default function AdminPage() {
     if (sessionStorage.getItem(SESSION_KEY) === '1') setUnlocked(true)
   }, [])
 
+  const adminPin = process.env.NEXT_PUBLIC_ADMIN_PIN ?? ''
+  const pinHeaders = { 'X-Admin-Pin': adminPin }
+
+  async function adminFetch(url: string, options: RequestInit = {}) {
+    const res = await fetch(url, { ...options, headers: { ...pinHeaders, ...options.headers } })
+    return res.json()
+  }
+
   useEffect(() => {
     if (!unlocked) return
     async function init() {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user || user.email !== ADMIN_EMAIL) {
-        router.replace('/login')
-        return
-      }
-      const { data } = await supabase
-        .from('verified_requests')
-        .select('*')
-        .order('created_at', { ascending: false })
-      setRequests(data ?? [])
+      const data = await adminFetch('/api/admin/requests')
+      setRequests(Array.isArray(data) ? data : [])
       setReady(true)
     }
     init()
@@ -254,29 +254,27 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (tab !== 'usuarios' || usersLoaded) return
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      fetch('/api/admin/users', {
-        headers: { Authorization: `Bearer ${session?.access_token ?? ''}` },
-      })
-        .then(r => r.json())
-        .then(data => { setUsers(Array.isArray(data) ? data : []); setUsersLoaded(true) })
-        .catch(() => setUsersLoaded(true))
-    })
+    async function load() {
+      const data = await adminFetch('/api/admin/users')
+      setUsers(Array.isArray(data) ? data : [])
+      setUsersLoaded(true)
+    }
+    load()
   }, [tab, usersLoaded])
 
   useEffect(() => {
     if (tab !== 'empresas' || orgsLoaded) return
-    supabase
-      .from('organizations')
-      .select('id, name, slug, plan, created_at, owner_id')
-      .order('created_at', { ascending: false })
-      .then(({ data }) => { setOrgs(data ?? []); setOrgsLoaded(true) })
-      .catch(() => setOrgsLoaded(true))
+    async function load() {
+      const data = await adminFetch('/api/admin/orgs')
+      setOrgs(Array.isArray(data) ? data : [])
+      setOrgsLoaded(true)
+    }
+    load()
   }, [tab, orgsLoaded])
 
   async function updateStatus(id: string, status: string) {
     setUpdating(id)
-    await supabase.from('verified_requests').update({ status }).eq('id', id)
+    await adminFetch('/api/admin/requests/status', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, status }) })
     setRequests(prev => prev.map(r => r.id === id ? { ...r, status } : r))
     setUpdating(null)
   }
@@ -285,15 +283,13 @@ export default function AdminPage() {
     if (!deleteTarget) return
     setDeleting(true)
     if (deleteTarget.type === 'request') {
-      await supabase.from('verified_requests').delete().eq('id', deleteTarget.id)
+      await adminFetch(`/api/admin/requests?id=${deleteTarget.id}`, { method: 'DELETE' })
       setRequests(prev => prev.filter(r => r.id !== deleteTarget.id))
     } else if (deleteTarget.type === 'user') {
-      const { data: { session } } = await supabase.auth.getSession()
-      await fetch(`/api/admin/users?id=${deleteTarget.id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${session?.access_token ?? ''}` } })
+      await adminFetch(`/api/admin/users?id=${deleteTarget.id}`, { method: 'DELETE' })
       setUsers(prev => prev.filter(u => u.id !== deleteTarget.id))
     } else {
-      const { data: { session } } = await supabase.auth.getSession()
-      await fetch(`/api/admin/orgs?id=${deleteTarget.id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${session?.access_token ?? ''}` } })
+      await adminFetch(`/api/admin/orgs?id=${deleteTarget.id}`, { method: 'DELETE' })
       setOrgs(prev => prev.filter(o => o.id !== deleteTarget.id))
     }
     setDeleting(false)
@@ -346,7 +342,7 @@ export default function AdminPage() {
         </div>
 
         <button
-          onClick={() => supabase.auth.signOut().then(() => router.push('/login'))}
+          onClick={() => { sessionStorage.removeItem(SESSION_KEY); router.push('/') }}
           style={{ background: 'none', border: '1px solid var(--border2)', borderRadius: '4px', padding: '6px 14px', fontFamily: mono, fontSize: '10px', color: 'var(--text3)', cursor: 'pointer', letterSpacing: '1px', textTransform: 'uppercase' }}
           onMouseEnter={e => (e.currentTarget.style.color = 'var(--text)')}
           onMouseLeave={e => (e.currentTarget.style.color = 'var(--text3)')}>
