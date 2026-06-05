@@ -1,6 +1,4 @@
-import { createServerClient } from '@supabase/ssr'
 import { createClient } from '@supabase/supabase-js'
-import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 
 const ADMIN_EMAIL = 'hugoivanrf@gmail.com'
@@ -13,24 +11,15 @@ function adminClient() {
   )
 }
 
-async function verifyAdmin(): Promise<boolean> {
-  const cookieStore = await cookies()
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll: () => cookieStore.getAll(),
-        setAll: () => {},
-      },
-    }
-  )
-  const { data: { user } } = await supabase.auth.getUser()
+async function verifyAdmin(request: Request): Promise<boolean> {
+  const token = request.headers.get('Authorization')?.replace('Bearer ', '')
+  if (!token) return false
+  const { data: { user } } = await adminClient().auth.getUser(token)
   return user?.email === ADMIN_EMAIL
 }
 
-export async function GET() {
-  if (!await verifyAdmin()) {
+export async function GET(request: Request) {
+  if (!await verifyAdmin(request)) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
 
@@ -57,7 +46,7 @@ export async function GET() {
 }
 
 export async function DELETE(request: Request) {
-  if (!await verifyAdmin()) {
+  if (!await verifyAdmin(request)) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
 

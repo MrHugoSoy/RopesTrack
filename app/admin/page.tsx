@@ -254,18 +254,26 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (tab !== 'usuarios' || usersLoaded) return
-    fetch('/api/admin/users')
-      .then(r => r.json())
-      .then(data => { setUsers(Array.isArray(data) ? data : []); setUsersLoaded(true) })
-      .catch(() => setUsersLoaded(true))
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      fetch('/api/admin/users', {
+        headers: { Authorization: `Bearer ${session?.access_token ?? ''}` },
+      })
+        .then(r => r.json())
+        .then(data => { setUsers(Array.isArray(data) ? data : []); setUsersLoaded(true) })
+        .catch(() => setUsersLoaded(true))
+    })
   }, [tab, usersLoaded])
 
   useEffect(() => {
     if (tab !== 'empresas' || orgsLoaded) return
-    fetch('/api/admin/orgs')
-      .then(r => r.json())
-      .then(data => { setOrgs(Array.isArray(data) ? data : []); setOrgsLoaded(true) })
-      .catch(() => setOrgsLoaded(true))
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      fetch('/api/admin/orgs', {
+        headers: { Authorization: `Bearer ${session?.access_token ?? ''}` },
+      })
+        .then(r => r.json())
+        .then(data => { setOrgs(Array.isArray(data) ? data : []); setOrgsLoaded(true) })
+        .catch(() => setOrgsLoaded(true))
+    })
   }, [tab, orgsLoaded])
 
   async function updateStatus(id: string, status: string) {
@@ -282,10 +290,12 @@ export default function AdminPage() {
       await supabase.from('verified_requests').delete().eq('id', deleteTarget.id)
       setRequests(prev => prev.filter(r => r.id !== deleteTarget.id))
     } else if (deleteTarget.type === 'user') {
-      await fetch(`/api/admin/users?id=${deleteTarget.id}`, { method: 'DELETE' })
+      const { data: { session } } = await supabase.auth.getSession()
+      await fetch(`/api/admin/users?id=${deleteTarget.id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${session?.access_token ?? ''}` } })
       setUsers(prev => prev.filter(u => u.id !== deleteTarget.id))
     } else {
-      await fetch(`/api/admin/orgs?id=${deleteTarget.id}`, { method: 'DELETE' })
+      const { data: { session } } = await supabase.auth.getSession()
+      await fetch(`/api/admin/orgs?id=${deleteTarget.id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${session?.access_token ?? ''}` } })
       setOrgs(prev => prev.filter(o => o.id !== deleteTarget.id))
     }
     setDeleting(false)
