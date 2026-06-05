@@ -5,7 +5,7 @@
   alter table profiles add column if not exists username text unique;
 */
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 
@@ -44,10 +44,24 @@ export default function OnboardingPage() {
   const [step, setStep] = useState<Step>('choice')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [joinSent, setJoinSent] = useState(false)
+
+  // Existing session (for join flow)
+  const [sessionUser, setSessionUser] = useState<{ id: string; email: string } | null>(null)
+  const [sessionProfile, setSessionProfile] = useState<{ full_name: string | null } | null>(null)
 
   const [indForm, setIndForm] = useState({ email: '', password: '', full_name: '', username: '' })
   const [compForm, setCompForm] = useState({ email: '', password: '', full_name: '', company_name: '', slug: '' })
-  const [joinForm, setJoinForm] = useState({ email: '', password: '', full_name: '', org_slug: '' })
+  const [joinForm, setJoinForm] = useState({ org_slug: '' })
+
+  useEffect(() => {
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (!user) return
+      setSessionUser({ id: user.id, email: user.email ?? '' })
+      const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', user.id).single()
+      setSessionProfile(profile)
+    })
+  }, [])
 
   async function signUpAndGetUser(email: string, password: string) {
     // Try signing up first
@@ -108,15 +122,13 @@ export default function OnboardingPage() {
 
   // ── JOIN ───────────────────────────────────────────────────────────────────
   async function handleJoin() {
+    if (!sessionUser) { router.push('/login'); return }
     setSaving(true)
     setError('')
 
-    const { user, error: authError } = await signUpAndGetUser(joinForm.email, joinForm.password)
-    if (authError || !user) { setError(authError ?? 'Error al crear cuenta'); setSaving(false); return }
-
     const { data: org, error: orgError } = await supabase
       .from('organizations')
-      .select()
+      .select('id, name')
       .eq('slug', joinForm.org_slug.toLowerCase().trim())
       .single()
 
@@ -126,12 +138,17 @@ export default function OnboardingPage() {
       return
     }
 
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .upsert({ id: user.id, org_id: org.id, role: 'viewer', full_name: joinForm.full_name })
+    const { error: reqError } = await supabase.from('join_requests').insert({
+      user_id: sessionUser.id,
+      org_id: org.id,
+      full_name: sessionProfile?.full_name ?? '',
+      email: sessionUser.email,
+      status: 'pending',
+    })
 
-    if (profileError) { setError(profileError.message); setSaving(false); return }
-    router.push('/dashboard')
+    if (reqError) { setError(reqError.message); setSaving(false); return }
+    setJoinSent(true)
+    setSaving(false)
   }
 
   const Logo = () => (
@@ -299,33 +316,72 @@ export default function OnboardingPage() {
         {step === 'join' && (
           <>
             <div style={{ fontFamily: bebas, fontSize: '28px', letterSpacing: '3px', color: 'var(--text)', marginBottom: '4px' }}>UNIRME A UNA EMPRESA</div>
-            <div style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text3)', marginBottom: '28px' }}>Pide el código de organización a tu administrador.</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '20px' }}>
-              <AuthFields form={joinForm} setForm={setJoinForm as never} />
-              <div>
-                <label style={labelStyle}>Tu nombre completo *</label>
-                <input placeholder="Carlos Mendoza" value={joinForm.full_name}
-                  onChange={e => setJoinForm(f => ({ ...f, full_name: e.target.value }))}
-                  style={inputStyle}/>
-              </div>
-              <div>
-                <label style={labelStyle}>Código de organización *</label>
-                <input placeholder="altus-industrial" value={joinForm.org_slug}
-                  onChange={e => setJoinForm(f => ({ ...f, org_slug: e.target.value.toLowerCase().trim() }))}
-                  style={inputStyle}/>
-                <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', marginTop: '4px' }}>
-                  Tu administrador te proporcionará este código
+
+            {/* No session — must log in first */}
+            {!sessionUser && (
+              <>
+                <div style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text3)', marginBottom: '24px', lineHeight: 1.65 }}>
+                  Para solicitar unirte a una empresa necesitas tener un perfil en RopesTrack primero.
                 </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
+                  <a href="/login" style={{ display: 'block', background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px', padding: '11px', fontFamily: mono, fontSize: '12px', fontWeight: 700, letterSpacing: '1px', textAlign: 'center', textDecoration: 'none', textTransform: 'uppercase' }}>
+                    Iniciar sesión
+                  </a>
+                  <button onClick={() => setStep('independent')} style={{ background: 'transparent', color: 'var(--text2)', border: '1px solid var(--border2)', borderRadius: '4px', padding: '11px', fontFamily: mono, fontSize: '12px', letterSpacing: '1px', cursor: 'pointer', textTransform: 'uppercase' }}>
+                    Crear perfil de técnico independiente
+                  </button>
+                </div>
+                <BackBtn />
+              </>
+            )}
+
+            {/* Has session — show request form */}
+            {sessionUser && !joinSent && (
+              <>
+                <div style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text3)', marginBottom: '24px', lineHeight: 1.65 }}>
+                  Ingresa el código de la empresa. El administrador recibirá tu solicitud y deberá aprobarla.
+                </div>
+                <div style={{ background: 'rgba(232,255,74,0.06)', border: '1px solid rgba(232,255,74,0.15)', borderRadius: '4px', padding: '10px 14px', marginBottom: '20px' }}>
+                  <div style={{ fontFamily: mono, fontSize: '9px', color: 'var(--text3)', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '2px' }}>Solicitando como</div>
+                  <div style={{ fontFamily: mono, fontSize: '12px', color: 'var(--text)' }}>{sessionUser.email}</div>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '20px' }}>
+                  <div>
+                    <label style={labelStyle}>Código de organización *</label>
+                    <input placeholder="altus-industrial" value={joinForm.org_slug}
+                      onChange={e => setJoinForm(f => ({ ...f, org_slug: e.target.value.toLowerCase().trim() }))}
+                      style={inputStyle}/>
+                    <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', marginTop: '4px' }}>
+                      Tu administrador te proporcionará este código
+                    </div>
+                  </div>
+                </div>
+                <ErrorBox />
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button onClick={handleJoin} disabled={saving || !joinForm.org_slug}
+                    style={{ flex: 1, background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px', padding: '11px', fontFamily: mono, fontSize: '12px', fontWeight: 700, letterSpacing: '1px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1, textTransform: 'uppercase' }}>
+                    {saving ? 'Enviando...' : 'Enviar solicitud'}
+                  </button>
+                  <BackBtn />
+                </div>
+              </>
+            )}
+
+            {/* Request sent */}
+            {joinSent && (
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ width: '48px', height: '48px', background: 'rgba(74,255,160,0.1)', border: '1px solid rgba(74,255,160,0.3)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgb(74,255,160)" strokeWidth="2"><path d="M20 6L9 17l-5-5"/></svg>
+                </div>
+                <div style={{ fontFamily: mono, fontSize: '12px', color: 'var(--text)', marginBottom: '8px', fontWeight: 600 }}>Solicitud enviada</div>
+                <div style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text3)', lineHeight: 1.65, marginBottom: '24px' }}>
+                  El administrador de la empresa recibirá tu solicitud y deberá aprobarla. Te notificaremos cuando sea aceptada.
+                </div>
+                <a href="/dashboard" style={{ display: 'inline-block', background: 'var(--surface2)', border: '1px solid var(--border2)', borderRadius: '4px', padding: '10px 24px', fontFamily: mono, fontSize: '11px', color: 'var(--text2)', textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                  Ir al dashboard
+                </a>
               </div>
-            </div>
-            <ErrorBox />
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button onClick={handleJoin} disabled={saving || !joinForm.email || !joinForm.password || !joinForm.full_name || !joinForm.org_slug}
-                style={{ flex: 1, background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px', padding: '11px', fontFamily: mono, fontSize: '12px', fontWeight: 700, letterSpacing: '1px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1, textTransform: 'uppercase' }}>
-                {saving ? 'Uniéndome...' : 'Unirme a la empresa'}
-              </button>
-              <BackBtn />
-            </div>
+            )}
           </>
         )}
       </div>

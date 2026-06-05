@@ -11,42 +11,73 @@ interface Member {
   created_at: string
 }
 
+interface JoinRequest {
+  id: string
+  created_at: string
+  user_id: string
+  full_name: string | null
+  email: string | null
+  org_id: string
+}
+
 const mono = 'var(--font-dm-mono)'
 
 export default function TeamPage() {
   const router = useRouter()
   const supabase = createClient()
   const [members, setMembers] = useState<Member[]>([])
+  const [joinRequests, setJoinRequests] = useState<JoinRequest[]>([])
+  const [userRole, setUserRole] = useState('')
+  const [orgId, setOrgId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [processingId, setProcessingId] = useState<string | null>(null)
 
   useEffect(() => {
     async function init() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/login'); return }
-      // eslint-disable-next-line react-hooks/immutability
-      await fetchMembers(user.id)
+      await fetchAll(user.id)
       setLoading(false)
     }
     init()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  async function fetchMembers(userId: string) {
+  async function fetchAll(userId: string) {
     const { data: profile } = await supabase
       .from('profiles')
-      .select('org_id')
+      .select('org_id, role')
       .eq('id', userId)
       .single()
 
     if (!profile?.org_id) return
+    setOrgId(profile.org_id)
+    setUserRole(profile.role)
 
-    const { data } = await supabase
-      .from('profiles')
-      .select('id, full_name, role, created_at')
-      .eq('org_id', profile.org_id)
-      .order('created_at')
+    const [{ data: membersData }, { data: requestsData }] = await Promise.all([
+      supabase.from('profiles').select('id, full_name, role, created_at').eq('org_id', profile.org_id).order('created_at'),
+      supabase.from('join_requests').select('*').eq('org_id', profile.org_id).eq('status', 'pending').order('created_at'),
+    ])
 
+    if (membersData) setMembers(membersData)
+    if (requestsData) setJoinRequests(requestsData)
+  }
+
+  async function acceptRequest(req: JoinRequest) {
+    setProcessingId(req.id)
+    await supabase.from('profiles').upsert({ id: req.user_id, org_id: req.org_id, role: 'viewer', full_name: req.full_name })
+    await supabase.from('join_requests').delete().eq('id', req.id)
+    setJoinRequests(prev => prev.filter(r => r.id !== req.id))
+    const { data } = await supabase.from('profiles').select('id, full_name, role, created_at').eq('org_id', req.org_id).order('created_at')
     if (data) setMembers(data)
+    setProcessingId(null)
+  }
+
+  async function rejectRequest(id: string) {
+    setProcessingId(id)
+    await supabase.from('join_requests').delete().eq('id', id)
+    setJoinRequests(prev => prev.filter(r => r.id !== id))
+    setProcessingId(null)
   }
 
   if (loading) return (
@@ -115,7 +146,44 @@ export default function TeamPage() {
           <span style={{ fontFamily: mono, fontSize: '18px', letterSpacing: '3px', textTransform: 'uppercase' }}>Team / Equipo</span>
         </header>
 
-        <div style={{ padding: '28px' }}>
+        <div style={{ padding: '28px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+
+          {/* ── SOLICITUDES DE UNIÓN (solo admin) ── */}
+          {userRole === 'admin' && joinRequests.length > 0 && (
+            <div style={{ background: 'var(--surface)', border: '1px solid rgba(232,255,74,0.25)', borderRadius: '8px', overflow: 'hidden' }}>
+              <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--accent)' }}>
+                  {joinRequests.length} Solicitud{joinRequests.length !== 1 ? 'es' : ''} de unión pendiente{joinRequests.length !== 1 ? 's' : ''}
+                </span>
+                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent)', display: 'inline-block', animation: 'pulse 2s infinite' }}/>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                {joinRequests.map((req, i) => (
+                  <div key={req.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', borderBottom: i < joinRequests.length - 1 ? '1px solid var(--border)' : 'none' }}>
+                    <div>
+                      <div style={{ fontFamily: mono, fontSize: '13px', fontWeight: 600, color: 'var(--text)', marginBottom: '2px' }}>{req.full_name ?? '—'}</div>
+                      <div style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text3)' }}>{req.email}</div>
+                      <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', marginTop: '2px' }}>
+                        {new Date(req.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button onClick={() => acceptRequest(req)} disabled={processingId === req.id}
+                        style={{ background: 'rgba(74,255,160,0.1)', border: '1px solid rgba(74,255,160,0.3)', color: 'rgb(74,255,160)', borderRadius: '4px', padding: '7px 16px', fontFamily: mono, fontSize: '11px', fontWeight: 700, letterSpacing: '1px', cursor: 'pointer', textTransform: 'uppercase', opacity: processingId === req.id ? 0.5 : 1 }}>
+                        Aceptar
+                      </button>
+                      <button onClick={() => rejectRequest(req.id)} disabled={processingId === req.id}
+                        style={{ background: 'rgba(255,74,74,0.1)', border: '1px solid rgba(255,74,74,0.3)', color: 'rgb(255,74,74)', borderRadius: '4px', padding: '7px 16px', fontFamily: mono, fontSize: '11px', fontWeight: 700, letterSpacing: '1px', cursor: 'pointer', textTransform: 'uppercase', opacity: processingId === req.id ? 0.5 : 1 }}>
+                        Rechazar
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── MIEMBROS ── */}
           <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
             <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)' }}>
               <span style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)' }}>
@@ -162,6 +230,7 @@ export default function TeamPage() {
                 </tbody>
               </table>
             )}
+          </div>
           </div>
         </div>
       </div>
