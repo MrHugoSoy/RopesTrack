@@ -25,29 +25,13 @@ export default function LoginPage() {
     if (user) {
       const { data: profile } = await supabase
         .from('profiles')
-        .select('org_id')
+        .select('id')
         .eq('id', user.id)
         .single()
-      if (!profile?.org_id) {
-        router.push('/onboarding')
-      } else {
-        router.push('/dashboard')
-      }
+      router.push(profile ? '/dashboard' : '/onboarding')
     }
   }
 
-  async function handleSignUp() {
-    setLoading(true)
-    setError('')
-    const { error } = await supabase.auth.signUp({ email, password })
-    if (error) {
-      setError(error.message)
-      setLoading(false)
-    } else {
-      setError('Check your email to confirm your account.')
-      setLoading(false)
-    }
-  }
 
   return (
     <div style={{
@@ -154,47 +138,36 @@ export default function LoginPage() {
           }}>{error}</p>
         )}
 
-        {/* Buttons */}
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button
-            onClick={handleLogin}
-            disabled={loading}
-            style={{
-              flex: 1,
-              background: 'var(--accent)',
-              color: '#0d0f0e',
-              border: 'none',
-              borderRadius: '4px',
-              padding: '10px',
-              fontFamily: 'var(--font-dm-mono)',
-              fontSize: '12px',
-              fontWeight: '500',
-              letterSpacing: '1px',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              opacity: loading ? 0.7 : 1,
-            }}
-          >
-            {loading ? 'LOADING...' : 'LOGIN'}
-          </button>
-          <button
-            onClick={handleSignUp}
-            disabled={loading}
-            style={{
-              flex: 1,
-              background: 'transparent',
-              color: 'var(--text2)',
-              border: '1px solid var(--border2)',
-              borderRadius: '4px',
-              padding: '10px',
-              fontFamily: 'var(--font-dm-mono)',
-              fontSize: '12px',
-              letterSpacing: '1px',
-              cursor: loading ? 'not-allowed' : 'pointer',
-            }}
-          >
-            SIGN UP
-          </button>
-        </div>
+        {/* Login button */}
+        <button
+          onClick={handleLogin}
+          disabled={loading}
+          style={{
+            width: '100%',
+            background: 'var(--accent)',
+            color: '#0d0f0e',
+            border: 'none',
+            borderRadius: '4px',
+            padding: '11px',
+            fontFamily: 'var(--font-dm-mono)',
+            fontSize: '12px',
+            fontWeight: '700',
+            letterSpacing: '1px',
+            cursor: loading ? 'not-allowed' : 'pointer',
+            opacity: loading ? 0.7 : 1,
+            textTransform: 'uppercase',
+          }}
+        >
+          {loading ? 'CARGANDO...' : 'INICIAR SESIÓN'}
+        </button>
+
+        {/* Register link */}
+        <p style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '11px', color: 'var(--text3)', textAlign: 'center', marginTop: '20px' }}>
+          ¿No tienes cuenta?{' '}
+          <a href="/onboarding" style={{ color: 'var(--accent)', textDecoration: 'none', fontWeight: 600 }}>
+            Regístrate aquí
+          </a>
+        </p>
       </div>
     </div>
   )
