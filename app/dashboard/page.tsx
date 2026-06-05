@@ -245,6 +245,19 @@ export default function DashboardPage() {
         {/* CONTENT */}
         <div style={{ padding: '28px' }}>
 
+          {/* BANNER: sin organización */}
+          {!org?.org_id && (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(232,255,74,0.06)', border: '1px solid rgba(232,255,74,0.2)', borderRadius: '8px', padding: '16px 20px', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
+              <div>
+                <div style={{ fontFamily: mono, fontSize: '12px', fontWeight: 600, color: 'var(--text)', marginBottom: '2px' }}>No perteneces a ninguna empresa</div>
+                <div style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text3)' }}>Únete a una empresa existente usando su código de organización.</div>
+              </div>
+              <button onClick={() => router.push('/onboarding')} style={{ background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px', padding: '9px 20px', fontFamily: mono, fontSize: '11px', fontWeight: 700, letterSpacing: '1px', cursor: 'pointer', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
+                Unirme a una empresa
+              </button>
+            </div>
+          )}
+
           {/* KPI STRIP */}
           <div style={{
             display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)',
