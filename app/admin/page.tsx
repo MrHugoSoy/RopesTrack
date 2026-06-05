@@ -234,19 +234,14 @@ export default function AdminPage() {
     if (sessionStorage.getItem(SESSION_KEY) === '1') setUnlocked(true)
   }, [])
 
-  const adminPin = process.env.NEXT_PUBLIC_ADMIN_PIN ?? ''
-  const pinHeaders = { 'X-Admin-Pin': adminPin }
-
-  async function adminFetch(url: string, options: RequestInit = {}) {
-    const res = await fetch(url, { ...options, headers: { ...pinHeaders, ...options.headers } })
-    return res.json()
-  }
-
   useEffect(() => {
     if (!unlocked) return
     async function init() {
-      const data = await adminFetch('/api/admin/requests')
-      setRequests(Array.isArray(data) ? data : [])
+      try {
+        const res = await fetch('/api/admin/requests', { headers: { 'X-Admin-Pin': process.env.NEXT_PUBLIC_ADMIN_PIN ?? '' } })
+        const data = await res.json()
+        setRequests(Array.isArray(data) ? data : [])
+      } catch { /* show empty */ }
       setReady(true)
     }
     init()
@@ -255,8 +250,11 @@ export default function AdminPage() {
   useEffect(() => {
     if (tab !== 'usuarios' || usersLoaded) return
     async function load() {
-      const data = await adminFetch('/api/admin/users')
-      setUsers(Array.isArray(data) ? data : [])
+      try {
+        const res = await fetch('/api/admin/users', { headers: { 'X-Admin-Pin': process.env.NEXT_PUBLIC_ADMIN_PIN ?? '' } })
+        const data = await res.json()
+        setUsers(Array.isArray(data) ? data : [])
+      } catch { /* ignore */ }
       setUsersLoaded(true)
     }
     load()
@@ -265,16 +263,28 @@ export default function AdminPage() {
   useEffect(() => {
     if (tab !== 'empresas' || orgsLoaded) return
     async function load() {
-      const data = await adminFetch('/api/admin/orgs')
-      setOrgs(Array.isArray(data) ? data : [])
+      try {
+        const res = await fetch('/api/admin/orgs', { headers: { 'X-Admin-Pin': process.env.NEXT_PUBLIC_ADMIN_PIN ?? '' } })
+        const data = await res.json()
+        setOrgs(Array.isArray(data) ? data : [])
+      } catch { /* ignore */ }
       setOrgsLoaded(true)
     }
     load()
   }, [tab, orgsLoaded])
 
+  const pin = process.env.NEXT_PUBLIC_ADMIN_PIN ?? ''
+
+  async function apiFetch(url: string, options: RequestInit = {}) {
+    try {
+      const res = await fetch(url, { ...options, headers: { 'X-Admin-Pin': pin, ...options.headers } })
+      return await res.json()
+    } catch { return null }
+  }
+
   async function updateStatus(id: string, status: string) {
     setUpdating(id)
-    await adminFetch('/api/admin/requests/status', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, status }) })
+    await apiFetch('/api/admin/requests/status', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, status }) })
     setRequests(prev => prev.map(r => r.id === id ? { ...r, status } : r))
     setUpdating(null)
   }
@@ -283,13 +293,13 @@ export default function AdminPage() {
     if (!deleteTarget) return
     setDeleting(true)
     if (deleteTarget.type === 'request') {
-      await adminFetch(`/api/admin/requests?id=${deleteTarget.id}`, { method: 'DELETE' })
+      await apiFetch(`/api/admin/requests?id=${deleteTarget.id}`, { method: 'DELETE' })
       setRequests(prev => prev.filter(r => r.id !== deleteTarget.id))
     } else if (deleteTarget.type === 'user') {
-      await adminFetch(`/api/admin/users?id=${deleteTarget.id}`, { method: 'DELETE' })
+      await apiFetch(`/api/admin/users?id=${deleteTarget.id}`, { method: 'DELETE' })
       setUsers(prev => prev.filter(u => u.id !== deleteTarget.id))
     } else {
-      await adminFetch(`/api/admin/orgs?id=${deleteTarget.id}`, { method: 'DELETE' })
+      await apiFetch(`/api/admin/orgs?id=${deleteTarget.id}`, { method: 'DELETE' })
       setOrgs(prev => prev.filter(o => o.id !== deleteTarget.id))
     }
     setDeleting(false)
