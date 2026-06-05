@@ -256,14 +256,16 @@ export default function AdminPage() {
     if (tab !== 'usuarios' || usersLoaded) return
     fetch('/api/admin/users')
       .then(r => r.json())
-      .then(data => { setUsers(data); setUsersLoaded(true) })
+      .then(data => { setUsers(Array.isArray(data) ? data : []); setUsersLoaded(true) })
+      .catch(() => setUsersLoaded(true))
   }, [tab, usersLoaded])
 
   useEffect(() => {
     if (tab !== 'empresas' || orgsLoaded) return
     fetch('/api/admin/orgs')
       .then(r => r.json())
-      .then(data => { setOrgs(data); setOrgsLoaded(true) })
+      .then(data => { setOrgs(Array.isArray(data) ? data : []); setOrgsLoaded(true) })
+      .catch(() => setOrgsLoaded(true))
   }, [tab, orgsLoaded])
 
   async function updateStatus(id: string, status: string) {
