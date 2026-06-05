@@ -5,7 +5,7 @@
   alter table profiles add column if not exists username text unique;
 */
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 
@@ -44,24 +44,29 @@ export default function OnboardingPage() {
   const [step, setStep] = useState<Step>('choice')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
-  const [userEmail, setUserEmail] = useState('')
 
-  const [indForm, setIndForm] = useState({ full_name: '', username: '' })
-  const [compForm, setCompForm] = useState({ full_name: '', company_name: '', slug: '' })
-  const [joinForm, setJoinForm] = useState({ full_name: '', org_slug: '' })
+  const [indForm, setIndForm] = useState({ email: '', password: '', full_name: '', username: '' })
+  const [compForm, setCompForm] = useState({ email: '', password: '', full_name: '', company_name: '', slug: '' })
+  const [joinForm, setJoinForm] = useState({ email: '', password: '', full_name: '', org_slug: '' })
 
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user?.email) setUserEmail(user.email)
-    })
-  }, [])
+  async function signUpAndGetUser(email: string, password: string) {
+    // Try signing up first
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({ email, password })
+    if (!signUpError && signUpData.user) return { user: signUpData.user, error: null }
+
+    // If already registered, sign in
+    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({ email, password })
+    if (signInError) return { user: null, error: signInError.message }
+    return { user: signInData.user, error: null }
+  }
 
   // ── INDEPENDENT ────────────────────────────────────────────────────────────
   async function handleIndependent() {
     setSaving(true)
     setError('')
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { router.push('/login'); return }
+
+    const { user, error: authError } = await signUpAndGetUser(indForm.email, indForm.password)
+    if (authError || !user) { setError(authError ?? 'Error al crear cuenta'); setSaving(false); return }
 
     const { error: profileError } = await supabase
       .from('profiles')
@@ -81,8 +86,9 @@ export default function OnboardingPage() {
   async function handleCompany() {
     setSaving(true)
     setError('')
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { router.push('/login'); return }
+
+    const { user, error: authError } = await signUpAndGetUser(compForm.email, compForm.password)
+    if (authError || !user) { setError(authError ?? 'Error al crear cuenta'); setSaving(false); return }
 
     const { data: org, error: orgError } = await supabase
       .from('organizations')
@@ -94,13 +100,7 @@ export default function OnboardingPage() {
 
     const { error: profileError } = await supabase
       .from('profiles')
-      .upsert({
-        id: user.id,
-        org_id: org.id,
-        role: 'admin',
-        full_name: compForm.full_name,
-        username: compForm.slug,
-      })
+      .upsert({ id: user.id, org_id: org.id, role: 'admin', full_name: compForm.full_name })
 
     if (profileError) { setError(profileError.message); setSaving(false); return }
     router.push('/dashboard')
@@ -110,8 +110,9 @@ export default function OnboardingPage() {
   async function handleJoin() {
     setSaving(true)
     setError('')
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { router.push('/login'); return }
+
+    const { user, error: authError } = await signUpAndGetUser(joinForm.email, joinForm.password)
+    if (authError || !user) { setError(authError ?? 'Error al crear cuenta'); setSaving(false); return }
 
     const { data: org, error: orgError } = await supabase
       .from('organizations')
@@ -120,7 +121,7 @@ export default function OnboardingPage() {
       .single()
 
     if (orgError || !org) {
-      setError('Empresa no encontrada. Verifica el nombre e intenta de nuevo.')
+      setError('Empresa no encontrada. Verifica el código e intenta de nuevo.')
       setSaving(false)
       return
     }
@@ -133,6 +134,48 @@ export default function OnboardingPage() {
     router.push('/dashboard')
   }
 
+  const Logo = () => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '32px' }}>
+      <div style={{ width: '32px', height: '32px', background: 'var(--accent)', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+          <circle cx="10" cy="10" r="3" fill="#0d0f0e"/>
+          <path d="M10 2 L10 7 M10 13 L10 18 M2 10 L7 10 M13 10 L18 10" stroke="#0d0f0e" strokeWidth="2" strokeLinecap="round"/>
+          <circle cx="10" cy="10" r="8" stroke="#0d0f0e" strokeWidth="1.5"/>
+        </svg>
+      </div>
+      <span style={{ fontFamily: mono, fontSize: '14px', letterSpacing: '3px', textTransform: 'uppercase', fontWeight: 600 }}>RopesTrack</span>
+    </div>
+  )
+
+  const ErrorBox = () => error ? (
+    <div style={{ fontFamily: mono, fontSize: '11px', color: 'var(--danger)', marginBottom: '16px', padding: '8px 12px', background: 'rgba(255,74,74,0.08)', border: '1px solid rgba(255,74,74,0.2)', borderRadius: '4px' }}>
+      {error}
+    </div>
+  ) : null
+
+  const BackBtn = () => (
+    <button onClick={() => { setStep('choice'); setError('') }} style={{ background: 'transparent', color: 'var(--text2)', border: '1px solid var(--border2)', borderRadius: '4px', padding: '11px 16px', fontFamily: mono, fontSize: '12px', cursor: 'pointer' }}>
+      Atrás
+    </button>
+  )
+
+  const AuthFields = ({ form, setForm }: { form: { email: string; password: string }; setForm: (fn: (f: typeof form) => typeof form) => void }) => (
+    <>
+      <div>
+        <label style={labelStyle}>Correo electrónico *</label>
+        <input type="email" placeholder="carlos@empresa.com" value={form.email}
+          onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+          style={inputStyle}/>
+      </div>
+      <div>
+        <label style={labelStyle}>Contraseña *</label>
+        <input type="password" placeholder="Mínimo 6 caracteres" value={form.password}
+          onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
+          style={inputStyle}/>
+      </div>
+    </>
+  )
+
   return (
     <div style={{
       minHeight: '100vh', background: 'var(--bg)',
@@ -140,21 +183,8 @@ export default function OnboardingPage() {
       backgroundImage: 'linear-gradient(rgba(42,51,47,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(42,51,47,0.3) 1px, transparent 1px)',
       backgroundSize: '32px 32px',
     }}>
-      <div style={{
-        background: 'var(--surface)', border: '1px solid var(--border)',
-        borderRadius: '8px', padding: '40px', width: '100%', maxWidth: '480px',
-      }}>
-        {/* Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '32px' }}>
-          <div style={{ width: '32px', height: '32px', background: 'var(--accent)', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-              <circle cx="10" cy="10" r="3" fill="#0d0f0e"/>
-              <path d="M10 2 L10 7 M10 13 L10 18 M2 10 L7 10 M13 10 L18 10" stroke="#0d0f0e" strokeWidth="2" strokeLinecap="round"/>
-              <circle cx="10" cy="10" r="8" stroke="#0d0f0e" strokeWidth="1.5"/>
-            </svg>
-          </div>
-          <span style={{ fontFamily: mono, fontSize: '14px', letterSpacing: '3px', textTransform: 'uppercase', fontWeight: 600 }}>RopesTrack</span>
-        </div>
+      <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', padding: '40px', width: '100%', maxWidth: '480px' }}>
+        <Logo />
 
         {/* ── CHOICE ─────────────────────────────────────────────────────── */}
         {step === 'choice' && (
@@ -162,22 +192,29 @@ export default function OnboardingPage() {
             <div style={{ fontFamily: bebas, fontSize: '28px', letterSpacing: '3px', color: 'var(--text)', marginBottom: '8px' }}>¿CÓMO USARÁS ROPESTRACK?</div>
             <div style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text3)', marginBottom: '28px', lineHeight: 1.6 }}>Elige el tipo de cuenta que necesitas.</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <button onClick={() => setStep('independent')} style={{ background: 'transparent', color: 'var(--text)', border: '1px solid var(--border2)', borderRadius: '6px', padding: '16px 20px', fontFamily: mono, fontSize: '12px', letterSpacing: '1px', cursor: 'pointer', textAlign: 'left' }}
+              <button onClick={() => setStep('independent')}
+                style={{ background: 'transparent', color: 'var(--text)', border: '1px solid var(--border2)', borderRadius: '6px', padding: '16px 20px', fontFamily: mono, fontSize: '12px', letterSpacing: '1px', cursor: 'pointer', textAlign: 'left' }}
                 onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--accent)')}
                 onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border2)')}>
                 <div style={{ fontWeight: 600, marginBottom: '4px', textTransform: 'uppercase' }}>Técnico Independiente</div>
                 <div style={{ fontSize: '10px', color: 'var(--text3)', fontWeight: 400 }}>Gestiona tus propias certificaciones sin empresa</div>
               </button>
-              <button onClick={() => setStep('company')} style={{ background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '6px', padding: '16px 20px', fontFamily: mono, fontSize: '12px', letterSpacing: '1px', cursor: 'pointer', textAlign: 'left' }}>
+              <button onClick={() => setStep('company')}
+                style={{ background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '6px', padding: '16px 20px', fontFamily: mono, fontSize: '12px', letterSpacing: '1px', cursor: 'pointer', textAlign: 'left' }}>
                 <div style={{ fontWeight: 700, marginBottom: '4px', textTransform: 'uppercase' }}>Registrar mi Empresa</div>
                 <div style={{ fontSize: '10px', fontWeight: 400, opacity: 0.7 }}>Crea una organización y gestiona tu equipo</div>
               </button>
-              <button onClick={() => setStep('join')} style={{ background: 'transparent', color: 'var(--text2)', border: '1px solid var(--border2)', borderRadius: '6px', padding: '16px 20px', fontFamily: mono, fontSize: '12px', letterSpacing: '1px', cursor: 'pointer', textAlign: 'left' }}
+              <button onClick={() => setStep('join')}
+                style={{ background: 'transparent', color: 'var(--text2)', border: '1px solid var(--border2)', borderRadius: '6px', padding: '16px 20px', fontFamily: mono, fontSize: '12px', letterSpacing: '1px', cursor: 'pointer', textAlign: 'left' }}
                 onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--border2)')}
                 onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border2)')}>
                 <div style={{ fontWeight: 600, marginBottom: '4px', textTransform: 'uppercase' }}>Unirme a una Empresa</div>
                 <div style={{ fontSize: '10px', color: 'var(--text3)', fontWeight: 400 }}>Mi empresa ya tiene una cuenta en RopesTrack</div>
               </button>
+            </div>
+            <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', marginTop: '20px', textAlign: 'center' }}>
+              ¿Ya tienes cuenta?{' '}
+              <a href="/login" style={{ color: 'var(--accent)', textDecoration: 'none' }}>Inicia sesión</a>
             </div>
           </>
         )}
@@ -188,10 +225,7 @@ export default function OnboardingPage() {
             <div style={{ fontFamily: bebas, fontSize: '28px', letterSpacing: '3px', color: 'var(--text)', marginBottom: '4px' }}>TÉCNICO INDEPENDIENTE</div>
             <div style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text3)', marginBottom: '28px' }}>Crea tu perfil personal sin necesidad de empresa.</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '20px' }}>
-              <div>
-                <label style={labelStyle}>Correo electrónico</label>
-                <input value={userEmail} disabled style={{ ...inputStyle, opacity: 0.5, cursor: 'not-allowed' }}/>
-              </div>
+              <AuthFields form={indForm} setForm={setIndForm as never} />
               <div>
                 <label style={labelStyle}>Nombre completo *</label>
                 <input placeholder="Carlos Mendoza" value={indForm.full_name}
@@ -206,12 +240,13 @@ export default function OnboardingPage() {
                 <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', marginTop: '4px' }}>Solo letras minúsculas, números y guión bajo</div>
               </div>
             </div>
-            {error && <div style={{ fontFamily: mono, fontSize: '11px', color: 'var(--danger)', marginBottom: '16px', padding: '8px 12px', background: 'rgba(255,74,74,0.08)', border: '1px solid rgba(255,74,74,0.2)', borderRadius: '4px' }}>{error}</div>}
+            <ErrorBox />
             <div style={{ display: 'flex', gap: '8px' }}>
-              <button onClick={handleIndependent} disabled={saving || !indForm.full_name || !indForm.username} style={{ flex: 1, background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px', padding: '11px', fontFamily: mono, fontSize: '12px', fontWeight: 700, letterSpacing: '1px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1, textTransform: 'uppercase' }}>
+              <button onClick={handleIndependent} disabled={saving || !indForm.email || !indForm.password || !indForm.full_name || !indForm.username}
+                style={{ flex: 1, background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px', padding: '11px', fontFamily: mono, fontSize: '12px', fontWeight: 700, letterSpacing: '1px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1, textTransform: 'uppercase' }}>
                 {saving ? 'Creando...' : 'Crear mi perfil'}
               </button>
-              <button onClick={() => { setStep('choice'); setError('') }} style={{ background: 'transparent', color: 'var(--text2)', border: '1px solid var(--border2)', borderRadius: '4px', padding: '11px 16px', fontFamily: mono, fontSize: '12px', cursor: 'pointer' }}>Atrás</button>
+              <BackBtn />
             </div>
           </>
         )}
@@ -222,10 +257,7 @@ export default function OnboardingPage() {
             <div style={{ fontFamily: bebas, fontSize: '28px', letterSpacing: '3px', color: 'var(--text)', marginBottom: '4px' }}>REGISTRAR EMPRESA</div>
             <div style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text3)', marginBottom: '28px' }}>Crea tu organización y empieza a gestionar tu equipo.</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '20px' }}>
-              <div>
-                <label style={labelStyle}>Correo electrónico</label>
-                <input value={userEmail} disabled style={{ ...inputStyle, opacity: 0.5, cursor: 'not-allowed' }}/>
-              </div>
+              <AuthFields form={compForm} setForm={setCompForm as never} />
               <div>
                 <label style={labelStyle}>Tu nombre completo *</label>
                 <input placeholder="Carlos Mendoza" value={compForm.full_name}
@@ -243,21 +275,22 @@ export default function OnboardingPage() {
                   style={inputStyle}/>
               </div>
               <div>
-                <label style={labelStyle}>Slug (identificador único) *</label>
+                <label style={labelStyle}>Código de organización *</label>
                 <input placeholder="altus-industrial" value={compForm.slug}
                   onChange={e => setCompForm(f => ({ ...f, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') }))}
                   style={inputStyle}/>
                 <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', marginTop: '4px' }}>
-                  Los miembros de tu empresa usarán este código para unirse
+                  Los miembros usarán este código para unirse a tu empresa
                 </div>
               </div>
             </div>
-            {error && <div style={{ fontFamily: mono, fontSize: '11px', color: 'var(--danger)', marginBottom: '16px', padding: '8px 12px', background: 'rgba(255,74,74,0.08)', border: '1px solid rgba(255,74,74,0.2)', borderRadius: '4px' }}>{error}</div>}
+            <ErrorBox />
             <div style={{ display: 'flex', gap: '8px' }}>
-              <button onClick={handleCompany} disabled={saving || !compForm.full_name || !compForm.company_name || !compForm.slug} style={{ flex: 1, background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px', padding: '11px', fontFamily: mono, fontSize: '12px', fontWeight: 700, letterSpacing: '1px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1, textTransform: 'uppercase' }}>
+              <button onClick={handleCompany} disabled={saving || !compForm.email || !compForm.password || !compForm.full_name || !compForm.company_name || !compForm.slug}
+                style={{ flex: 1, background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px', padding: '11px', fontFamily: mono, fontSize: '12px', fontWeight: 700, letterSpacing: '1px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1, textTransform: 'uppercase' }}>
                 {saving ? 'Creando...' : 'Crear organización'}
               </button>
-              <button onClick={() => { setStep('choice'); setError('') }} style={{ background: 'transparent', color: 'var(--text2)', border: '1px solid var(--border2)', borderRadius: '4px', padding: '11px 16px', fontFamily: mono, fontSize: '12px', cursor: 'pointer' }}>Atrás</button>
+              <BackBtn />
             </div>
           </>
         )}
@@ -268,10 +301,7 @@ export default function OnboardingPage() {
             <div style={{ fontFamily: bebas, fontSize: '28px', letterSpacing: '3px', color: 'var(--text)', marginBottom: '4px' }}>UNIRME A UNA EMPRESA</div>
             <div style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text3)', marginBottom: '28px' }}>Pide el código de organización a tu administrador.</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '20px' }}>
-              <div>
-                <label style={labelStyle}>Correo electrónico</label>
-                <input value={userEmail} disabled style={{ ...inputStyle, opacity: 0.5, cursor: 'not-allowed' }}/>
-              </div>
+              <AuthFields form={joinForm} setForm={setJoinForm as never} />
               <div>
                 <label style={labelStyle}>Tu nombre completo *</label>
                 <input placeholder="Carlos Mendoza" value={joinForm.full_name}
@@ -288,12 +318,13 @@ export default function OnboardingPage() {
                 </div>
               </div>
             </div>
-            {error && <div style={{ fontFamily: mono, fontSize: '11px', color: 'var(--danger)', marginBottom: '16px', padding: '8px 12px', background: 'rgba(255,74,74,0.08)', border: '1px solid rgba(255,74,74,0.2)', borderRadius: '4px' }}>{error}</div>}
+            <ErrorBox />
             <div style={{ display: 'flex', gap: '8px' }}>
-              <button onClick={handleJoin} disabled={saving || !joinForm.full_name || !joinForm.org_slug} style={{ flex: 1, background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px', padding: '11px', fontFamily: mono, fontSize: '12px', fontWeight: 700, letterSpacing: '1px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1, textTransform: 'uppercase' }}>
+              <button onClick={handleJoin} disabled={saving || !joinForm.email || !joinForm.password || !joinForm.full_name || !joinForm.org_slug}
+                style={{ flex: 1, background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px', padding: '11px', fontFamily: mono, fontSize: '12px', fontWeight: 700, letterSpacing: '1px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1, textTransform: 'uppercase' }}>
                 {saving ? 'Uniéndome...' : 'Unirme a la empresa'}
               </button>
-              <button onClick={() => { setStep('choice'); setError('') }} style={{ background: 'transparent', color: 'var(--text2)', border: '1px solid var(--border2)', borderRadius: '4px', padding: '11px 16px', fontFamily: mono, fontSize: '12px', cursor: 'pointer' }}>Atrás</button>
+              <BackBtn />
             </div>
           </>
         )}
