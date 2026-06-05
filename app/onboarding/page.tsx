@@ -79,8 +79,12 @@ export default function OnboardingPage() {
     setSaving(true)
     setError('')
 
-    const { user, error: authError } = await signUpAndGetUser(indForm.email, indForm.password)
-    if (authError || !user) { setError(authError ?? 'Error al crear cuenta'); setSaving(false); return }
+    let user = sessionUser ? { id: sessionUser.id } : null
+    if (!user) {
+      const { user: newUser, error: authError } = await signUpAndGetUser(indForm.email, indForm.password)
+      if (authError || !newUser) { setError(authError ?? 'Error al crear cuenta'); setSaving(false); return }
+      user = newUser
+    }
 
     const { error: profileError } = await supabase
       .from('profiles')
@@ -101,8 +105,12 @@ export default function OnboardingPage() {
     setSaving(true)
     setError('')
 
-    const { user, error: authError } = await signUpAndGetUser(compForm.email, compForm.password)
-    if (authError || !user) { setError(authError ?? 'Error al crear cuenta'); setSaving(false); return }
+    let user = sessionUser ? { id: sessionUser.id } : null
+    if (!user) {
+      const { user: newUser, error: authError } = await signUpAndGetUser(compForm.email, compForm.password)
+      if (authError || !newUser) { setError(authError ?? 'Error al crear cuenta'); setSaving(false); return }
+      user = newUser
+    }
 
     const { data: org, error: orgError } = await supabase
       .from('organizations')
@@ -176,22 +184,30 @@ export default function OnboardingPage() {
     </button>
   )
 
-  const AuthFields = ({ form, setForm }: { form: { email: string; password: string }; setForm: (fn: (f: typeof form) => typeof form) => void }) => (
-    <>
-      <div>
-        <label style={labelStyle}>Correo electrónico *</label>
-        <input type="email" placeholder="carlos@empresa.com" value={form.email}
-          onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-          style={inputStyle}/>
+  const AuthFields = ({ form, setForm }: { form: { email: string; password: string }; setForm: (fn: (f: typeof form) => typeof form) => void }) => {
+    if (sessionUser) return (
+      <div style={{ background: 'rgba(232,255,74,0.06)', border: '1px solid rgba(232,255,74,0.15)', borderRadius: '4px', padding: '10px 14px' }}>
+        <div style={{ fontFamily: mono, fontSize: '9px', color: 'var(--text3)', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '2px' }}>Sesión activa</div>
+        <div style={{ fontFamily: mono, fontSize: '12px', color: 'var(--text)' }}>{sessionUser.email}</div>
       </div>
-      <div>
-        <label style={labelStyle}>Contraseña *</label>
-        <input type="password" placeholder="Mínimo 6 caracteres" value={form.password}
-          onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
-          style={inputStyle}/>
-      </div>
-    </>
-  )
+    )
+    return (
+      <>
+        <div>
+          <label style={labelStyle}>Correo electrónico *</label>
+          <input type="email" placeholder="carlos@empresa.com" value={form.email}
+            onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+            style={inputStyle}/>
+        </div>
+        <div>
+          <label style={labelStyle}>Contraseña *</label>
+          <input type="password" placeholder="Mínimo 6 caracteres" value={form.password}
+            onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
+            style={inputStyle}/>
+        </div>
+      </>
+    )
+  }
 
   return (
     <div style={{
@@ -259,7 +275,7 @@ export default function OnboardingPage() {
             </div>
             <ErrorBox />
             <div style={{ display: 'flex', gap: '8px' }}>
-              <button onClick={handleIndependent} disabled={saving || !indForm.email || !indForm.password || !indForm.full_name || !indForm.username}
+              <button onClick={handleIndependent} disabled={saving || (!sessionUser && (!indForm.email || !indForm.password)) || !indForm.full_name || !indForm.username}
                 style={{ flex: 1, background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px', padding: '11px', fontFamily: mono, fontSize: '12px', fontWeight: 700, letterSpacing: '1px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1, textTransform: 'uppercase' }}>
                 {saving ? 'Creando...' : 'Crear mi perfil'}
               </button>
@@ -303,7 +319,7 @@ export default function OnboardingPage() {
             </div>
             <ErrorBox />
             <div style={{ display: 'flex', gap: '8px' }}>
-              <button onClick={handleCompany} disabled={saving || !compForm.email || !compForm.password || !compForm.full_name || !compForm.company_name || !compForm.slug}
+              <button onClick={handleCompany} disabled={saving || (!sessionUser && (!compForm.email || !compForm.password)) || !compForm.full_name || !compForm.company_name || !compForm.slug}
                 style={{ flex: 1, background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px', padding: '11px', fontFamily: mono, fontSize: '12px', fontWeight: 700, letterSpacing: '1px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1, textTransform: 'uppercase' }}>
                 {saving ? 'Creando...' : 'Crear organización'}
               </button>
