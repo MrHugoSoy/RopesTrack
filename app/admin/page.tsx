@@ -266,14 +266,12 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (tab !== 'empresas' || orgsLoaded) return
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      fetch('/api/admin/orgs', {
-        headers: { Authorization: `Bearer ${session?.access_token ?? ''}` },
-      })
-        .then(r => r.json())
-        .then(data => { setOrgs(Array.isArray(data) ? data : []); setOrgsLoaded(true) })
-        .catch(() => setOrgsLoaded(true))
-    })
+    supabase
+      .from('organizations')
+      .select('id, name, slug, plan, created_at, owner_id')
+      .order('created_at', { ascending: false })
+      .then(({ data }) => { setOrgs(data ?? []); setOrgsLoaded(true) })
+      .catch(() => setOrgsLoaded(true))
   }, [tab, orgsLoaded])
 
   async function updateStatus(id: string, status: string) {
