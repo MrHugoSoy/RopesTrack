@@ -22,11 +22,11 @@ export default function OnboardingPage() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { router.push('/login'); return }
 
-    // Create org
+    // Upsert org (handles duplicate slug from failed previous attempts)
     const slug = form.slug
     const { data: org, error: orgError } = await supabase
       .from('organizations')
-      .insert({ name: form.name, slug, owner_id: user.id })
+      .upsert({ name: form.name, slug, owner_id: user.id }, { onConflict: 'slug' })
       .select()
       .single()
 
