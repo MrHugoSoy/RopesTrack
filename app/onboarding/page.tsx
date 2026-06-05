@@ -197,13 +197,13 @@ export default function OnboardingPage() {
           <label style={labelStyle}>Correo electrónico *</label>
           <input type="email" placeholder="carlos@empresa.com" value={form.email}
             onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-            style={inputStyle}/>
+            autoComplete="off" style={inputStyle}/>
         </div>
         <div>
           <label style={labelStyle}>Contraseña *</label>
           <input type="password" placeholder="Mínimo 6 caracteres" value={form.password}
             onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
-            style={inputStyle}/>
+            autoComplete="new-password" style={inputStyle}/>
         </div>
       </>
     )
