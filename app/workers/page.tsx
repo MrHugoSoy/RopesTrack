@@ -315,7 +315,7 @@ export default function WorkersPage() {
         }}>
           <span style={{ fontFamily: mono, fontSize: '18px', letterSpacing: '3px', textTransform: 'uppercase' }}>Workers / Trabajadores</span>
           <div style={{ marginLeft: 'auto' }}>
-            {userRole !== 'viewer' && (
+            {userRole !== 'viewer' && userRole !== 'independent' && (
               <button onClick={() => setShowForm(true)} style={{
                 background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px',
                 padding: '7px 16px', fontFamily: mono, fontSize: '12px', fontWeight: '500',

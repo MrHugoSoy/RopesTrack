@@ -36,6 +36,7 @@ export default function EquipmentPage() {
   const [showForm, setShowForm] = useState(false)
   const [saving, setSaving] = useState(false)
   const [userRole, setUserRole] = useState<string>('')
+  const [userId, setUserId] = useState<string>('')
   const [editingEquip, setEditingEquip] = useState<Equipment | null>(null)
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set())
   const [search, setSearch] = useState('')
@@ -52,20 +53,21 @@ export default function EquipmentPage() {
     async function init() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/login'); return }
+      setUserId(user.id)
       const { data: profile } = await supabase
         .from('profiles')
         .select('role')
         .eq('id', user.id)
         .single()
       if (profile) setUserRole(profile.role)
-      await fetchEquipment()
+      await fetchEquipment(user.id)
       setLoading(false)
     }
     init()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  async function fetchEquipment() {
+  async function fetchEquipment(_uid?: string) {
     const { data } = await supabase.from('equipment').select('*').order('name')
     if (data) setEquipment(data)
   }
@@ -73,27 +75,33 @@ export default function EquipmentPage() {
   async function handleSave() {
     setSaving(true)
 
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) { setSaving(false); return }
+
     const { data: profile } = await supabase
       .from('profiles')
-      .select('org_id')
-      .eq('id', (await supabase.auth.getUser()).data.user!.id)
+      .select('org_id, role')
+      .eq('id', user.id)
       .single()
 
-    const orgId = profile?.org_id
-    if (!orgId) { alert('No organization found'); setSaving(false); return }
+    const isIndependent = profile?.role === 'independent' || !profile?.org_id
 
-    const { error } = await supabase.from('equipment').insert({ ...form, org_id: orgId })
+    const insertData = isIndependent
+      ? { ...form, user_id: user.id, org_id: null }
+      : { ...form, org_id: profile?.org_id }
+
+    const { error } = await supabase.from('equipment').insert(insertData)
     if (error) { alert(error.message); setSaving(false); return }
 
     const days = form.next_inspection
       ? Math.ceil((new Date(form.next_inspection).getTime() - Date.now()) / 86400000)
       : null
 
-    if (days !== null && days <= 30) {
+    if (days !== null && days <= 30 && !isIndependent) {
       await supabase.from('alerts').insert({
         type: days <= 7 ? 'critical' : 'warning',
         message: `Equipment ${form.name} (${form.serial_number}) inspection due in ${days} days.`,
-        org_id: orgId,
+        org_id: profile?.org_id,
       })
     }
 
