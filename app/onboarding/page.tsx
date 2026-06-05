@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 
@@ -35,7 +35,7 @@ const backBtn: React.CSSProperties = {
 
 type Step = 'choice' | 'independent' | 'company' | 'join'
 
-export default function OnboardingPage() {
+function OnboardingInner() {
   const router = useRouter()
   const supabase = createClient()
 
@@ -344,5 +344,13 @@ export default function OnboardingPage() {
 
       </div>
     </div>
+  )
+}
+
+export default function OnboardingPage() {
+  return (
+    <Suspense>
+      <OnboardingInner />
+    </Suspense>
   )
 }
