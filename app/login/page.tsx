@@ -23,10 +23,6 @@ export default function LoginPage() {
     }
     const { data: { user } } = await supabase.auth.getUser()
     if (user) {
-      if (user.email === 'hugoivanrf@gmail.com') {
-        router.push('/admin')
-        return
-      }
       const { data: profile } = await supabase
         .from('profiles')
         .select('id')

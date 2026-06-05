@@ -24,7 +24,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase'
+
 
 const ADMIN_EMAIL = 'hugoivanrf@gmail.com'
 
@@ -206,7 +206,6 @@ type DeleteTarget = { id: string; label: string; type: 'request' | 'user' | 'org
 
 export default function AdminPage() {
   const router = useRouter()
-  const supabase = createClient()
 
   const [unlocked, setUnlocked]     = useState(false)
   const [ready, setReady]           = useState(false)
