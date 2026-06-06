@@ -372,7 +372,7 @@ export default function DashboardPage() {
                               <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: 'var(--accent2)', display: 'inline-block', marginRight: '6px' }}/>
                               Certificación IRATA
                             </div>
-                            {selfCert.cert_irata_id && <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)' }}>{selfCert.cert_irata_id}</div>}
+                            {selfCert.cert_irata_id && <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)' }}>ID IRATA: {selfCert.cert_irata_id}</div>}
                           </td>
                           <td style={{ padding: '14px 20px' }}>
                             <span style={{ fontFamily: mono, fontSize: '10px', padding: '3px 7px', borderRadius: '3px', fontWeight: 500, background: lv === 3 ? 'rgba(232,255,74,0.12)' : lv === 2 ? 'rgba(74,255,160,0.1)' : 'rgba(138,158,147,0.1)', color: lv === 3 ? 'var(--accent)' : lv === 2 ? 'var(--accent2)' : 'var(--text2)', border: `1px solid ${lv === 3 ? 'rgba(232,255,74,0.2)' : lv === 2 ? 'rgba(74,255,160,0.2)' : 'var(--border2)'}` }}>
@@ -390,7 +390,7 @@ export default function DashboardPage() {
                             )}
                           </td>
                           {selfCert.cert_number && (
-                            <td style={{ padding: '14px 20px', fontFamily: mono, fontSize: '11px', color: 'var(--text3)' }}>#{selfCert.cert_number}</td>
+                            <td style={{ padding: '14px 20px', fontFamily: mono, fontSize: '11px', color: 'var(--text3)' }}>N° Cert: {selfCert.cert_number}</td>
                           )}
                         </tr>
                       </tbody>
