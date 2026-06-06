@@ -36,6 +36,7 @@ export default function EquipmentPage() {
   const [showForm, setShowForm] = useState(false)
   const [saving, setSaving] = useState(false)
   const [userRole, setUserRole] = useState<string>('')
+  const [orgId, setOrgId] = useState<string | null>(null)
   const [userId, setUserId] = useState<string>('')
   const [editingEquip, setEditingEquip] = useState<Equipment | null>(null)
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set())
@@ -56,10 +57,10 @@ export default function EquipmentPage() {
       setUserId(user.id)
       const { data: profile } = await supabase
         .from('profiles')
-        .select('role')
+        .select('role, org_id')
         .eq('id', user.id)
         .single()
-      if (profile) setUserRole(profile.role)
+      if (profile) { setUserRole(profile.role); setOrgId(profile?.org_id ?? null) }
       await fetchEquipment(user.id)
       setLoading(false)
     }
@@ -192,7 +193,7 @@ export default function EquipmentPage() {
           { icon: 'M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z', path: '/jobs', label: 'Jobs' },
           { icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4', path: '/openings', label: 'Ofertas' },
           { icon: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M16 13H8M16 17H8', path: '/reports', label: 'Reports' },
-        ].filter(item => userRole !== 'independent' || (item.path !== '/workers' && item.path !== '/team'))
+        ].filter(item => !(userRole === 'independent' || !orgId) || (item.path !== '/workers' && item.path !== '/team'))
         .map((item, i) => (
           <div key={i} onClick={() => router.push(item.path)} style={{
             display: 'flex', alignItems: 'center', gap: '10px', padding: '0 16px',
