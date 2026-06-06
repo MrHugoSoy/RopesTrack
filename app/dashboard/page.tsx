@@ -43,12 +43,12 @@ interface OrgProfile {
   }
 }
 
-interface SelfWorker {
-  id: string
-  name: string
-  irata_id: string
-  level: number
-  certifications: { id: string; expiry_date: string; issue_date: string; certificate_number: string }[]
+interface SelfCert {
+  cert_level: number | null
+  cert_irata_id: string | null
+  cert_number: string | null
+  cert_issue: string | null
+  cert_expiry: string | null
 }
 
 const mono = 'var(--font-dm-mono)'
@@ -75,7 +75,7 @@ export default function DashboardPage() {
   const [org, setOrg] = useState<OrgProfile | null>(null)
   const [userRole, setUserRole] = useState<string>('')
   const [collapsedEqGroups, setCollapsedEqGroups] = useState<Set<string>>(new Set())
-  const [selfWorker, setSelfWorker] = useState<SelfWorker | null>(null)
+  const [selfCert, setSelfCert] = useState<SelfCert | null>(null)
   const [showCertForm, setShowCertForm] = useState(false)
   const [certForm, setCertForm] = useState({ name: '', irata_id: '', level: 1, cert_issue: '', cert_expiry: '', cert_number: '' })
   const [savingCert, setSavingCert] = useState(false)
@@ -138,51 +138,37 @@ export default function DashboardPage() {
         .single()
       if (profile) setOrg(profile as unknown as OrgProfile)
       setUserId(user.id)
-      const { data: swArr } = await supabase
-        .from('workers')
-        .select('id, name, irata_id, level, certifications(id, expiry_date, issue_date, certificate_number)')
-        .eq('user_id', user.id)
-        .is('org_id', null)
-        .limit(1)
-      setSelfWorker(swArr?.[0] ?? null)
+      const { data: sc } = await supabase
+        .from('profiles')
+        .select('cert_level, cert_irata_id, cert_number, cert_issue, cert_expiry')
+        .eq('id', user.id)
+        .single()
+      setSelfCert(sc ?? null)
     }
   }
 
   function openCertForm() {
-    const cert = selfWorker?.certifications?.[0]
     setCertForm({
-      name: selfWorker?.name || '',
-      irata_id: selfWorker?.irata_id || '',
-      level: selfWorker?.level || 1,
-      cert_issue: (cert as { issue_date?: string })?.issue_date || '',
-      cert_expiry: cert?.expiry_date || '',
-      cert_number: cert?.certificate_number || '',
+      name: '',
+      irata_id: selfCert?.cert_irata_id || '',
+      level: selfCert?.cert_level || 1,
+      cert_issue: selfCert?.cert_issue || '',
+      cert_expiry: selfCert?.cert_expiry || '',
+      cert_number: selfCert?.cert_number || '',
     })
     setShowCertForm(true)
   }
 
   async function handleSaveCert() {
     setSavingCert(true)
-    let wId = selfWorker?.id
-    if (!wId) {
-      const { data: w, error: wErr } = await supabase.from('workers')
-        .insert({ name: certForm.name || certForm.irata_id || 'Yo', irata_id: certForm.irata_id, level: certForm.level, user_id: userId, org_id: null })
-        .select('id').single()
-      if (wErr || !w) { alert('Error al guardar trabajador: ' + (wErr?.message ?? 'sin datos')); setSavingCert(false); return }
-      wId = w.id
-    } else {
-      const { error: uErr } = await supabase.from('workers').update({ name: certForm.name || certForm.irata_id || 'Yo', irata_id: certForm.irata_id, level: certForm.level }).eq('id', wId)
-      if (uErr) { alert('Error al actualizar: ' + uErr.message); setSavingCert(false); return }
-    }
-    if (certForm.cert_expiry) {
-      const { error: cErr } = await supabase.from('certifications').insert({
-        worker_id: wId,
-        issue_date: certForm.cert_issue || new Date().toISOString().split('T')[0],
-        expiry_date: certForm.cert_expiry,
-        certificate_number: certForm.cert_number || null,
-      })
-      if (cErr) { alert('Error al guardar certificación: ' + cErr.message); setSavingCert(false); return }
-    }
+    const { error } = await supabase.from('profiles').update({
+      cert_level: certForm.level,
+      cert_irata_id: certForm.irata_id || null,
+      cert_number: certForm.cert_number || null,
+      cert_issue: certForm.cert_issue || null,
+      cert_expiry: certForm.cert_expiry || null,
+    }).eq('id', userId)
+    if (error) { alert('Error: ' + error.message); setSavingCert(false); return }
     setSavingCert(false)
     setShowCertForm(false)
     await fetchData()
@@ -357,9 +343,9 @@ export default function DashboardPage() {
 
             {/* CERT CARD — independent users */}
             {isIndependent && (() => {
-              const cert = selfWorker?.certifications?.[0]
-              const days = cert ? getDaysUntil(cert.expiry_date) : null
+              const days = selfCert?.cert_expiry ? getDaysUntil(selfCert.cert_expiry) : null
               const certStatus = days !== null ? getExpiryStatus(days) : null
+              const lv = selfCert?.cert_level ?? 1
               return (
                 <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
                   <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -370,10 +356,10 @@ export default function DashboardPage() {
                       </span>
                     )}
                     <button onClick={openCertForm} style={{ marginLeft: 'auto', background: 'transparent', color: 'var(--accent)', border: '1px solid rgba(232,255,74,0.3)', borderRadius: '3px', padding: '4px 12px', fontFamily: mono, fontSize: '10px', letterSpacing: '0.5px', cursor: 'pointer' }}>
-                      {selfWorker ? 'Editar' : '+ Agregar'}
+                      {selfCert?.cert_expiry ? 'Editar' : '+ Agregar'}
                     </button>
                   </div>
-                  {!selfWorker || !cert ? (
+                  {!selfCert?.cert_expiry ? (
                     <div style={{ padding: '40px', textAlign: 'center', fontFamily: mono, fontSize: '12px', color: 'var(--text3)' }}>
                       Agrega tu certificación IRATA para monitorear la renovación.
                     </div>
@@ -381,18 +367,18 @@ export default function DashboardPage() {
                     <div style={{ padding: '20px 24px', display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
                       <div>
                         <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '1px' }}>Nivel</div>
-                        <span style={{ fontFamily: mono, fontSize: '13px', padding: '4px 10px', borderRadius: '3px', fontWeight: 500, background: selfWorker.level === 3 ? 'rgba(232,255,74,0.12)' : selfWorker.level === 2 ? 'rgba(74,255,160,0.1)' : 'rgba(138,158,147,0.1)', color: selfWorker.level === 3 ? 'var(--accent)' : selfWorker.level === 2 ? 'var(--accent2)' : 'var(--text2)', border: `1px solid ${selfWorker.level === 3 ? 'rgba(232,255,74,0.2)' : selfWorker.level === 2 ? 'rgba(74,255,160,0.2)' : 'var(--border2)'}` }}>
-                          L{selfWorker.level} {selfWorker.level === 3 ? 'SUPERVISOR' : selfWorker.level === 2 ? 'TECHNICIAN' : 'OPERATIVE'}
+                        <span style={{ fontFamily: mono, fontSize: '13px', padding: '4px 10px', borderRadius: '3px', fontWeight: 500, background: lv === 3 ? 'rgba(232,255,74,0.12)' : lv === 2 ? 'rgba(74,255,160,0.1)' : 'rgba(138,158,147,0.1)', color: lv === 3 ? 'var(--accent)' : lv === 2 ? 'var(--accent2)' : 'var(--text2)', border: `1px solid ${lv === 3 ? 'rgba(232,255,74,0.2)' : lv === 2 ? 'rgba(74,255,160,0.2)' : 'var(--border2)'}` }}>
+                          L{lv} {lv === 3 ? 'SUPERVISOR' : lv === 2 ? 'TECHNICIAN' : 'OPERATIVE'}
                         </span>
                       </div>
-                      <div>
+                      {selfCert.cert_irata_id && <div>
                         <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '1px' }}>ID IRATA</div>
-                        <div style={{ fontFamily: mono, fontSize: '13px', color: 'var(--text)' }}>{selfWorker.irata_id || '—'}</div>
-                      </div>
+                        <div style={{ fontFamily: mono, fontSize: '13px', color: 'var(--text)' }}>{selfCert.cert_irata_id}</div>
+                      </div>}
                       <div>
                         <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '1px' }}>Vencimiento</div>
                         <div style={{ fontFamily: mono, fontSize: '13px', color: certStatus === 'critical' ? 'var(--danger)' : certStatus === 'warning' ? 'var(--warning)' : 'var(--text)' }}>
-                          {new Date(cert.expiry_date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
+                          {new Date(selfCert.cert_expiry).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
                         </div>
                       </div>
                       {days !== null && (
@@ -403,10 +389,10 @@ export default function DashboardPage() {
                           </div>
                         </div>
                       )}
-                      {cert.certificate_number && (
+                      {selfCert.cert_number && (
                         <div>
                           <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '1px' }}>N° Certificado</div>
-                          <div style={{ fontFamily: mono, fontSize: '13px', color: 'var(--text2)' }}>{cert.certificate_number}</div>
+                          <div style={{ fontFamily: mono, fontSize: '13px', color: 'var(--text2)' }}>{selfCert.cert_number}</div>
                         </div>
                       )}
                     </div>
