@@ -36,6 +36,7 @@ export default function OpeningsPage() {
   const [isVerified, setIsVerified] = useState(false)
   const [postings, setPostings] = useState<Posting[]>([])
   const [loading, setLoading] = useState(true)
+  const [userRole, setUserRole] = useState<string>('')
   const [levelFilter, setLevelFilter] = useState('all')
   const [search, setSearch] = useState('')
 
@@ -59,10 +60,11 @@ export default function OpeningsPage() {
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('org_id')
+        .select('org_id, role')
         .eq('id', user.id)
         .single()
 
+      if (profile) setUserRole(profile.role)
       const oid = profile?.org_id ?? null
       setOrgId(oid)
 
@@ -191,7 +193,8 @@ export default function OpeningsPage() {
           { icon: JOBS_ICON, path: '/jobs', label: 'Jobs' },
           { icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4', path: '/openings', label: 'Ofertas', active: true },
           { icon: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M16 13H8M16 17H8', path: '/reports', label: 'Reports' },
-        ].map((item, i) => (
+        ].filter(item => userRole !== 'independent' || (item.path !== '/workers' && item.path !== '/team'))
+        .map((item, i) => (
           <div key={i} onClick={() => router.push(item.path)} style={{
             display: 'flex', alignItems: 'center', gap: '10px', padding: '0 16px',
             height: '38px', borderRadius: '6px', cursor: 'pointer', marginBottom: '2px',
