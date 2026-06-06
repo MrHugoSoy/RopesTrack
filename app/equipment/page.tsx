@@ -149,6 +149,17 @@ export default function EquipmentPage() {
     return Math.ceil((new Date(dateStr).getTime() - Date.now()) / 86400000)
   }
 
+  function getRetire(eq: Equipment) {
+    if (!eq.manufacture_date) return null
+    const retire = new Date(eq.manufacture_date)
+    retire.setFullYear(retire.getFullYear() + 10)
+    const days = Math.ceil((retire.getTime() - Date.now()) / 86400000)
+    if (days <= 0) return { label: 'RETIRAR', color: 'var(--danger)', bg: 'rgba(255,74,74,0.15)', border: 'rgba(255,74,74,0.3)' }
+    if (days <= 365) return { label: `${Math.ceil(days / 30)}m`, color: 'var(--danger)', bg: 'rgba(255,74,74,0.15)', border: 'rgba(255,74,74,0.3)' }
+    if (days <= 730) return { label: `${Math.floor(days / 365)}a`, color: 'var(--warning)', bg: 'rgba(255,184,74,0.15)', border: 'rgba(255,184,74,0.3)' }
+    return { label: `${Math.floor(days / 365)}a`, color: 'var(--accent2)', bg: 'rgba(74,255,160,0.08)', border: 'rgba(74,255,160,0.2)' }
+  }
+
   function getStatus(eq: Equipment) {
     if (eq.status === 'inspection_required') return 'critical'
     if (!eq.next_inspection) return 'ok'
@@ -303,7 +314,7 @@ export default function EquipmentPage() {
                         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                           <thead>
                             <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                              {['Equipo', 'N° Serie', 'Últ. Inspección', 'Próx. Inspección', 'Estado', 'Acciones'].map(h => (
+                              {['Equipo', 'N° Serie', 'Últ. Inspección', 'Próx. Inspección', 'Vida útil', 'Estado', 'Acciones'].map(h => (
                                 <th key={h} style={{ padding: '10px 20px', textAlign: 'left', fontFamily: mono, fontSize: '10px', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 400 }}>{h}</th>
                               ))}
                             </tr>
@@ -328,6 +339,11 @@ export default function EquipmentPage() {
                                   <td style={{ padding: '14px 20px', fontFamily: mono, fontSize: '11px', color: s === 'critical' ? 'var(--danger)' : s === 'warning' ? 'var(--warning)' : 'var(--text2)' }}>
                                     {eq.next_inspection ? new Date(eq.next_inspection).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
                                     {days !== null && <span style={{ marginLeft: '8px', fontSize: '10px', opacity: 0.7 }}>({days}d)</span>}
+                                  </td>
+                                  <td style={{ padding: '14px 20px' }}>
+                                    {(() => { const r = getRetire(eq); return r ? (
+                                      <span style={{ fontFamily: mono, fontSize: '10px', padding: '3px 8px', borderRadius: '3px', background: r.bg, color: r.color, border: `1px solid ${r.border}` }}>{r.label}</span>
+                                    ) : <span style={{ color: 'var(--text3)', fontFamily: mono, fontSize: '11px' }}>—</span> })()}
                                   </td>
                                   <td style={{ padding: '14px 20px' }}>
                                     <span style={{
