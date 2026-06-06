@@ -364,38 +364,37 @@ export default function DashboardPage() {
                       Agrega tu certificación IRATA para monitorear la renovación.
                     </div>
                   ) : (
-                    <div style={{ padding: '20px 24px', display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
-                      <div>
-                        <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '1px' }}>Nivel</div>
-                        <span style={{ fontFamily: mono, fontSize: '13px', padding: '4px 10px', borderRadius: '3px', fontWeight: 500, background: lv === 3 ? 'rgba(232,255,74,0.12)' : lv === 2 ? 'rgba(74,255,160,0.1)' : 'rgba(138,158,147,0.1)', color: lv === 3 ? 'var(--accent)' : lv === 2 ? 'var(--accent2)' : 'var(--text2)', border: `1px solid ${lv === 3 ? 'rgba(232,255,74,0.2)' : lv === 2 ? 'rgba(74,255,160,0.2)' : 'var(--border2)'}` }}>
-                          L{lv} {lv === 3 ? 'SUPERVISOR' : lv === 2 ? 'TECHNICIAN' : 'OPERATIVE'}
-                        </span>
-                      </div>
-                      {selfCert.cert_irata_id && <div>
-                        <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '1px' }}>ID IRATA</div>
-                        <div style={{ fontFamily: mono, fontSize: '13px', color: 'var(--text)' }}>{selfCert.cert_irata_id}</div>
-                      </div>}
-                      <div>
-                        <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '1px' }}>Vencimiento</div>
-                        <div style={{ fontFamily: mono, fontSize: '13px', color: certStatus === 'critical' ? 'var(--danger)' : certStatus === 'warning' ? 'var(--warning)' : 'var(--text)' }}>
-                          {new Date(selfCert.cert_expiry).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
-                        </div>
-                      </div>
-                      {days !== null && (
-                        <div>
-                          <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '1px' }}>Días restantes</div>
-                          <div style={{ fontFamily: mono, fontSize: '24px', fontWeight: 700, color: certStatus === 'critical' ? 'var(--danger)' : certStatus === 'warning' ? 'var(--warning)' : 'var(--accent2)' }}>
-                            {days < 0 ? 'VENCIDA' : days}
-                          </div>
-                        </div>
-                      )}
-                      {selfCert.cert_number && (
-                        <div>
-                          <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '1px' }}>N° Certificado</div>
-                          <div style={{ fontFamily: mono, fontSize: '13px', color: 'var(--text2)' }}>{selfCert.cert_number}</div>
-                        </div>
-                      )}
-                    </div>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                      <tbody>
+                        <tr>
+                          <td style={{ padding: '14px 20px' }}>
+                            <div style={{ fontWeight: 500, fontSize: '13px', marginBottom: '2px' }}>
+                              <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: 'var(--accent2)', display: 'inline-block', marginRight: '6px' }}/>
+                              Certificación IRATA
+                            </div>
+                            {selfCert.cert_irata_id && <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)' }}>{selfCert.cert_irata_id}</div>}
+                          </td>
+                          <td style={{ padding: '14px 20px' }}>
+                            <span style={{ fontFamily: mono, fontSize: '10px', padding: '3px 7px', borderRadius: '3px', fontWeight: 500, background: lv === 3 ? 'rgba(232,255,74,0.12)' : lv === 2 ? 'rgba(74,255,160,0.1)' : 'rgba(138,158,147,0.1)', color: lv === 3 ? 'var(--accent)' : lv === 2 ? 'var(--accent2)' : 'var(--text2)', border: `1px solid ${lv === 3 ? 'rgba(232,255,74,0.2)' : lv === 2 ? 'rgba(74,255,160,0.2)' : 'var(--border2)'}` }}>
+                              L{lv} {lv === 3 ? 'SUPERVISOR' : lv === 2 ? 'TECHNICIAN' : 'OPERATIVE'}
+                            </span>
+                          </td>
+                          <td style={{ padding: '14px 20px', fontFamily: mono, fontSize: '12px', color: certStatus === 'critical' ? 'var(--danger)' : certStatus === 'warning' ? 'var(--warning)' : 'var(--text2)' }}>
+                            {new Date(selfCert.cert_expiry).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
+                          </td>
+                          <td style={{ padding: '14px 20px' }}>
+                            {days !== null && (
+                              <span style={{ fontFamily: mono, fontSize: '10px', padding: '2px 7px', borderRadius: '2px', background: certStatus === 'critical' ? 'rgba(255,74,74,0.15)' : certStatus === 'warning' ? 'rgba(255,184,74,0.15)' : 'rgba(74,255,160,0.08)', color: certStatus === 'critical' ? 'var(--danger)' : certStatus === 'warning' ? 'var(--warning)' : 'var(--accent2)' }}>
+                                {days < 0 ? 'VENCIDA' : `${days}d`}
+                              </span>
+                            )}
+                          </td>
+                          {selfCert.cert_number && (
+                            <td style={{ padding: '14px 20px', fontFamily: mono, fontSize: '11px', color: 'var(--text3)' }}>#{selfCert.cert_number}</td>
+                          )}
+                        </tr>
+                      </tbody>
+                    </table>
                   )}
                 </div>
               )
