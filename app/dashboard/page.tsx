@@ -358,7 +358,7 @@ export default function DashboardPage() {
             )}
 
             {/* ALERTS */}
-            <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
+            {!isIndependent && <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
               <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <span style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)' }}>Alert Feed / Alertas</span>
                 {openAlerts > 0 && (
@@ -412,7 +412,7 @@ export default function DashboardPage() {
                   </div>
                 ))
               )}
-            </div>
+            </div>}
           </div>
 
           {/* EQUIPMENT BY GROUP */}
