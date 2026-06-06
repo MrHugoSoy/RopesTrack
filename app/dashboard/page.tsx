@@ -165,21 +165,23 @@ export default function DashboardPage() {
     setSavingCert(true)
     let wId = selfWorker?.id
     if (!wId) {
-      const { data: w } = await supabase.from('workers')
+      const { data: w, error: wErr } = await supabase.from('workers')
         .insert({ name: certForm.name || certForm.irata_id || 'Yo', irata_id: certForm.irata_id, level: certForm.level, user_id: userId, org_id: null })
         .select('id').single()
-      if (!w) { setSavingCert(false); return }
+      if (wErr || !w) { alert('Error al guardar trabajador: ' + (wErr?.message ?? 'sin datos')); setSavingCert(false); return }
       wId = w.id
     } else {
-      await supabase.from('workers').update({ name: certForm.name || certForm.irata_id || 'Yo', irata_id: certForm.irata_id, level: certForm.level }).eq('id', wId)
+      const { error: uErr } = await supabase.from('workers').update({ name: certForm.name || certForm.irata_id || 'Yo', irata_id: certForm.irata_id, level: certForm.level }).eq('id', wId)
+      if (uErr) { alert('Error al actualizar: ' + uErr.message); setSavingCert(false); return }
     }
     if (certForm.cert_expiry) {
-      await supabase.from('certifications').insert({
+      const { error: cErr } = await supabase.from('certifications').insert({
         worker_id: wId,
         issue_date: certForm.cert_issue || new Date().toISOString().split('T')[0],
         expiry_date: certForm.cert_expiry,
         certificate_number: certForm.cert_number || null,
       })
+      if (cErr) { alert('Error al guardar certificación: ' + cErr.message); setSavingCert(false); return }
     }
     setSavingCert(false)
     setShowCertForm(false)
