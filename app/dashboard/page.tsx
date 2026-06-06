@@ -348,20 +348,12 @@ export default function DashboardPage() {
               const lv = selfCert?.cert_level ?? 1
               return (
                 <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
-                  <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <span style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)' }}>Mi Certificación IRATA</span>
-                    {certStatus && certStatus !== 'ok' && (
-                      <span style={{ fontFamily: mono, fontSize: '10px', padding: '2px 8px', borderRadius: '2px', background: certStatus === 'critical' ? 'rgba(255,74,74,0.15)' : 'rgba(255,184,74,0.15)', color: certStatus === 'critical' ? 'var(--danger)' : 'var(--warning)', border: `1px solid ${certStatus === 'critical' ? 'rgba(255,74,74,0.3)' : 'rgba(255,184,74,0.3)'}` }}>
-                        {days}d para vencer
-                      </span>
-                    )}
-                    <button onClick={openCertForm} style={{ marginLeft: 'auto', background: 'transparent', color: 'var(--accent)', border: '1px solid rgba(232,255,74,0.3)', borderRadius: '3px', padding: '4px 12px', fontFamily: mono, fontSize: '10px', letterSpacing: '0.5px', cursor: 'pointer' }}>
-                      {selfCert?.cert_expiry ? 'Editar' : '+ Agregar'}
-                    </button>
-                  </div>
                   {!selfCert?.cert_expiry ? (
-                    <div style={{ padding: '40px', textAlign: 'center', fontFamily: mono, fontSize: '12px', color: 'var(--text3)' }}>
-                      Agrega tu certificación IRATA para monitorear la renovación.
+                    <div style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: 'var(--accent2)', display: 'inline-block', flexShrink: 0 }}/>
+                      <span style={{ fontWeight: 500, fontSize: '13px' }}>Mi Certificación IRATA</span>
+                      <span style={{ fontFamily: mono, fontSize: '12px', color: 'var(--text3)' }}>— Agrega tu cert para monitorear la renovación.</span>
+                      <button onClick={openCertForm} style={{ marginLeft: 'auto', background: 'transparent', color: 'var(--accent)', border: '1px solid rgba(232,255,74,0.3)', borderRadius: '3px', padding: '4px 12px', fontFamily: mono, fontSize: '10px', letterSpacing: '0.5px', cursor: 'pointer' }}>+ Agregar</button>
                     </div>
                   ) : (
                     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -370,7 +362,7 @@ export default function DashboardPage() {
                           <td style={{ padding: '14px 20px' }}>
                             <div style={{ fontWeight: 500, fontSize: '13px', marginBottom: '2px' }}>
                               <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: 'var(--accent2)', display: 'inline-block', marginRight: '6px' }}/>
-                              Certificación IRATA
+                              Mi Certificación IRATA
                             </div>
                             {selfCert.cert_irata_id && <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)' }}>ID IRATA: {selfCert.cert_irata_id}</div>}
                           </td>
@@ -392,6 +384,9 @@ export default function DashboardPage() {
                           {selfCert.cert_number && (
                             <td style={{ padding: '14px 20px', fontFamily: mono, fontSize: '11px', color: 'var(--text3)' }}>N° Cert: {selfCert.cert_number}</td>
                           )}
+                          <td style={{ padding: '14px 20px', textAlign: 'right' }}>
+                            <button onClick={openCertForm} style={{ background: 'transparent', color: 'var(--accent2)', border: '1px solid rgba(74,255,160,0.2)', borderRadius: '3px', padding: '3px 10px', fontFamily: mono, fontSize: '10px', letterSpacing: '0.5px', cursor: 'pointer' }}>Editar</button>
+                          </td>
                         </tr>
                       </tbody>
                     </table>
