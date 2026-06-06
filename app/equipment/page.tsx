@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -18,14 +18,14 @@ interface Equipment {
 const mono = 'var(--font-dm-mono)'
 
 const typeLabels: Record<string, string> = {
-  Harness: 'Harness / Arnés',
-  Rope: 'Rope / Cuerda',
-  Descender: 'Descender / Descensor',
-  Ascender: 'Ascender / Ascendedor',
-  Anchor: 'Anchor / Anclaje',
-  Helmet: 'Helmet / Casco',
-  Lanyard: 'Lanyard / Eslinga',
-  Other: 'Other / Otro',
+  Harness: 'Arnés',
+  Rope: 'Cuerda',
+  Descender: 'Descensor',
+  Ascender: 'Ascendedor',
+  Anchor: 'Anclaje',
+  Helmet: 'Casco',
+  Lanyard: 'Eslinga',
+  Other: 'Otro',
 }
 
 export default function EquipmentPage() {
@@ -138,7 +138,7 @@ export default function EquipmentPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Delete this equipment? This cannot be undone.')) return
+    if (!confirm('¿Eliminar este equipo? Esta acción no se puede deshacer.')) return
     const { error } = await supabase.from('equipment').delete().eq('id', id)
     if (error) { alert(error.message); return }
     await fetchEquipment()
@@ -159,7 +159,7 @@ export default function EquipmentPage() {
 
   if (loading) return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <span style={{ fontFamily: mono, color: 'var(--text3)', letterSpacing: '2px', fontSize: '12px' }}>LOADING...</span>
+      <span style={{ fontFamily: mono, color: 'var(--text3)', letterSpacing: '2px', fontSize: '12px' }}>CARGANDO...</span>
     </div>
   )
 
@@ -221,16 +221,16 @@ export default function EquipmentPage() {
           display: 'flex', alignItems: 'center', padding: '0 28px',
           position: 'sticky', top: 0, background: 'rgba(13,15,14,0.92)', backdropFilter: 'blur(8px)', zIndex: 50,
         }}>
-          <span style={{ fontFamily: mono, fontSize: '18px', letterSpacing: '3px', textTransform: 'uppercase' }}>Equipment / Equipos</span>
+          <span style={{ fontFamily: mono, fontSize: '18px', letterSpacing: '3px', textTransform: 'uppercase' }}>Equipos</span>
           <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <input placeholder="Search / Buscar..." value={search} onChange={e => setSearch(e.target.value)}
+            <input placeholder="Buscar..." value={search} onChange={e => setSearch(e.target.value)}
               style={{ background: 'var(--surface2)', border: '1px solid var(--border2)', borderRadius: '4px', padding: '5px 12px', color: 'var(--text)', fontFamily: mono, fontSize: '11px', outline: 'none', width: '200px' }} />
             {userRole !== 'viewer' && (
               <button onClick={() => setShowForm(true)} style={{
                 background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px',
                 padding: '7px 16px', fontFamily: mono, fontSize: '12px', fontWeight: '500',
                 letterSpacing: '1px', cursor: 'pointer',
-              }}>+ Add Equipment / Equipo</button>
+              }}>+ Agregar Equipo</button>
             )}
           </div>
         </header>
@@ -240,7 +240,7 @@ export default function EquipmentPage() {
           {/* GROUPED BY TYPE */}
           {equipment.length === 0 ? (
             <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', padding: '60px', textAlign: 'center', fontFamily: mono, fontSize: '12px', color: 'var(--text3)' }}>
-              No equipment yet. Click &quot;+ Add Equipment&quot; to register your first item.
+              Sin equipos registrados. Haz clic en &quot;+ Agregar Equipo&quot; para registrar el primero.
             </div>
           ) : (() => {
             const typeOrder = ['Harness', 'Rope', 'Descender', 'Ascender', 'Anchor', 'Helmet', 'Lanyard', 'Other']
@@ -302,7 +302,7 @@ export default function EquipmentPage() {
                         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                           <thead>
                             <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                              {['Equipment / Equipo', 'Serial / N/S', 'Last Inspection / Últ. Inspecc.', 'Next Inspection / Próx. Inspecc.', 'Status / Estado', 'Actions / Acciones'].map(h => (
+                              {['Equipo', 'N° Serie', 'Últ. Inspección', 'Próx. Inspección', 'Estado', 'Acciones'].map(h => (
                                 <th key={h} style={{ padding: '10px 20px', textAlign: 'left', fontFamily: mono, fontSize: '10px', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 400 }}>{h}</th>
                               ))}
                             </tr>
@@ -344,12 +344,12 @@ export default function EquipmentPage() {
                                         background: 'transparent', color: 'var(--accent2)', border: '1px solid rgba(74,255,160,0.2)',
                                         borderRadius: '3px', padding: '3px 10px', fontFamily: mono, fontSize: '10px',
                                         letterSpacing: '0.5px', cursor: 'pointer',
-                                      }}>Edit / Editar</button>
+                                      }}>Editar</button>
                                       <button onClick={() => handleDelete(eq.id)} style={{
                                         background: 'transparent', color: 'var(--danger)', border: '1px solid rgba(255,74,74,0.2)',
                                         borderRadius: '3px', padding: '3px 10px', fontFamily: mono, fontSize: '10px',
                                         letterSpacing: '0.5px', cursor: 'pointer',
-                                      }}>Delete / Eliminar</button>
+                                      }}>Eliminar</button>
                                     </div>
                                   </td>
                                 </tr>
@@ -375,18 +375,18 @@ export default function EquipmentPage() {
           <div style={{ position: 'fixed', right: 0, top: 0, bottom: 0, width: '440px', background: 'var(--surface)', borderLeft: '1px solid var(--border)', zIndex: 201, display: 'flex', flexDirection: 'column' }}>
             <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <span style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)' }}>
-                {showForm ? 'New Equipment / Nuevo Equipo' : 'Edit Equipment / Editar Equipo'}
+                {showForm ? 'Nuevo Equipo' : 'Editar Equipo'}
               </span>
               <button onClick={() => { setShowForm(false); setEditingEquip(null) }}
                 style={{ background: 'none', border: 'none', color: 'var(--text3)', fontSize: '20px', cursor: 'pointer', lineHeight: 1 }}>×</button>
             </div>
             <div style={{ flex: 1, overflowY: 'auto', padding: '24px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
               {[
-                { label: 'Name / Nombre', key: 'name', placeholder: 'Petzl Avao Bod Fast' },
-                { label: 'Serial Number / N/S', key: 'serial_number', placeholder: 'HAR-001' },
-                { label: 'Manufacture Date / Fabricación', key: 'manufacture_date', type: 'date' },
-                { label: 'Last Inspection / Últ. Inspecc.', key: 'last_inspection', type: 'date' },
-                { label: 'Next Inspection / Próx. Inspecc.', key: 'next_inspection', type: 'date' },
+                { label: 'Nombre', key: 'name', placeholder: 'Petzl Avao Bod Fast' },
+                { label: 'Número de Serie', key: 'serial_number', placeholder: 'HAR-001' },
+                { label: 'Fecha de Fabricación', key: 'manufacture_date', type: 'date' },
+                { label: 'Última Inspección', key: 'last_inspection', type: 'date' },
+                { label: 'Próxima Inspección', key: 'next_inspection', type: 'date' },
               ].map(field => {
                 const val = showForm ? (form as Record<string, string>)[field.key] : (editForm as Record<string, string>)[field.key]
                 const onChange = showForm
@@ -401,7 +401,7 @@ export default function EquipmentPage() {
                 )
               })}
               <div>
-                <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px', textTransform: 'uppercase' }}>Type / Tipo</div>
+                <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px', textTransform: 'uppercase' }}>Tipo</div>
                 <select value={showForm ? form.type : editForm.type}
                   onChange={e => showForm ? setForm(f => ({ ...f, type: e.target.value })) : setEditForm(f => ({ ...f, type: e.target.value }))}
                   style={{ width: '100%', background: 'var(--surface2)', border: '1px solid var(--border2)', borderRadius: '4px', padding: '8px 12px', color: 'var(--text)', fontFamily: mono, fontSize: '12px', outline: 'none' }}>
@@ -411,13 +411,13 @@ export default function EquipmentPage() {
                 </select>
               </div>
               <div>
-                <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px', textTransform: 'uppercase' }}>Status / Estado</div>
+                <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px', textTransform: 'uppercase' }}>Estado</div>
                 <select value={showForm ? form.status : editForm.status}
                   onChange={e => showForm ? setForm(f => ({ ...f, status: e.target.value })) : setEditForm(f => ({ ...f, status: e.target.value }))}
                   style={{ width: '100%', background: 'var(--surface2)', border: '1px solid var(--border2)', borderRadius: '4px', padding: '8px 12px', color: 'var(--text)', fontFamily: mono, fontSize: '12px', outline: 'none' }}>
-                  <option value="active">Active / Activo</option>
-                  <option value="inspection_required">Inspection Required / Requiere Inspección</option>
-                  <option value="retired">Retired / Retirado</option>
+                  <option value="active">Activo</option>
+                  <option value="inspection_required">Requiere Inspección</option>
+                  <option value="retired">Retirado</option>
                 </select>
               </div>
             </div>
@@ -427,19 +427,19 @@ export default function EquipmentPage() {
                   background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px',
                   padding: '8px 20px', fontFamily: mono, fontSize: '12px', fontWeight: '500',
                   letterSpacing: '1px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1, flex: 1,
-                }}>{saving ? 'SAVING...' : 'SAVE / GUARDAR'}</button>
+                }}>{saving ? 'GUARDANDO...' : 'GUARDAR'}</button>
               )}
               {editingEquip && (
                 <button onClick={handleUpdate} disabled={saving || !editForm.name || !editForm.serial_number} style={{
                   background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px',
                   padding: '8px 20px', fontFamily: mono, fontSize: '12px', fontWeight: '500',
                   letterSpacing: '1px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1, flex: 1,
-                }}>{saving ? 'SAVING...' : 'UPDATE / ACTUALIZAR'}</button>
+                }}>{saving ? 'GUARDANDO...' : 'ACTUALIZAR'}</button>
               )}
               <button onClick={() => { setShowForm(false); setEditingEquip(null) }} style={{
                 background: 'transparent', color: 'var(--text2)', border: '1px solid var(--border2)',
                 borderRadius: '4px', padding: '8px 16px', fontFamily: mono, fontSize: '12px', cursor: 'pointer',
-              }}>Cancel / Cancelar</button>
+              }}>Cancelar</button>
             </div>
           </div>
         </>

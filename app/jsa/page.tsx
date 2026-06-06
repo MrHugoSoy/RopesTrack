@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -161,10 +161,10 @@ export default function JSAPage() {
   }
 
   const statusLabel: Record<string, string> = {
-    draft: 'DRAFT / BORRADOR',
-    active: 'ACTIVE / ACTIVO',
-    completed: 'COMPLETED / COMPLETADO',
-    cancelled: 'CANCELLED / CANCELADO',
+    draft: 'BORRADOR',
+    active: 'ACTIVO',
+    completed: 'COMPLETADO',
+    cancelled: 'CANCELADO',
   }
 
   function statusChip(status: string) {
@@ -187,7 +187,7 @@ export default function JSAPage() {
 
   if (loading) return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <span style={{ fontFamily: mono, color: 'var(--text3)', letterSpacing: '2px', fontSize: '12px' }}>LOADING...</span>
+      <span style={{ fontFamily: mono, color: 'var(--text3)', letterSpacing: '2px', fontSize: '12px' }}>CARGANDO...</span>
     </div>
   )
 
@@ -260,13 +260,13 @@ export default function JSAPage() {
           display: 'flex', alignItems: 'center', padding: '0 28px',
           position: 'sticky', top: 0, background: 'rgba(13,15,14,0.92)', backdropFilter: 'blur(8px)', zIndex: 50,
         }}>
-          <span style={{ fontFamily: mono, fontSize: '18px', letterSpacing: '3px', textTransform: 'uppercase' }}>JSA / Análisis de Seguridad</span>
+          <span style={{ fontFamily: mono, fontSize: '18px', letterSpacing: '3px', textTransform: 'uppercase' }}>Análisis de Seguridad</span>
           <div style={{ marginLeft: 'auto' }}>
             <button onClick={() => setShowForm(true)} style={{
               background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px',
               padding: '7px 16px', fontFamily: mono, fontSize: '12px', fontWeight: '500',
               letterSpacing: '1px', cursor: 'pointer',
-            }}>+ New JSA / Nueva JSA</button>
+            }}>+ Nueva JSA</button>
           </div>
         </header>
 
@@ -281,13 +281,13 @@ export default function JSAPage() {
             </div>
             {jsas.length === 0 ? (
               <div style={{ padding: '60px', textAlign: 'center', fontFamily: mono, fontSize: '12px', color: 'var(--text3)' }}>
-                No JSAs yet. Click &quot;+ New JSA&quot; to create your first job safety analysis.
+                Sin JSAs registradas. Haz clic en &quot;+ Nueva JSA&quot; para crear el primero.
               </div>
             ) : (
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                    {['Title / Título', 'Location / Ubicación', 'Date / Fecha', 'Supervisor', 'Workers / Trabajadores', 'Tasks / Tareas', 'Status / Estado', 'Actions / Acciones'].map(h => (
+                    {['Título', 'Ubicación', 'Fecha', 'Supervisor', 'Trabajadores', 'Tareas', 'Estado', 'Acciones'].map(h => (
                       <th key={h} style={{ padding: '10px 20px', textAlign: 'left', fontFamily: mono, fontSize: '10px', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 400 }}>{h}</th>
                     ))}
                   </tr>
@@ -327,10 +327,10 @@ export default function JSAPage() {
                               fontFamily: mono, fontSize: '10px', cursor: 'pointer', outline: 'none',
                             }}
                           >
-                            <option value="draft">Draft / Borrador</option>
-                            <option value="active">Active / Activo</option>
-                            <option value="completed">Completed / Completado</option>
-                            <option value="cancelled">Cancelled / Cancelado</option>
+                            <option value="draft">Borrador</option>
+                            <option value="active">Activo</option>
+                            <option value="completed">Completado</option>
+                            <option value="cancelled">Cancelado</option>
                           </select>
                           <button onClick={() => handleDelete(j.id)} style={{
                             background: 'transparent', color: 'var(--danger)', border: '1px solid rgba(255,74,74,0.2)',
@@ -355,23 +355,23 @@ export default function JSAPage() {
             style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200 }} />
           <div style={{ position: 'fixed', right: 0, top: 0, bottom: 0, width: '500px', background: 'var(--surface)', borderLeft: '1px solid var(--border)', zIndex: 201, display: 'flex', flexDirection: 'column' }}>
             <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)' }}>New JSA / Nueva JSA</span>
+              <span style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)' }}>Nueva JSA</span>
               <button onClick={() => { setShowForm(false); setTasks([]); setSelectedWorkers([]) }}
                 style={{ background: 'none', border: 'none', color: 'var(--text3)', fontSize: '20px', cursor: 'pointer', lineHeight: 1 }}>×</button>
             </div>
             <div style={{ flex: 1, overflowY: 'auto', padding: '24px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div>
-                <div style={labelStyle}>Title / Título</div>
-                <input type="text" placeholder="Roof Anchor Installation" value={form.title}
+                <div style={labelStyle}>Título</div>
+                <input type="text" placeholder="Instalación de anclaje en cubierta" value={form.title}
                   onChange={e => setForm(f => ({ ...f, title: e.target.value }))} style={{ ...inputStyle, boxSizing: 'border-box' }} />
               </div>
               <div>
-                <div style={labelStyle}>Location / Ubicación</div>
-                <input type="text" placeholder="Tower A / Floor 12" value={form.location}
+                <div style={labelStyle}>Ubicación</div>
+                <input type="text" placeholder="Torre A / Piso 12" value={form.location}
                   onChange={e => setForm(f => ({ ...f, location: e.target.value }))} style={{ ...inputStyle, boxSizing: 'border-box' }} />
               </div>
               <div>
-                <div style={labelStyle}>Date / Fecha</div>
+                <div style={labelStyle}>Fecha</div>
                 <input type="date" value={form.date}
                   onChange={e => setForm(f => ({ ...f, date: e.target.value }))} style={{ ...inputStyle, boxSizing: 'border-box' }} />
               </div>
@@ -379,20 +379,20 @@ export default function JSAPage() {
                 <div style={labelStyle}>Supervisor</div>
                 <select value={form.supervisor_id} onChange={e => setForm(f => ({ ...f, supervisor_id: e.target.value }))}
                   style={{ ...inputStyle, boxSizing: 'border-box' }}>
-                  <option value="">— Select supervisor —</option>
+                  <option value="">— Seleccionar supervisor —</option>
                   {workers.map(w => (
                     <option key={w.id} value={w.id}>{w.name} (L{w.level})</option>
                   ))}
                 </select>
               </div>
               <div>
-                <div style={labelStyle}>Notes / Notas</div>
-                <textarea placeholder="Additional notes or context..." value={form.notes} rows={3}
+                <div style={labelStyle}>Notas</div>
+                <textarea placeholder="Notas adicionales o contexto..." value={form.notes} rows={3}
                   onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
                   style={{ ...inputStyle, boxSizing: 'border-box', resize: 'vertical' as const }} />
               </div>
               <div>
-                <div style={{ ...labelStyle, marginBottom: '10px' }}>Workers / Trabajadores</div>
+                <div style={{ ...labelStyle, marginBottom: '10px' }}>Trabajadores</div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                   {workers.map(w => (
                     <label key={w.id} style={{
@@ -415,33 +415,33 @@ export default function JSAPage() {
                     </label>
                   ))}
                   {workers.length === 0 && (
-                    <span style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text3)' }}>No active workers.</span>
+                    <span style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text3)' }}>Sin trabajadores activos.</span>
                   )}
                 </div>
               </div>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                  <div style={labelStyle}>Tasks / Tareas</div>
+                  <div style={labelStyle}>Tareas</div>
                   <button onClick={() => setTasks(prev => [...prev, { task: '', risks: '', controls: '' }])} style={{
                     background: 'transparent', color: 'var(--accent2)', border: '1px solid rgba(74,255,160,0.2)',
                     borderRadius: '3px', padding: '2px 10px', fontFamily: mono, fontSize: '10px', cursor: 'pointer',
-                  }}>+ Add / Agregar</button>
+                  }}>+ Agregar</button>
                 </div>
                 {tasks.map((t, i) => (
                   <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '6px', padding: '10px', marginBottom: '8px', background: 'var(--surface2)', borderRadius: '4px', border: '1px solid var(--border2)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '1px' }}>Task {i + 1}</span>
+                      <span style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '1px' }}>Tarea {i + 1}</span>
                       <button onClick={() => setTasks(prev => prev.filter((_, j) => j !== i))} style={{
                         background: 'transparent', color: 'var(--danger)', border: 'none', cursor: 'pointer', fontSize: '16px', lineHeight: 1, padding: 0,
                       }}>×</button>
                     </div>
-                    <input type="text" placeholder="Task / Tarea" value={t.task}
+                    <input type="text" placeholder="Descripción de la tarea" value={t.task}
                       onChange={e => setTasks(prev => prev.map((x, j) => j === i ? { ...x, task: e.target.value } : x))}
                       style={{ ...inputStyle, boxSizing: 'border-box' }} />
-                    <input type="text" placeholder="Risks / Riesgos" value={t.risks}
+                    <input type="text" placeholder="Riesgos potenciales" value={t.risks}
                       onChange={e => setTasks(prev => prev.map((x, j) => j === i ? { ...x, risks: e.target.value } : x))}
                       style={{ ...inputStyle, boxSizing: 'border-box' }} />
-                    <input type="text" placeholder="Controls / Controles" value={t.controls}
+                    <input type="text" placeholder="Medidas de control" value={t.controls}
                       onChange={e => setTasks(prev => prev.map((x, j) => j === i ? { ...x, controls: e.target.value } : x))}
                       style={{ ...inputStyle, boxSizing: 'border-box' }} />
                   </div>
@@ -453,11 +453,11 @@ export default function JSAPage() {
                 background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px',
                 padding: '8px 20px', fontFamily: mono, fontSize: '12px', fontWeight: '500',
                 letterSpacing: '1px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1, flex: 1,
-              }}>{saving ? 'SAVING...' : 'SAVE JSA / GUARDAR'}</button>
+              }}>{saving ? 'GUARDANDO...' : 'GUARDAR'}</button>
               <button onClick={() => { setShowForm(false); setTasks([]); setSelectedWorkers([]) }} style={{
                 background: 'transparent', color: 'var(--text2)', border: '1px solid var(--border2)',
                 borderRadius: '4px', padding: '8px 16px', fontFamily: mono, fontSize: '12px', cursor: 'pointer',
-              }}>Cancel / Cancelar</button>
+              }}>Cancelar</button>
             </div>
           </div>
         </>

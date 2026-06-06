@@ -101,10 +101,10 @@ export default function JSADetailPage({ params }: { params: Promise<{ id: string
   }
 
   const statusLabel: Record<string, string> = {
-    draft: 'DRAFT / BORRADOR',
-    active: 'ACTIVE / ACTIVO',
-    completed: 'COMPLETED / COMPLETADO',
-    cancelled: 'CANCELLED / CANCELADO',
+    draft: 'BORRADOR',
+    active: 'ACTIVO',
+    completed: 'COMPLETADO',
+    cancelled: 'CANCELADO',
   }
 
   function statusChip(status: string) {
@@ -127,13 +127,13 @@ export default function JSADetailPage({ params }: { params: Promise<{ id: string
 
   if (loading) return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <span style={{ fontFamily: mono, color: 'var(--text3)', letterSpacing: '2px', fontSize: '12px' }}>LOADING...</span>
+      <span style={{ fontFamily: mono, color: 'var(--text3)', letterSpacing: '2px', fontSize: '12px' }}>CARGANDO...</span>
     </div>
   )
 
   if (!jsa) return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <span style={{ fontFamily: mono, color: 'var(--danger)', letterSpacing: '2px', fontSize: '12px' }}>JSA NOT FOUND</span>
+      <span style={{ fontFamily: mono, color: 'var(--danger)', letterSpacing: '2px', fontSize: '12px' }}>JSA NO ENCONTRADA</span>
     </div>
   )
 
@@ -212,8 +212,8 @@ export default function JSADetailPage({ params }: { params: Promise<{ id: string
             background: 'transparent', color: 'var(--text3)', border: '1px solid var(--border2)',
             borderRadius: '4px', padding: '5px 12px', fontFamily: mono, fontSize: '11px', cursor: 'pointer',
             letterSpacing: '0.5px',
-          }}>← Back / Atrás</button>
-          <span style={{ fontFamily: mono, fontSize: '18px', letterSpacing: '3px', textTransform: 'uppercase' }}>JSA / Análisis de Seguridad</span>
+          }}>← Volver</button>
+          <span style={{ fontFamily: mono, fontSize: '18px', letterSpacing: '3px', textTransform: 'uppercase' }}>Análisis de Seguridad</span>
         </header>
 
         <div style={{ padding: '28px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -238,17 +238,17 @@ export default function JSADetailPage({ params }: { params: Promise<{ id: string
                     fontFamily: mono, fontSize: '10px', cursor: 'pointer', outline: 'none',
                   }}
                 >
-                  <option value="draft">Draft / Borrador</option>
-                  <option value="active">Active / Activo</option>
-                  <option value="completed">Completed / Completado</option>
-                  <option value="cancelled">Cancelled / Cancelado</option>
+                  <option value="draft">Borrador</option>
+                  <option value="active">Activo</option>
+                  <option value="completed">Completado</option>
+                  <option value="cancelled">Cancelado</option>
                 </select>
               </div>
             </div>
             <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
               {jsa.date && (
                 <div>
-                  <div style={labelStyle}>Date</div>
+                  <div style={labelStyle}>Fecha</div>
                   <div style={{ fontFamily: mono, fontSize: '12px' }}>
                     {new Date(jsa.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
                   </div>
@@ -263,7 +263,7 @@ export default function JSADetailPage({ params }: { params: Promise<{ id: string
               )}
               {jsa.notes && (
                 <div style={{ flex: 1 }}>
-                  <div style={labelStyle}>Notes</div>
+                  <div style={labelStyle}>Notas</div>
                   <div style={{ fontFamily: mono, fontSize: '12px', color: 'var(--text2)', whiteSpace: 'pre-wrap' }}>{jsa.notes}</div>
                 </div>
               )}
@@ -274,18 +274,18 @@ export default function JSADetailPage({ params }: { params: Promise<{ id: string
           <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
             <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)' }}>
               <span style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)' }}>
-                Workers / Trabajadores ({jsa.jsa_workers?.length ?? 0})
+                Trabajadores ({jsa.jsa_workers?.length ?? 0})
               </span>
             </div>
             {!jsa.jsa_workers?.length ? (
               <div style={{ padding: '32px', textAlign: 'center', fontFamily: mono, fontSize: '12px', color: 'var(--text3)' }}>
-                No workers assigned.
+                Sin trabajadores asignados.
               </div>
             ) : (
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                    {['Worker / Trabajador', 'IRATA ID', 'Level / Nivel', 'Signed / Firma'].map(h => (
+                    {['Trabajador', 'ID IRATA', 'Nivel', 'Firma'].map(h => (
                       <th key={h} style={{ padding: '10px 20px', textAlign: 'left', fontFamily: mono, fontSize: '10px', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 400 }}>{h}</th>
                     ))}
                   </tr>
@@ -303,14 +303,14 @@ export default function JSADetailPage({ params }: { params: Promise<{ id: string
                             color: jw.worker.level === 3 ? 'var(--accent)' : jw.worker.level === 2 ? 'var(--accent2)' : 'var(--text2)',
                             border: `1px solid ${jw.worker.level === 3 ? 'rgba(232,255,74,0.2)' : jw.worker.level === 2 ? 'rgba(74,255,160,0.2)' : 'var(--border2)'}`,
                           }}>
-                            L{jw.worker.level} {jw.worker.level === 3 ? 'SUPERVISOR' : jw.worker.level === 2 ? 'TECHNICIAN / TÉCNICO' : 'OPERATIVE / OPERATIVO'}
+                            L{jw.worker.level} {jw.worker.level === 3 ? 'SUPERVISOR' : jw.worker.level === 2 ? 'TÉCNICO' : 'OPERATIVO'}
                           </span>
                         ) : '—'}
                       </td>
                       <td style={{ padding: '14px 20px' }}>
                         {jw.is_signed ? (
                           <span style={{ fontFamily: mono, fontSize: '11px', color: 'var(--accent2)', letterSpacing: '0.5px' }}>
-                            ✓ SIGNED / FIRMADO
+                            ✓ FIRMADO
                             {jw.signed_at && (
                               <span style={{ color: 'var(--text3)', marginLeft: '8px', fontSize: '10px' }}>
                                 {new Date(jw.signed_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}
@@ -322,7 +322,7 @@ export default function JSADetailPage({ params }: { params: Promise<{ id: string
                             background: 'transparent', color: 'var(--accent)', border: '1px solid rgba(232,255,74,0.2)',
                             borderRadius: '3px', padding: '3px 12px', fontFamily: mono, fontSize: '10px',
                             letterSpacing: '0.5px', cursor: 'pointer',
-                          }}>Sign / Firmar</button>
+                          }}>Firmar</button>
                         )}
                       </td>
                     </tr>
@@ -336,23 +336,23 @@ export default function JSADetailPage({ params }: { params: Promise<{ id: string
           <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
             <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <span style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)' }}>
-                Tasks / Tareas ({sortedTasks.length})
+                Tareas ({sortedTasks.length})
               </span>
               <button onClick={() => setShowTaskForm(v => !v)} style={{
                 background: 'transparent', color: 'var(--accent2)', border: '1px solid rgba(74,255,160,0.2)',
                 borderRadius: '3px', padding: '3px 12px', fontFamily: mono, fontSize: '10px', cursor: 'pointer',
-              }}>+ Add Task / Tarea</button>
+              }}>+ Agregar Tarea</button>
             </div>
 
             {sortedTasks.length === 0 && !showTaskForm ? (
               <div style={{ padding: '32px', textAlign: 'center', fontFamily: mono, fontSize: '12px', color: 'var(--text3)' }}>
-                No tasks defined.
+                Sin tareas definidas.
               </div>
             ) : sortedTasks.length > 0 && (
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                    {['#', 'Task / Tarea', 'Risks / Riesgos', 'Controls / Controles'].map(h => (
+                    {['#', 'Tarea', 'Riesgos', 'Controles'].map(h => (
                       <th key={h} style={{ padding: '10px 20px', textAlign: 'left', fontFamily: mono, fontSize: '10px', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 400 }}>{h}</th>
                     ))}
                   </tr>
@@ -381,15 +381,15 @@ export default function JSADetailPage({ params }: { params: Promise<{ id: string
             style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200 }} />
           <div style={{ position: 'fixed', right: 0, top: 0, bottom: 0, width: '440px', background: 'var(--surface)', borderLeft: '1px solid var(--border)', zIndex: 201, display: 'flex', flexDirection: 'column' }}>
             <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)' }}>Add Task / Agregar Tarea</span>
+              <span style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)' }}>Agregar Tarea</span>
               <button onClick={() => setShowTaskForm(false)}
                 style={{ background: 'none', border: 'none', color: 'var(--text3)', fontSize: '20px', cursor: 'pointer', lineHeight: 1 }}>×</button>
             </div>
             <div style={{ flex: 1, overflowY: 'auto', padding: '24px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
               {[
-                { key: 'task', label: 'Task / Tarea', placeholder: 'Task description' },
-                { key: 'risks', label: 'Risks / Riesgos', placeholder: 'Potential risks' },
-                { key: 'controls', label: 'Controls / Controles', placeholder: 'Control measures' },
+                { key: 'task', label: 'Tarea', placeholder: 'Descripción de la tarea' },
+                { key: 'risks', label: 'Riesgos', placeholder: 'Riesgos potenciales' },
+                { key: 'controls', label: 'Controles', placeholder: 'Medidas de control' },
               ].map(f => (
                 <div key={f.key}>
                   <div style={labelStyle}>{f.label}</div>
@@ -405,11 +405,11 @@ export default function JSADetailPage({ params }: { params: Promise<{ id: string
                 background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px',
                 padding: '8px 20px', fontFamily: mono, fontSize: '12px', fontWeight: '500',
                 letterSpacing: '1px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1, flex: 1,
-              }}>{saving ? 'SAVING...' : 'ADD TASK / AGREGAR'}</button>
+              }}>{saving ? 'GUARDANDO...' : 'AGREGAR'}</button>
               <button onClick={() => setShowTaskForm(false)} style={{
                 background: 'transparent', color: 'var(--text2)', border: '1px solid var(--border2)',
                 borderRadius: '4px', padding: '8px 16px', fontFamily: mono, fontSize: '12px', cursor: 'pointer',
-              }}>Cancel / Cancelar</button>
+              }}>Cancelar</button>
             </div>
           </div>
         </>

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -234,7 +234,7 @@ export default function WorkersPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Delete this worker? This cannot be undone.')) return
+    if (!confirm('¿Eliminar este trabajador? Esta acción no se puede deshacer.')) return
     const res = await fetch(`/api/workers/${id}`, { method: 'DELETE' })
     if (!res.ok) { const d = await res.json(); alert(d.error ?? 'Error al eliminar'); return }
     await fetchWorkers()
@@ -252,7 +252,7 @@ export default function WorkersPage() {
 
   if (loading) return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <span style={{ fontFamily: mono, color: 'var(--text3)', letterSpacing: '2px', fontSize: '12px' }}>LOADING...</span>
+      <span style={{ fontFamily: mono, color: 'var(--text3)', letterSpacing: '2px', fontSize: '12px' }}>CARGANDO...</span>
     </div>
   )
 
@@ -314,14 +314,14 @@ export default function WorkersPage() {
           display: 'flex', alignItems: 'center', padding: '0 28px', gap: '16px',
           position: 'sticky', top: 0, background: 'rgba(13,15,14,0.92)', backdropFilter: 'blur(8px)', zIndex: 50,
         }}>
-          <span style={{ fontFamily: mono, fontSize: '18px', letterSpacing: '3px', textTransform: 'uppercase' }}>Workers / Trabajadores</span>
+          <span style={{ fontFamily: mono, fontSize: '18px', letterSpacing: '3px', textTransform: 'uppercase' }}>Trabajadores</span>
           <div style={{ marginLeft: 'auto' }}>
             {userRole !== 'viewer' && userRole !== 'independent' && (
               <button onClick={() => setShowForm(true)} style={{
                 background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px',
                 padding: '7px 16px', fontFamily: mono, fontSize: '12px', fontWeight: '500',
                 letterSpacing: '1px', cursor: 'pointer',
-              }}>+ Add Worker / Trabajador</button>
+              }}>+ Agregar Trabajador</button>
             )}
           </div>
         </header>
@@ -334,7 +334,7 @@ export default function WorkersPage() {
             <div style={{ position: 'fixed', right: 0, top: 0, bottom: 0, width: '440px', background: 'var(--surface)', borderLeft: '1px solid var(--border)', zIndex: 201, display: 'flex', flexDirection: 'column' }}>
               <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)' }}>
-                  {showForm ? 'New Worker / Nuevo Trabajador' : editingWorker ? 'Edit Worker / Editar Trabajador' : `Renew Cert / Renovar · ${renewingWorker?.name}`}
+                  {showForm ? 'Nuevo Trabajador' : editingWorker ? 'Editar Trabajador' : `Renovar Certificado · ${renewingWorker?.name}`}
                 </span>
                 <button onClick={() => { setShowForm(false); setEditingWorker(null); setRenewingWorker(null) }}
                   style={{ background: 'transparent', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: '22px', lineHeight: 1, padding: '0 4px' }}>×</button>
@@ -342,13 +342,13 @@ export default function WorkersPage() {
               <div style={{ flex: 1, overflowY: 'auto', padding: '24px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 {showForm && <>
                   {[
-                    { label: 'Full Name', key: 'name', placeholder: 'Carlos Mendoza' },
-                    { label: 'IRATA ID', key: 'irata_id', placeholder: 'IRT-MX-0001' },
-                    { label: 'Email', key: 'email', placeholder: 'carlos@company.com' },
-                    { label: 'Phone (WhatsApp)', key: 'phone', placeholder: '+52 477 000 0000' },
-                    { label: 'Cert Issue Date', key: 'cert_issue', type: 'date' },
-                    { label: 'Cert Expiry Date', key: 'cert_expiry', type: 'date' },
-                    { label: 'Certificate Number', key: 'cert_number', placeholder: 'CERT-0001' },
+                    { label: 'Nombre Completo', key: 'name', placeholder: 'Carlos Mendoza' },
+                    { label: 'ID IRATA', key: 'irata_id', placeholder: 'IRT-MX-0001' },
+                    { label: 'Correo Electrónico', key: 'email', placeholder: 'carlos@empresa.com' },
+                    { label: 'Teléfono (WhatsApp)', key: 'phone', placeholder: '+52 477 000 0000' },
+                    { label: 'Fecha de Emisión', key: 'cert_issue', type: 'date' },
+                    { label: 'Fecha de Vencimiento', key: 'cert_expiry', type: 'date' },
+                    { label: 'Número de Certificado', key: 'cert_number', placeholder: 'CERT-0001' },
                   ].map(field => (
                     <div key={field.key}>
                       <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px', textTransform: 'uppercase' }}>{field.label}</div>
@@ -358,21 +358,21 @@ export default function WorkersPage() {
                     </div>
                   ))}
                   <div>
-                    <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px', textTransform: 'uppercase' }}>IRATA Level</div>
+                    <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px', textTransform: 'uppercase' }}>Nivel IRATA</div>
                     <select value={form.level} onChange={e => setForm(f => ({ ...f, level: Number(e.target.value) }))}
                       style={{ width: '100%', background: 'var(--surface2)', border: '1px solid var(--border2)', borderRadius: '4px', padding: '9px 12px', color: 'var(--text)', fontFamily: mono, fontSize: '12px', outline: 'none' }}>
-                      <option value={1}>Level 1 / Operative</option>
-                      <option value={2}>Level 2 / Technician</option>
-                      <option value={3}>Level 3 / Supervisor</option>
+                      <option value={1}>Nivel 1 / Operativo</option>
+                      <option value={2}>Nivel 2 / Técnico</option>
+                      <option value={3}>Nivel 3 / Supervisor</option>
                     </select>
                   </div>
                 </>}
                 {editingWorker && <>
                   {[
-                    { label: 'Full Name', key: 'name', placeholder: 'Carlos Mendoza' },
-                    { label: 'IRATA ID', key: 'irata_id', placeholder: 'IRT-MX-0001' },
-                    { label: 'Email', key: 'email', placeholder: 'carlos@company.com' },
-                    { label: 'Phone (WhatsApp)', key: 'phone', placeholder: '+52 477 000 0000' },
+                    { label: 'Nombre Completo', key: 'name', placeholder: 'Carlos Mendoza' },
+                    { label: 'ID IRATA', key: 'irata_id', placeholder: 'IRT-MX-0001' },
+                    { label: 'Correo Electrónico', key: 'email', placeholder: 'carlos@empresa.com' },
+                    { label: 'Teléfono (WhatsApp)', key: 'phone', placeholder: '+52 477 000 0000' },
                   ].map(field => (
                     <div key={field.key}>
                       <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px', textTransform: 'uppercase' }}>{field.label}</div>
@@ -382,20 +382,20 @@ export default function WorkersPage() {
                     </div>
                   ))}
                   <div>
-                    <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px', textTransform: 'uppercase' }}>IRATA Level</div>
+                    <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px', textTransform: 'uppercase' }}>Nivel IRATA</div>
                     <select value={editForm.level} onChange={e => setEditForm(f => ({ ...f, level: Number(e.target.value) }))}
                       style={{ width: '100%', background: 'var(--surface2)', border: '1px solid var(--border2)', borderRadius: '4px', padding: '9px 12px', color: 'var(--text)', fontFamily: mono, fontSize: '12px', outline: 'none' }}>
-                      <option value={1}>Level 1 / Operative</option>
-                      <option value={2}>Level 2 / Technician</option>
-                      <option value={3}>Level 3 / Supervisor</option>
+                      <option value={1}>Nivel 1 / Operativo</option>
+                      <option value={2}>Nivel 2 / Técnico</option>
+                      <option value={3}>Nivel 3 / Supervisor</option>
                     </select>
                   </div>
                   <div>
-                    <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px', textTransform: 'uppercase' }}>Status / Estado</div>
+                    <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px', textTransform: 'uppercase' }}>Estado</div>
                     <select value={editForm.is_active ? 'active' : 'inactive'} onChange={e => setEditForm(f => ({ ...f, is_active: e.target.value === 'active' }))}
                       style={{ width: '100%', background: 'var(--surface2)', border: '1px solid var(--border2)', borderRadius: '4px', padding: '9px 12px', color: 'var(--text)', fontFamily: mono, fontSize: '12px', outline: 'none' }}>
-                      <option value="active">Active / Activo</option>
-                      <option value="inactive">Inactive / Inactivo</option>
+                      <option value="active">Activo</option>
+                      <option value="inactive">Inactivo</option>
                     </select>
                   </div>
                   <div style={{ borderTop: '1px solid var(--border)', paddingTop: '14px' }}>
@@ -438,9 +438,9 @@ export default function WorkersPage() {
                 </>}
                 {renewingWorker && <>
                   {[
-                    { label: 'Cert Issue Date', key: 'cert_issue', type: 'date' },
-                    { label: 'Cert Expiry Date', key: 'cert_expiry', type: 'date' },
-                    { label: 'Certificate Number', key: 'cert_number', placeholder: 'CERT-0001' },
+                    { label: 'Fecha de Emisión', key: 'cert_issue', type: 'date' },
+                    { label: 'Fecha de Vencimiento', key: 'cert_expiry', type: 'date' },
+                    { label: 'Número de Certificado', key: 'cert_number', placeholder: 'CERT-0001' },
                   ].map(field => (
                     <div key={field.key}>
                       <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', letterSpacing: '1px', marginBottom: '6px', textTransform: 'uppercase' }}>{field.label}</div>
@@ -452,9 +452,9 @@ export default function WorkersPage() {
                 </>}
               </div>
               <div style={{ padding: '16px 24px', borderTop: '1px solid var(--border)', display: 'flex', gap: '8px' }}>
-                {showForm && <button onClick={handleSave} disabled={saving || !form.name || !form.irata_id} style={{ background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px', padding: '9px 20px', fontFamily: mono, fontSize: '12px', fontWeight: '500', letterSpacing: '1px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1 }}>{saving ? 'SAVING...' : 'SAVE / GUARDAR'}</button>}
-                {editingWorker && <button onClick={handleUpdate} disabled={saving || !editForm.name || !editForm.irata_id} style={{ background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px', padding: '9px 20px', fontFamily: mono, fontSize: '12px', fontWeight: '500', letterSpacing: '1px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1 }}>{saving ? 'SAVING...' : 'UPDATE / ACTUALIZAR'}</button>}
-                {renewingWorker && <button onClick={handleRenew} disabled={saving || !renewForm.cert_expiry} style={{ background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px', padding: '9px 20px', fontFamily: mono, fontSize: '12px', fontWeight: '500', letterSpacing: '1px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1 }}>{saving ? 'SAVING...' : 'RENEW / RENOVAR'}</button>}
+                {showForm && <button onClick={handleSave} disabled={saving || !form.name || !form.irata_id} style={{ background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px', padding: '9px 20px', fontFamily: mono, fontSize: '12px', fontWeight: '500', letterSpacing: '1px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1 }}>{saving ? 'GUARDANDO...' : 'GUARDAR'}</button>}
+                {editingWorker && <button onClick={handleUpdate} disabled={saving || !editForm.name || !editForm.irata_id} style={{ background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px', padding: '9px 20px', fontFamily: mono, fontSize: '12px', fontWeight: '500', letterSpacing: '1px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1 }}>{saving ? 'GUARDANDO...' : 'ACTUALIZAR'}</button>}
+                {renewingWorker && <button onClick={handleRenew} disabled={saving || !renewForm.cert_expiry} style={{ background: 'var(--accent)', color: '#0d0f0e', border: 'none', borderRadius: '4px', padding: '9px 20px', fontFamily: mono, fontSize: '12px', fontWeight: '500', letterSpacing: '1px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1 }}>{saving ? 'GUARDANDO...' : 'RENOVAR'}</button>}
               </div>
             </div>
           </>
@@ -466,10 +466,10 @@ export default function WorkersPage() {
           <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
             <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '12px' }}>
               <span style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)' }}>
-                {workers.length} Workers / Trabajadores
+                {workers.length} Trabajadores
               </span>
               <input
-                placeholder="Search / Buscar..."
+                placeholder="Buscar..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 style={{ marginLeft: 'auto', background: 'var(--surface2)', border: '1px solid var(--border2)', borderRadius: '4px', padding: '5px 12px', color: 'var(--text)', fontFamily: mono, fontSize: '11px', outline: 'none', width: '200px' }}
@@ -477,13 +477,13 @@ export default function WorkersPage() {
             </div>
             {workers.length === 0 ? (
               <div style={{ padding: '60px', textAlign: 'center', fontFamily: mono, fontSize: '12px', color: 'var(--text3)' }}>
-                No workers yet. Click &quot;+ Add Worker&quot; to register your first technician.
+                Sin trabajadores registrados. Haz clic en &quot;+ Agregar Trabajador&quot; para registrar al primero.
               </div>
             ) : (
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                    {['Worker / Trabajador', 'IRATA Level / Nivel', 'Cert Expiry / Venc.', 'Days Left / Días', 'Status / Estado', 'Actions / Acciones'].map(h => (
+                    {['Trabajador', 'Nivel IRATA', 'Vencimiento', 'Días', 'Estado', 'Acciones'].map(h => (
                       <th key={h} style={{ padding: '10px 20px', textAlign: 'left', fontFamily: mono, fontSize: '10px', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 400 }}>{h}</th>
                     ))}
                   </tr>
@@ -510,7 +510,7 @@ export default function WorkersPage() {
                             color: w.level === 3 ? 'var(--accent)' : w.level === 2 ? 'var(--accent2)' : 'var(--text2)',
                             border: `1px solid ${w.level === 3 ? 'rgba(232,255,74,0.2)' : w.level === 2 ? 'rgba(74,255,160,0.2)' : 'var(--border2)'}`,
                           }}>
-                            L{w.level} {w.level === 3 ? 'SUPERVISOR' : w.level === 2 ? 'TECHNICIAN / TÉCNICO' : 'OPERATIVE / OPERATIVO'}
+                            L{w.level} {w.level === 3 ? 'SUPERVISOR' : w.level === 2 ? 'TÉCNICO' : 'OPERATIVO'}
                           </span>
                         </td>
                         <td style={{ padding: '14px 20px', fontFamily: mono, fontSize: '12px', color: status === 'critical' ? 'var(--danger)' : status === 'warning' ? 'var(--warning)' : 'var(--text2)' }}>
@@ -527,7 +527,7 @@ export default function WorkersPage() {
                         </td>
                         <td style={{ padding: '14px 20px' }}>
                           <span style={{ fontFamily: mono, fontSize: '10px', color: w.is_active ? 'var(--accent2)' : 'var(--text3)' }}>
-                            {w.is_active ? '● ACTIVE / ACTIVO' : '○ INACTIVE / INACTIVO'}
+                            {w.is_active ? '● ACTIVO' : '○ INACTIVO'}
                           </span>
                         </td>
                         <td style={{ padding: '14px 20px' }}>
@@ -536,12 +536,12 @@ export default function WorkersPage() {
                               background: 'transparent', color: 'var(--accent2)', border: '1px solid rgba(74,255,160,0.2)',
                               borderRadius: '3px', padding: '3px 10px', fontFamily: mono, fontSize: '10px',
                               letterSpacing: '0.5px', cursor: 'pointer',
-                            }}>Edit / Editar</button>
+                            }}>Editar</button>
                             <button onClick={() => handleDelete(w.id)} style={{
                               background: 'transparent', color: 'var(--danger)', border: '1px solid rgba(255,74,74,0.2)',
                               borderRadius: '3px', padding: '3px 10px', fontFamily: mono, fontSize: '10px',
                               letterSpacing: '0.5px', cursor: 'pointer',
-                            }}>Delete / Eliminar</button>
+                            }}>Eliminar</button>
                             <button
                               onClick={() => {
                                 console.log('Setting renewing worker:', w)
@@ -560,7 +560,7 @@ export default function WorkersPage() {
                                 letterSpacing: '0.5px',
                               }}
                             >
-                              Renew / Renovar
+                              Renovar
                             </button>
                           </div>
                         </td>

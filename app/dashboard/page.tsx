@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -47,14 +47,14 @@ const mono = 'var(--font-dm-mono)'
 const bebas = 'var(--font-bebas)'
 
 const typeLabels: Record<string, string> = {
-  Harness: 'Harness / Arnés',
-  Rope: 'Rope / Cuerda',
-  Descender: 'Descender / Descensor',
-  Ascender: 'Ascender / Ascendedor',
-  Anchor: 'Anchor / Anclaje',
-  Helmet: 'Helmet / Casco',
-  Lanyard: 'Lanyard / Eslinga',
-  Other: 'Other / Otro',
+  Harness: 'Arnés',
+  Rope: 'Cuerda',
+  Descender: 'Descensor',
+  Ascender: 'Ascendedor',
+  Anchor: 'Anclaje',
+  Helmet: 'Casco',
+  Lanyard: 'Eslinga',
+  Other: 'Otro',
 }
 
 export default function DashboardPage() {
@@ -151,7 +151,7 @@ export default function DashboardPage() {
 
   if (loading) return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <span style={{ fontFamily: mono, color: 'var(--text3)', letterSpacing: '2px', fontSize: '12px' }}>LOADING...</span>
+      <span style={{ fontFamily: mono, color: 'var(--text3)', letterSpacing: '2px', fontSize: '12px' }}>CARGANDO...</span>
     </div>
   )
 

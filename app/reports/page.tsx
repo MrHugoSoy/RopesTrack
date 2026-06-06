@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -333,7 +333,7 @@ Keep each section concise (3-5 sentences). Use professional language. Do not use
 
   if (loading) return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <span style={{ fontFamily: mono, color: 'var(--text3)', letterSpacing: '2px', fontSize: '12px' }}>LOADING...</span>
+      <span style={{ fontFamily: mono, color: 'var(--text3)', letterSpacing: '2px', fontSize: '12px' }}>CARGANDO...</span>
     </div>
   )
 
@@ -395,7 +395,7 @@ Keep each section concise (3-5 sentences). Use professional language. Do not use
           display: 'flex', alignItems: 'center', padding: '0 28px',
           position: 'sticky', top: 0, background: 'rgba(13,15,14,0.92)', backdropFilter: 'blur(8px)', zIndex: 50,
         }}>
-          <span style={{ fontFamily: mono, fontSize: '18px', letterSpacing: '3px', textTransform: 'uppercase' }}>Reports / Reportes</span>
+          <span style={{ fontFamily: mono, fontSize: '18px', letterSpacing: '3px', textTransform: 'uppercase' }}>Reportes</span>
         </header>
 
         <div style={{ padding: '28px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -403,10 +403,10 @@ Keep each section concise (3-5 sentences). Use professional language. Do not use
           {/* KPI Cards */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '14px' }}>
             {[
-              { label: 'Active Workers', sublabel: 'Trabajadores activos', value: activeWorkers.length, color: 'var(--accent2)' },
-              { label: 'Certs Expiring (30d)', sublabel: 'Certificaciones por vencer', value: certsExpiring, color: certsExpiring > 0 ? 'var(--warning)' : 'var(--text2)' },
-              { label: 'Equipment Due (30d)', sublabel: 'Equipos por inspeccionar', value: equipDue, color: equipDue > 0 ? 'var(--warning)' : 'var(--text2)' },
-              { label: 'Open Alerts', sublabel: 'Alertas sin leer', value: openAlerts, color: openAlerts > 0 ? 'var(--danger)' : 'var(--text2)' },
+              { label: 'Trabajadores Activos', sublabel: 'Con certificación vigente', value: activeWorkers.length, color: 'var(--accent2)' },
+              { label: 'Certs por Vencer (30d)', sublabel: 'Certificaciones por vencer', value: certsExpiring, color: certsExpiring > 0 ? 'var(--warning)' : 'var(--text2)' },
+              { label: 'Equipos Pendientes (30d)', sublabel: 'Inspecciones pendientes', value: equipDue, color: equipDue > 0 ? 'var(--warning)' : 'var(--text2)' },
+              { label: 'Alertas Abiertas', sublabel: 'Sin leer', value: openAlerts, color: openAlerts > 0 ? 'var(--danger)' : 'var(--text2)' },
             ].map((kpi, i) => (
               <div key={i} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', padding: '18px 20px' }}>
                 <div style={{ fontFamily: mono, fontSize: '32px', fontWeight: 700, color: kpi.color, lineHeight: 1 }}>{kpi.value}</div>
@@ -428,7 +428,7 @@ Keep each section concise (3-5 sentences). Use professional language. Do not use
                   </svg>
                 </div>
                 <div>
-                  <div style={{ fontFamily: mono, fontSize: '13px', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--text)' }}>Excel Report</div>
+                  <div style={{ fontFamily: mono, fontSize: '13px', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--text)' }}>Reporte Excel</div>
                   <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', marginTop: '4px' }}>Reporte completo en 4 hojas: Workers, Equipment, JSAs, Alerts</div>
                 </div>
               </div>
@@ -448,7 +448,7 @@ Keep each section concise (3-5 sentences). Use professional language. Do not use
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
                 </svg>
-                {generatingExcel ? 'Generating...' : 'Download Excel'}
+                {generatingExcel ? 'Generando...' : 'Descargar Excel'}
               </button>
             </div>
 
@@ -461,7 +461,7 @@ Keep each section concise (3-5 sentences). Use professional language. Do not use
                   </svg>
                 </div>
                 <div>
-                  <div style={{ fontFamily: mono, fontSize: '13px', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--text)' }}>AI Safety Report</div>
+                  <div style={{ fontFamily: mono, fontSize: '13px', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--text)' }}>Reporte IA de Seguridad</div>
                   <div style={{ fontFamily: mono, fontSize: '10px', color: 'var(--text3)', marginTop: '4px' }}>Análisis inteligente con Claude AI + PDF profesional</div>
                 </div>
               </div>
@@ -486,7 +486,7 @@ Keep each section concise (3-5 sentences). Use professional language. Do not use
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM12 8v4M12 16h.01"/>
                 </svg>
-                {generatingPdf ? 'Generating...' : 'Generate AI PDF'}
+                {generatingPdf ? 'Generando...' : 'Generar PDF con IA'}
               </button>
             </div>
           </div>
@@ -496,13 +496,13 @@ Keep each section concise (3-5 sentences). Use professional language. Do not use
             <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
               <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)' }}>
                 <span style={{ fontFamily: mono, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--text2)' }}>
-                  Recent JSAs / Últimas JSAs
+                  Últimas JSAs
                 </span>
               </div>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                    {['Title / Título', 'Date / Fecha', 'Status', 'Workers', 'Tasks'].map(h => (
+                    {['Título', 'Fecha', 'Estado', 'Trabajadores', 'Tareas'].map(h => (
                       <th key={h} style={{ padding: '10px 20px', textAlign: 'left', fontFamily: mono, fontSize: '10px', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 400 }}>{h}</th>
                     ))}
                   </tr>
