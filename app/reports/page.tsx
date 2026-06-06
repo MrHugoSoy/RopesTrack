@@ -18,6 +18,7 @@ interface Equipment {
   name: string
   type: string
   next_inspection: string | null
+  manufacture_date: string | null
   status: string
 }
 
@@ -81,7 +82,7 @@ export default function ReportsPage() {
 
       const [wRes, eRes, jRes, aRes] = await Promise.all([
         supabase.from('workers').select('id, name, is_active, certifications(expiry_date)').eq('org_id', orgId),
-        supabase.from('equipment').select('id, name, type, next_inspection, status').eq('org_id', orgId),
+        supabase.from('equipment').select('id, name, type, next_inspection, manufacture_date, status').eq('org_id', orgId),
         supabase.from('jsas').select('id, title, status, date, jsa_workers(id), jsa_tasks(id)').eq('org_id', orgId).order('date', { ascending: false }),
         supabase.from('alerts').select('id, message, type, is_read').eq('org_id', orgId).eq('is_read', false),
       ])
@@ -133,12 +134,23 @@ export default function ReportsPage() {
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(wData), 'Workers')
 
       // Equipment sheet
-      const eData = equipment.map(e => ({
-        Name: e.name,
-        Type: e.type,
-        Status: e.status,
-        'Next Inspection': e.next_inspection ?? '—',
-      }))
+      const eData = equipment.map(e => {
+        let vidaUtil = '—'
+        if (e.manufacture_date) {
+          const retire = new Date(e.manufacture_date)
+          retire.setFullYear(retire.getFullYear() + 10)
+          const days = Math.ceil((retire.getTime() - Date.now()) / 86400000)
+          vidaUtil = days <= 0 ? 'RETIRAR' : days <= 365 ? `${Math.ceil(days / 30)} meses` : `${Math.floor(days / 365)} años`
+        }
+        return {
+          Nombre: e.name,
+          Tipo: e.type,
+          Estado: e.status,
+          'Próx. Inspección': e.next_inspection ?? '—',
+          'Fabricación': e.manufacture_date ?? '—',
+          'Vida útil restante': vidaUtil,
+        }
+      })
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(eData), 'Equipment')
 
       // JSAs sheet
